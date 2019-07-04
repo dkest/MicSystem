@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<nlog>
+  <targets sync="true">
+    <target name="file" type="File"
+            fileName="${basedir}/logs/${appdomain}.${shortdate}.log"
+            layout="[${time}] ${level} ${exception:format=message,stacktrace} ${newline} ${message}"/>
+  </targets>
+  <rules>
+    <logger name="*" minlevel="Warn" writeTo="file"/>
+  </rules>
+</nlog>

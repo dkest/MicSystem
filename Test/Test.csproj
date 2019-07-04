@@ -47,11 +47,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="App.nlog" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mic.Entity\Mic.Entity.csproj">
       <Project>{25c98e19-8828-48dc-9cb0-79bdde4d28c8}</Project>
       <Name>Mic.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mic.Logger\Mic.Logger.csproj">
+      <Project>{4a4c4a68-a85d-403f-9996-5b2fe27b9664}</Project>
+      <Name>Mic.Logger</Name>
     </ProjectReference>
     <ProjectReference Include="..\Mic.Repository\Mic.Repository.csproj">
       <Project>{888B800C-8D6A-4732-91FD-7AAF9E34797D}</Project>

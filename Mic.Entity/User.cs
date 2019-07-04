@@ -9,9 +9,14 @@ namespace Mic.Entity
     public class User : IEntity<int>
     {
         public int Id { get; private set; }
-
+        public int RoleId { get; set; }
+        public int RoleName { get; set; }
         public string UserId { get; private set; }
         public string UserName { get; private set; }
         public string Password { get; private set; }
+    }
+
+    public class UserRole
+    {
     }
 }

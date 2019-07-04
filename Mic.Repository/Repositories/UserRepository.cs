@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace Mic.Repository.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : IBaseRepository<User,int>
     {
         DapperHelper<SqlConnection> helper;
         public UserRepository()

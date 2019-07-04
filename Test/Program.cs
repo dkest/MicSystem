@@ -1,21 +1,17 @@
-﻿using Mic.Repository;
-using Mic.Repository.IRepositories;
+﻿using Mic.Logger;
+using Mic.Repository;
 using Mic.Repository.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Test
 {
     class Program
     {
-        private static IUserRepository userRepository;
+        private static UserRepository userRepository = ClassInstance<UserRepository>.Instance;
         static void Main(string[] args)
         {//MySqlConnectionString
             userRepository = new UserRepository();
+            LoggerProvider.Logger.Error("与读卡器的连接遇到问题, 15秒后重试");
             var a = userRepository.GetAll();
             var b = userRepository.GetById(1);
             var c = userRepository.GetById(2);
