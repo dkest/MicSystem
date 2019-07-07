@@ -50,7 +50,7 @@
 
         table.render({
             elem: '#test'
-            , url: '/demo/table/user/'
+            , url: '@Url.Action("GetAllSongBookList", "SongManage")'
             , page: { //支持传入 laypage 组件的所有参数（某些参数除外，如：jump/elem） - 详见文档
                 layout: ['limit', 'count', 'prev', 'page', 'next', 'skip'] //自定义分页布局
                 //,curr: 5 //设定初始在第 5 页
@@ -60,8 +60,8 @@
 
             }
             , cols: [[
-                { field: 'id', width: 80, title: 'ID', sort: true }
-                , { field: 'username', width: 100, title: '用户名' }
+                { field: 'Id', width: 80, title: 'ID', sort: true }
+                , { field: 'SongName', width: 100, title: '歌曲名' }
                 , { field: 'sex', width: 80, title: '性别', sort: true }
                 , { field: 'city', width: 80, title: '城市' }
                 , { field: 'sign', title: '签名', minWidth: 150 }

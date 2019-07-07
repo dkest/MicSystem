@@ -22,15 +22,12 @@ namespace Mic.Repository.Repositories
 
 
 
-        public IEnumerable<User> GetAll()
+        public List<SongBookEntity> GetAll()
         {
-            return helper.Query<User>("select * from [User]");
+            return helper.Query<SongBookEntity>("select * from [SongBook]").ToList();
         }
 
-        public User GetByEmail(string email)
-        {
-            throw new NotImplementedException();
-        }
+       
 
         public User GetById(int id)
         {
