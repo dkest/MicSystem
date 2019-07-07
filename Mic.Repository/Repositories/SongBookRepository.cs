@@ -10,13 +10,18 @@ using System.Linq;
 
 namespace Mic.Repository.Repositories
 {
-    public class UserRepository : IBaseRepository<User,int>
+    //ZNJSToolUtil.MD5Encrypt(password)
+
+    public class SongBookRepository
     {
         DapperHelper<SqlConnection> helper;
-        public UserRepository()
+        public SongBookRepository()
         {
-            helper = new DapperHelper<SqlConnection>(@"server=(localdb)\MSSQLLocalDB;user id=sa;password=123456;persistsecurityinfo=True;database=Test;");
+            helper = new DapperHelper<SqlConnection>(WebConfig.SqlConnection);
         }
+
+
+
         public IEnumerable<User> GetAll()
         {
             return helper.Query<User>("select * from [User]");
@@ -47,7 +52,7 @@ namespace Mic.Repository.Repositories
             //helper.Execute(
             //    "UPDATE Cat SET BreedId = @BreedId, Name = @Name, Age = @Age WHERE CatId = @CatId",
             //    //param: new { CatId = entity.CatId, BreedId = entity.BreedId, Name = entity.Name, Age = entity.Age },
-               
+
             //);
         }
 

@@ -1,0 +1,81 @@
+﻿
+@{
+    ViewBag.Title = "曲库列表";
+}
+<style>
+    .r_content {
+        padding-top: 25px;
+        padding-left: 20px;
+    }
+
+    content, .left_menu {
+        height: 500px;
+    }
+</style>
+<div class="layui-row content">
+    <div class="layui-col-sm2 layui-col-lg2 layui-col-md2 left_menu">
+        <ul class="layui-nav layui-nav-tree " style="margin-top:20px;">
+            <li class="layui-nav-item layui-nav-itemed">
+                <a href="javascript:;">
+                    曲库列表
+                </a>
+
+            </li>
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    曲库审核
+                </a>
+
+
+            </li>
+        </ul>
+    </div>
+    <div class="layui-col-sm10 layui-col-lg10 layui-col-md10 r_content">
+        <div>
+            <button type="button" class="layui-btn layui-btn-normal layui-btn-sm">上传歌曲</button>
+            <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">设置标签</button>
+
+        </div>
+        <div>
+            搜索条件
+        </div>
+        <div id="table_content">
+            <table class="layui-hide" id="test"></table>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use('table', function () {
+        var table = layui.table;
+
+        table.render({
+            elem: '#test'
+            , url: '/demo/table/user/'
+            , page: { //支持传入 laypage 组件的所有参数（某些参数除外，如：jump/elem） - 详见文档
+                layout: ['limit', 'count', 'prev', 'page', 'next', 'skip'] //自定义分页布局
+                //,curr: 5 //设定初始在第 5 页
+                , groups: 1 //只显示 1 个连续页码
+                , first: false //不显示首页
+                , last: false //不显示尾页
+
+            }
+            , cols: [[
+                { field: 'id', width: 80, title: 'ID', sort: true }
+                , { field: 'username', width: 100, title: '用户名' }
+                , { field: 'sex', width: 80, title: '性别', sort: true }
+                , { field: 'city', width: 80, title: '城市' }
+                , { field: 'sign', title: '签名', minWidth: 150 }
+                , { field: 'experience', width: 80, title: '积分', sort: true }
+                , { field: 'score', width: 80, title: '评分', sort: true }
+                , { field: 'classify', width: 80, title: '职业' }
+                , { field: 'wealth', width: 135, title: '财富', sort: true }
+                , { fixed: 'right', title: '操作', toolbar: '#barDemo', width: 150 }
+            ]]
+
+        });
+    });
+</script>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>

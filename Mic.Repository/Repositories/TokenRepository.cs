@@ -12,10 +12,10 @@ namespace Mic.Repository.Repositories
 {
     public class TokenRepository 
     {
-        DapperHelper<SqlConnection> helper;
+        private DapperHelper<SqlConnection> helper;
         public TokenRepository()
         {
-            helper = new DapperHelper<SqlConnection>(@"server=(localdb)\MSSQLLocalDB;user id=sa;password=123456;persistsecurityinfo=True;database=Test;");
+            helper = new DapperHelper<SqlConnection>(WebConfig.SqlConnection);
         }
         public AccessToken AddAccessToken(AccessToken accessToken)
         {

@@ -7,10 +7,10 @@ namespace Test
 {
     class Program
     {
-        private static UserRepository userRepository = ClassInstance<UserRepository>.Instance;
+        private static AdminRepository userRepository = ClassInstance<AdminRepository>.Instance;
         static void Main(string[] args)
         {//MySqlConnectionString
-            userRepository = new UserRepository();
+            userRepository = new AdminRepository();
             LoggerProvider.Logger.Error("与读卡器的连接遇到问题, 15秒后重试");
             var a = userRepository.GetAll();
             var b = userRepository.GetById(1);

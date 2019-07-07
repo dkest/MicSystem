@@ -2,39 +2,72 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>layui</title>
+    <title>Mic后台管理系统</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+
+    @Styles.Render("~/Content/layui")
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/layui")
+    @Scripts.Render("~/bundles/minejs")
+
+
+    <style>
+        body {
+            background-color: rgb(244,244,244);
+        }
+
+        .m_content {
+            background-color: white;
+            margin-top: 25px;
+        }
+
+        .main-layout-header {
+            background-color: #393D49
+        }
+    </style>
 </head>
+
 <body>
+    <div class="main-layout">
+        <div class="main-layout-header">
+            <div class="layui-container">
+                <ul class="layui-nav">
+                    <li class="layui-nav-item"><a><img src="~/Content/images/logo.jpg" /></a></li>
+
+                    <li class="layui-nav-item layui-this">
+                        <a href="">曲库管理</a>
+
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href="javascript:;">商家管理</a>
+
+                    </li>
+                    <li class="layui-nav-item"><a href="">独立音乐人管理</a></li>
+                    <li class="layui-nav-item">
+                        <a href="javascript:;">统计分析</a>
+
+                    </li>
+                    <li class="layui-nav-item"><a href="">账号管理</a></li>
+                    <li class="layui-nav-item" style="position: absolute;right: 0px" >
+                        <a href="javascript:;">Admin</a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="">退出当前账号</a></dd>
+                        </dl>
+                    </li>
+                </ul>
+            </div>
+        </div>
 
 
 
-    <ul class="layui-nav">
-        <li class="layui-nav-item"><a><img src="~/Content/images/logo.jpg" /></a></li>
 
-        <li class="layui-nav-item"><a href="">曲库管理</a></li>
-        <li class="layui-nav-item layui-this">
-            <a href="javascript:;">商家管理</a>
-
-        </li>
-        <li class="layui-nav-item"><a href="">独立音乐人管理</a></li>
-        <li class="layui-nav-item">
-            <a href="javascript:;">统计分析</a>
-
-        </li>
-        <li class="layui-nav-item"><a href="">账号管理</a></li>
-        <li class="layui-nav-item " style="position:absolute;right:50px">
-            <a href="javascript:;">Admin</a>
-            <dl class="layui-nav-child">
-                <dd><a href="">退出当前账号</a></dd>
-            </dl>
-        </li>
-    </ul>
-    @RenderBody()
-    <script src="~/Content/layui/layui.js"></script>
+        <div class="layui-container m_content">
+            @RenderBody()
+        </div>
+    </div>
     <script>
         layui.use('element', function () {
             var element = layui.element; //导航的hover效果、二级菜单等功能，需要依赖element模块
