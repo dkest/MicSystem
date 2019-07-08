@@ -6,7 +6,7 @@ using System.Web.Mvc;
 
 namespace Mic.Web.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         private AdminRepository adminrRepository;
         public AccountController()

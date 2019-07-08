@@ -2,7 +2,7 @@
 
 namespace Mic.Web.Controllers
 {
-    public class StoreManageController : Controller
+    public class StoreManageController : BaseController
     {
         public ActionResult Login()
         {

@@ -4,7 +4,7 @@ using System.Web.Mvc;
 
 namespace Mic.Web.Controllers
 {
-    public class SongManageController : Controller
+    public class SongManageController : BaseController
     {
         private SongBookRepository songBookRepository;
         public SongManageController()
@@ -16,10 +16,39 @@ namespace Mic.Web.Controllers
             return View();
         }
 
-        public ActionResult GetAllSongBookList()
+        /// <summary>
+        /// 获取已审核的歌曲列表
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult GetApprovedSongList()
         {
-            var result = songBookRepository.GetAll();
-            return Json(new { code=0,msg="", count=result.Count,data= result }, JsonRequestBehavior.AllowGet);
+            var page = GetIntValFromReq("page");//页码
+            var limit = GetIntValFromReq("limit");//每页数据
+            var keyword = GetStrValFromReq("keyword");
+            var param = new PageParam
+            {
+                PageIndex = page,
+                PageSize = limit,
+                Keyword = keyword
+            };
+            var result = songBookRepository.GetApprovedSongList(param);
+            return Json(new { code = 0, msg = "", count = result.Item1, data = result.Item2 }, JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult GetAuditSongList()
+        {
+            var page = GetIntValFromReq("page");
+            var limit = GetIntValFromReq("limit");
+            var keyword = GetStrValFromReq("keyword");
+            var param = new PageParam
+            {
+                PageIndex = page,
+                PageSize = limit,
+                Keyword = keyword
+            };
+            var result = songBookRepository.GetAuditSongList(param);
+            return Json(new { code = 0, msg = "", count = result.Item1, data = result.Item2 }, JsonRequestBehavior.AllowGet);
+        }
+
     }
 }

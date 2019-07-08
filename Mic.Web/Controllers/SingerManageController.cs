@@ -2,7 +2,7 @@
 
 namespace Mic.Web.Controllers
 {
-    public class SingerManageController : Controller
+    public class SingerManageController : BaseController
     {
         public ActionResult Login()
         {

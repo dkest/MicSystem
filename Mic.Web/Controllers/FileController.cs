@@ -6,7 +6,7 @@ using System.Web.Mvc;
 
 namespace Mic.Web.Controllers
 {
-    public class FileController : Controller
+    public class FileController : BaseController
     {
         public ActionResult UploadFile(HttpPostedFileBase file)
         {

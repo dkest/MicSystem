@@ -45,6 +45,7 @@
     <Compile Include="Admin.cs" />
     <Compile Include="IEntity.cs" />
     <Compile Include="PagedResult.cs" />
+    <Compile Include="PageParam.cs" />
     <Compile Include="ParamEntity.cs" />
     <Compile Include="PlayListEntity.cs" />
     <Compile Include="ResponseResult.cs" />

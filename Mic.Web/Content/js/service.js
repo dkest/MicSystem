@@ -10,7 +10,7 @@
             isAsync = false;
         }
         var that = this;
-       
+
         $.ajax({
             type: "post",
             url: url,
@@ -19,7 +19,7 @@
             data: data,
             async: isAsync,
             success: function (result) {
-                
+
                 if (cb != null && typeof (cb) == "function") {
                     cb(result);
                 }
@@ -52,7 +52,7 @@
             }
         }
     };
-    
+
     Service.prototype.FormatDate = function (fmt, date) {
         if (date == undefined || date == null) {
             return "-";
@@ -84,13 +84,41 @@
         return date;
     };
 
+    Service.prototype.ConvertSecondsTime = function (value) {
+        var theTime = parseInt(value);// 秒  
+        var theTime1 = 0;// 分  
+        var theTime2 = 0;// 小时  
+        if (theTime > 60) {
+            theTime1 = parseInt(theTime / 60);
+            theTime = parseInt(theTime % 60);
+            if (theTime1 > 60) {
+                theTime2 = parseInt(theTime1 / 60);
+                theTime1 = parseInt(theTime1 % 60);
+            }
+        }
+        var result = "";
+        if (theTime < 10) {
+            result += "0"+parseInt(theTime);
+        }
+        else result = "" + parseInt(theTime);
+
+        if (theTime1 > 0) {
+            result = "" + parseInt(theTime1) + ":" + result;
+        }
+        if (theTime2 > 0) {
+            result = "" + parseInt(theTime2) + ":" + result;
+        }
+        return result;
+    };
+
+
     Service.prototype.IsNullOrEmpty = function (obj) {
         if (obj == null || obj == undefined || obj == "null" || obj == "undefined" || obj == "") {
             return true;
         }
         return false;
     };
-    
+
 
     Service.prototype.LayerConfirm = function (title, content, callback, param, property) {
         var layerObjProperty = {

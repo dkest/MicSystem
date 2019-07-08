@@ -22,12 +22,30 @@ namespace Mic.Repository.Repositories
 
 
 
-        public List<SongBookEntity> GetAll()
+        public Tuple<int, List<SongBookEntity>> GetApprovedSongList(PageParam pageParam)
         {
-            return helper.Query<SongBookEntity>("select * from [SongBook]").ToList();
+            string likeSql = string.IsNullOrWhiteSpace(pageParam.Keyword) ? string.Empty : $@" and (SingerName like '%{pageParam.Keyword}%'  or SongName like '%{pageParam.Keyword}%')";
+            string sql = string.Format(@"
+                select top {0} * from (select row_number() over(order by Id) as rownumber,SongBook.*
+                    from SongBook  where AuditStatus=2   {2}) temp_row
+                    where temp_row.rownumber>(({1}-1)*{0});", pageParam.PageSize, pageParam.PageIndex, likeSql);
+            int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from SongBook where AuditStatus=2  {likeSql}"));
+            return Tuple.Create(count, helper.Query<SongBookEntity>(sql).ToList());
+        }
+        public Tuple<int, List<SongBookEntity>> GetAuditSongList(PageParam pageParam)
+        {
+            string likeSql = string.IsNullOrWhiteSpace(pageParam.Keyword) ? string.Empty : $@" and (SingerName like '%{pageParam.Keyword}%'  or SongName like '%{pageParam.Keyword}%')";
+            string sql = string.Format(@"
+                select top {0} * from (select row_number() over(order by Id) as rownumber,SongBook.*
+                    from SongBook  where (AuditStatus=1 or AuditStatus=2 or AuditStatus=3)   {2}) temp_row
+                    where temp_row.rownumber>(({1}-1)*{0});", pageParam.PageSize, pageParam.PageIndex, likeSql);
+            int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from SongBook where 1=1 {likeSql}"));
+            return Tuple.Create(count, helper.Query<SongBookEntity>(sql).ToList());
+
         }
 
-       
+
+
 
         public User GetById(int id)
         {

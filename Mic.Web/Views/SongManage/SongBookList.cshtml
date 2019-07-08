@@ -9,15 +9,16 @@
     }
 
     .search_div {
+        padding-left: 10px;
         margin-top: 10px;
-        line-height: 40px;
-        height: 40px;
+        line-height: 50px;
+        height: 50px;
         background-color: rgb(244,244,244);
     }
 
-    #search_text {
+    #song_search_text, #audit_search_text, #audit_status_select {
         margin-right: 30px;
-        height: 30px;
+        height: 32px;
         width: 250px;
     }
 
@@ -38,34 +39,27 @@
     <div class="layui-col-sm2 layui-col-lg2 layui-col-md2 left_menu">
         <ul class="my_nav layui-nav layui-nav-tree " style="margin-top:20px; background-color:white;">
             <li class="my_nav_li layui-nav-item layui-this">
-                <a href="javascript:;" data-name="list">
-                    曲库列表
-                </a>
-
+                <a href="javascript:;" data-name="list">曲库列表</a>
             </li>
             <li class="my_nav_li layui-nav-item">
-                <a href="javascript:;" data-name="audit">
-                    曲库审核
-                </a>
-
-
+                <a href="javascript:;" data-name="audit">曲库审核</a>
             </li>
         </ul>
     </div>
     <!--列表-->
     <div id="song_list" class="layui-col-sm10 layui-col-lg10 layui-col-md10 r_content">
-        <div>
+        <div style="margin-left:10px;">
             <button type="button" class="layui-btn layui-btn-normal layui-btn-sm">上传歌曲</button>
             <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">设置标签</button>
 
         </div>
         <div class="search_div">
-            <label class="layui-form-label">搜索歌曲</label>
+            搜索歌曲
             <div class="layui-input-inline">
-                <input type="text" id="search_text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入歌曲名称或歌手名称" class="layui-input">
+                <input type="text" id="song_search_text" autocomplete="off" placeholder="请输入歌曲名称或歌手名称" class="layui-input">
             </div>
-            <button id="search_btn" type="button" class="layui-btn layui-btn-normal layui-btn-sm">搜索</button>
-            <button id="reset_btn" type="button" class="layui-btn layui-btn-primary layui-btn-sm">重置</button>
+            <button id="song_search_btn" type="button" class="layui-btn layui-btn-normal layui-btn-sm">搜索</button>
+            <button id="song_search_reset_btn" type="button" class="layui-btn layui-btn-primary layui-btn-sm">重置</button>
 
         </div>
         <div id="table_content">
@@ -74,18 +68,26 @@
     </div>
     <!--审核-->
     <div id="song_audit" style="display:none;" class="layui-col-sm10 layui-col-lg10 layui-col-md10 r_content">
-        
+
         <div class="search_div">
-            <label class="layui-form-label">搜索歌曲</label>
+            搜索歌曲
             <div class="layui-input-inline">
-                <input type="text" id="search_text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入歌曲名称或歌手名称" class="layui-input">
+                <input type="text" id="audit_search_text" autocomplete="off" placeholder="请输入歌曲名称或歌手名称" class="layui-input">
             </div>
-            <label class="layui-form-label">审核状态</label>
+
+            审核状态
             <div class="layui-input-inline">
-                <input type="text" id="search_text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入歌曲名称或歌手名称" class="layui-input">
+                <select id="audit_status_select">
+                    <option value="-1" selected="">全部</option>
+                    <option value="1">待审核</option>
+                    <option value="2">已通过</option>
+                    <option value="3">未通过</option>
+                </select>
             </div>
-            <button id="search_btn" type="button" class="layui-btn layui-btn-normal layui-btn-sm">搜索</button>
-            <button id="reset_btn" type="button" class="layui-btn layui-btn-primary layui-btn-sm">重置</button>
+
+
+            <button id="audit_search_btn" type="button" class="layui-btn layui-btn-normal layui-btn-sm">搜索</button>
+            <button id="song_audit_search_reset_btn" type="button" class="layui-btn layui-btn-primary layui-btn-sm">重置</button>
 
         </div>
         <div id="table_content">
@@ -94,23 +96,28 @@
     </div>
 </div>
 <script>
+    var songListTable;
+    var auditListTable;
     layui.use('table', function () {
         var table = layui.table;
-
         // 曲库列表
-        table.render({
+        songListTable = table.render({
             elem: '#songbook'
-            , url: '@Url.Action("GetAllSongBookList", "SongManage")'
-            , page: { //支持传入 laypage 组件的所有参数（某些参数除外，如：jump/elem） - 详见文档
-                layout: ['limit', 'count', 'prev', 'page', 'next', 'skip'] //自定义分页布局
-                //,curr: 5 //设定初始在第 5 页
-                , groups: 1 //只显示 1 个连续页码
-                , first: false //不显示首页
-                , last: false //不显示尾页
+            , height: "full-235"
+            ,page: true
+            , url: '@Url.Action("GetApprovedSongList", "SongManage")'
+            ,limit: 10
+            //,size: 'sm'
+            ,limits: [10, 20, 30, 40, 50]
 
-            }
             , cols: [[
-                { field: 'Id', width: 60, title: 'ID' }
+                {type: "numbers", fixed:"left", width:50},
+                , {
+                    field: '', width: 50, title: '',
+                    templet: function (d) {
+                        return "<i class='layui-icon' >&#xe652;</i>";
+                    }
+                }
                 , { field: 'SongName', minWidth: 100, title: '歌曲名' }
                 , { field: 'SongLength', width: 120, title: '时长'}
                 , { field: 'SingerName', width: 120, title: '歌手' }
@@ -118,8 +125,21 @@
                 , { field: 'PlayTimes', width: 120, title: '播放次数', sort: true }
                 , { fixed: 'right', title: '操作', toolbar: '#barDemo', width: 140 }
             ]]
+            , parseData: function (res) { //res 即为原始返回的数据
+                $.each(res.data, function (index, value) {
+                    value.ExpirationTime = Service.FormatDate("yyyy-MM-dd HH:mm:ss", Service.ConvertNetDate(value.ExpirationTime));
+                    value.SongLength = Service.ConvertSecondsTime(value.SongLength);
+                });
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.msg, //解析提示文本
+                    "count": res.count, //解析数据长度
+                    "data": res.data //解析数据列表
+                };
+            }
 
         });
+
 
         //监听行工具事件
         table.on('tool(songbook)', function (obj) { //注：tool 是工具条事件名，songbook 是 table 原始容器的属性 lay-filter="对应的值"
@@ -166,26 +186,53 @@
 
 
         // 审核列表
-        table.render({
-            elem: '#song_audit_list'
-            , url: '@Url.Action("GetAllSongBookList", "SongManage")'
-            , page: { //支持传入 laypage 组件的所有参数（某些参数除外，如：jump/elem） - 详见文档
-                layout: ['limit', 'count', 'prev', 'page', 'next', 'skip'] //自定义分页布局
-                //,curr: 5 //设定初始在第 5 页
-                , groups: 1 //只显示 1 个连续页码
-                , first: false //不显示首页
-                , last: false //不显示尾页
-
-            }
+        auditListTable = table.render({
+            elem: '#audit_list'
+            , height: "full-200"
+            ,page: true
+            , url: '@Url.Action("GetAuditSongList", "SongManage")'
+            , limit: 10
+            //, size: 'sm'
+            ,limits: [10, 20, 30, 40, 50]
             , cols: [[
-                { field: 'Id', width: 60, title: 'ID' }
-                , { field: 'SongName', minWidth: 100, title: '歌曲名' }
-                , { field: 'SongLength', width: 120, title: '时长'}
-                , { field: 'SingerName', width: 120, title: '歌手' }
-                , { field: 'ExpirationTime', title: '版权有效期至', width: 200 }
-                , { field: 'PlayTimes', width: 120, title: '播放次数', sort: true }
-                , { fixed: 'right', title: '操作', toolbar: '#barDemo', width: 140 }
+                {type: "numbers", fixed:"left", width:50},
+                , {
+                    field: '', width: 50, title: '',
+                    templet: function (d) {
+                        return "<i class='layui-icon' >&#xe652;</i>";
+                    }
+                }
+                , { field: 'SongName', width: 200, title: '歌曲名' }
+                , { field: 'SongLength', width: 80, title: '时长'}
+                , { field: 'SingerName', width: 140, title: '独立音乐人' }
+                , { field: 'AuditStatusStr', title: '审核状态', width: 100 }
+                , { field: 'HasCopyright', width: 100, title: '版权证明' }
+                , { fixed: 'right', title: '操作', toolbar: '#barAudit', width: 140 }
             ]]
+            , parseData: function (res) { //res 即为原始返回的数据
+                $.each(res.data, function (index, value) {
+                    value.ExpirationTime = Service.FormatDate("yyyy-MM-dd HH:mm:ss", Service.ConvertNetDate(value.ExpirationTime));
+                    value.SongLength = Service.ConvertSecondsTime(value.SongLength);
+                    value.HasCopyright = Service.IsNullOrEmpty(value.CopyrightFilePath) ? "无" : "有";
+                    switch (value.AuditStatus) {
+                        case 1:
+                            value.AuditStatusStr = "待审核";
+                            break;
+                        case 2:
+                            value.AuditStatusStr = "已通过";
+                            break;
+                        case 3:
+                            value.AuditStatusStr = "未通过";
+                            break;
+                    }
+                });
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.msg, //解析提示文本
+                    "count": res.count, //解析数据长度
+                    "data": res.data //解析数据列表
+                };
+            }
 
         });
 
@@ -200,11 +247,45 @@
                 $("#song_list").hide();
             }
         });
+        $("#song_search_btn").click(function () {
+            songListTable.reload({
+
+                     where: { keyword: $("#song_search_text").val() }//这里传参  向后台
+                    , url: '@Url.Action("GetApprovedSongList", "SongManage")'
+                    , method: 'get'
+                });
+        });
+        $("#audit_search_btn").click(function () {
+            auditListTable.reload({
+                     where: { keyword: $("#audit_search_text").val() }//这里传参  向后台
+                    , url: '@Url.Action("GetAuditSongList", "SongManage")'
+                    , method: 'get'
+                });
+        });
+
+        $("#song_search_reset_btn").click(function () {
+            $("#song_search_text").val("");
+            $("#song_search_btn").click();
+        });
+         $("#song_audit_search_reset_btn").click(function () {
+             $("#audit_search_text").val("");
+             $("#audit_status_select").val(-1);
+             $("#audit_search_btn").click();
+        });
     });
 </script>
 <script type="text/html" id="barDemo">
     <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script type="text/html" id="barAudit">
+    {{#  if(d.AuditStatus == '1'){ }}
+    <a class="layui-btn layui-btn-xs " lay-event="">审核</a>
+    {{# }else{  }}
+    <a class="layui-btn layui-btn-primary layui-btn-xs layui-btn-disabled " lay-event="">审核</a>
+    {{# } }}
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="">查看详情</a>
 </script>
 
 <div id="song_edit_div" style="display:none">
