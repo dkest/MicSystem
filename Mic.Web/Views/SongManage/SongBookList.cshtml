@@ -8,6 +8,9 @@
         padding-left: 20px;
     }
 
+    .search_div {
+        background-color: rgb(244,244,244);
+    }
     content, .left_menu {
         height: 500px;
     }
@@ -36,8 +39,14 @@
             <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">设置标签</button>
 
         </div>
-        <div>
-            搜索条件
+        <div class="search_div">
+            <label class="layui-form-label">搜索歌曲</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入歌曲名称或歌手名称" class="layui-input">
+            </div>
+            <button id="search_btn" type="button" class="layui-btn layui-btn-normal layui-btn-sm">搜索</button>
+            <button id="reset_btn" type="button" class="layui-btn layui-btn-primary layui-btn-sm">重置</button>
+
         </div>
         <div id="table_content">
             <table class="layui-hide" id="test"></table>
@@ -60,15 +69,12 @@
 
             }
             , cols: [[
-                { field: 'Id', width: 80, title: 'ID', sort: true }
+                { field: 'Id', width: 80, title: 'ID' }
                 , { field: 'SongName', width: 100, title: '歌曲名' }
-                , { field: 'sex', width: 80, title: '性别', sort: true }
-                , { field: 'city', width: 80, title: '城市' }
-                , { field: 'sign', title: '签名', minWidth: 150 }
-                , { field: 'experience', width: 80, title: '积分', sort: true }
-                , { field: 'score', width: 80, title: '评分', sort: true }
-                , { field: 'classify', width: 80, title: '职业' }
-                , { field: 'wealth', width: 135, title: '财富', sort: true }
+                , { field: 'SongLength', width: 80, title: '时长'}
+                , { field: 'SingerName', width: 80, title: '歌手' }
+                , { field: 'ExpirationTime', title: '版权有效期至', minWidth: 150 }
+                , { field: 'PlayTimes', width: 80, title: '播放次数', sort: true }
                 , { fixed: 'right', title: '操作', toolbar: '#barDemo', width: 150 }
             ]]
 

@@ -122,6 +122,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Common\CommonConst.cs" />
     <Compile Include="Common\SessionHelper.cs" />
+    <Compile Include="Controllers\FileController.cs" />
     <Compile Include="Controllers\StoreManageController.cs" />
     <Compile Include="Controllers\StatisticsController.cs" />
     <Compile Include="Controllers\SingerManageController.cs" />
@@ -275,6 +276,8 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Models\" />
+    <Folder Include="Utils\" />
+    <Folder Include="Views\File\" />
     <Folder Include="Views\SingerManage\" />
     <Folder Include="Views\Statistics\" />
     <Folder Include="Views\StoreManage\" />
