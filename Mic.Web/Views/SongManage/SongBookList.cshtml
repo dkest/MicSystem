@@ -9,23 +9,42 @@
     }
 
     .search_div {
+        margin-top: 10px;
+        line-height: 40px;
+        height: 40px;
         background-color: rgb(244,244,244);
     }
+
+    #search_text {
+        margin-right: 30px;
+        height: 30px;
+        width: 250px;
+    }
+
     content, .left_menu {
         height: 500px;
+    }
+
+    .my_nav .layui-nav-item a {
+        color: rgb(128, 128, 128);
+    }
+
+    .layui-nav-tree .layui-this a, .layui-nav-tree .layui-this > a:hover {
+        background-color: #eee;
+        color: #1E90FF;
     }
 </style>
 <div class="layui-row content">
     <div class="layui-col-sm2 layui-col-lg2 layui-col-md2 left_menu">
-        <ul class="layui-nav layui-nav-tree " style="margin-top:20px;">
-            <li class="layui-nav-item layui-nav-itemed">
-                <a href="javascript:;">
+        <ul class="my_nav layui-nav layui-nav-tree " style="margin-top:20px; background-color:white;">
+            <li class="my_nav_li layui-nav-item layui-this">
+                <a href="javascript:;" data-name="list">
                     曲库列表
                 </a>
 
             </li>
-            <li class="layui-nav-item">
-                <a href="javascript:;">
+            <li class="my_nav_li layui-nav-item">
+                <a href="javascript:;" data-name="audit">
                     曲库审核
                 </a>
 
@@ -33,7 +52,8 @@
             </li>
         </ul>
     </div>
-    <div class="layui-col-sm10 layui-col-lg10 layui-col-md10 r_content">
+    <!--列表-->
+    <div id="song_list" class="layui-col-sm10 layui-col-lg10 layui-col-md10 r_content">
         <div>
             <button type="button" class="layui-btn layui-btn-normal layui-btn-sm">上传歌曲</button>
             <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">设置标签</button>
@@ -41,15 +61,35 @@
         </div>
         <div class="search_div">
             <label class="layui-form-label">搜索歌曲</label>
-            <div class="layui-input-block">
-                <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入歌曲名称或歌手名称" class="layui-input">
+            <div class="layui-input-inline">
+                <input type="text" id="search_text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入歌曲名称或歌手名称" class="layui-input">
             </div>
             <button id="search_btn" type="button" class="layui-btn layui-btn-normal layui-btn-sm">搜索</button>
             <button id="reset_btn" type="button" class="layui-btn layui-btn-primary layui-btn-sm">重置</button>
 
         </div>
         <div id="table_content">
-            <table class="layui-hide" id="test"></table>
+            <table class="layui-hide" lay-filter="songbook" id="songbook"></table>
+        </div>
+    </div>
+    <!--审核-->
+    <div id="song_audit" style="display:none;" class="layui-col-sm10 layui-col-lg10 layui-col-md10 r_content">
+        
+        <div class="search_div">
+            <label class="layui-form-label">搜索歌曲</label>
+            <div class="layui-input-inline">
+                <input type="text" id="search_text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入歌曲名称或歌手名称" class="layui-input">
+            </div>
+            <label class="layui-form-label">审核状态</label>
+            <div class="layui-input-inline">
+                <input type="text" id="search_text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入歌曲名称或歌手名称" class="layui-input">
+            </div>
+            <button id="search_btn" type="button" class="layui-btn layui-btn-normal layui-btn-sm">搜索</button>
+            <button id="reset_btn" type="button" class="layui-btn layui-btn-primary layui-btn-sm">重置</button>
+
+        </div>
+        <div id="table_content">
+            <table class="layui-hide" lay-filter="audit_list" id="audit_list"></table>
         </div>
     </div>
 </div>
@@ -57,8 +97,9 @@
     layui.use('table', function () {
         var table = layui.table;
 
+        // 曲库列表
         table.render({
-            elem: '#test'
+            elem: '#songbook'
             , url: '@Url.Action("GetAllSongBookList", "SongManage")'
             , page: { //支持传入 laypage 组件的所有参数（某些参数除外，如：jump/elem） - 详见文档
                 layout: ['limit', 'count', 'prev', 'page', 'next', 'skip'] //自定义分页布局
@@ -69,15 +110,95 @@
 
             }
             , cols: [[
-                { field: 'Id', width: 80, title: 'ID' }
-                , { field: 'SongName', width: 100, title: '歌曲名' }
-                , { field: 'SongLength', width: 80, title: '时长'}
-                , { field: 'SingerName', width: 80, title: '歌手' }
-                , { field: 'ExpirationTime', title: '版权有效期至', minWidth: 150 }
-                , { field: 'PlayTimes', width: 80, title: '播放次数', sort: true }
-                , { fixed: 'right', title: '操作', toolbar: '#barDemo', width: 150 }
+                { field: 'Id', width: 60, title: 'ID' }
+                , { field: 'SongName', minWidth: 100, title: '歌曲名' }
+                , { field: 'SongLength', width: 120, title: '时长'}
+                , { field: 'SingerName', width: 120, title: '歌手' }
+                , { field: 'ExpirationTime', title: '版权有效期至', width: 200 }
+                , { field: 'PlayTimes', width: 120, title: '播放次数', sort: true }
+                , { fixed: 'right', title: '操作', toolbar: '#barDemo', width: 140 }
             ]]
 
+        });
+
+        //监听行工具事件
+        table.on('tool(songbook)', function (obj) { //注：tool 是工具条事件名，songbook 是 table 原始容器的属性 lay-filter="对应的值"
+            var data = obj.data //获得当前行数据
+                , layEvent = obj.event; //获得 lay-event 对应的值
+             if (layEvent === 'del') {
+                layer.confirm('真的删除行么', function (index) {
+                    obj.del(); //删除对应行（tr）的DOM结构
+                    layer.close(index);
+                    //向服务端发送删除指令
+                });
+            } else if (layEvent === 'edit') {
+                 layer.msg('编辑操作');
+                 layer.open({
+                     type: 1,
+                     title: '<span style="font-weight:bolder;">上传歌曲</span>',
+                     move: false,
+                     btn: ['确定', '取消'],
+                     skin: 'tempSkin',
+                     area: [window.dlgSizeInfo.dlgWidth, window.dlgSizeInfo.dlgHeight],
+                     content: $('#menu_edit_div'),
+                     success: function () {
+                         $('#menu_name').val(name);
+                         $("#menuLevel").val(menuLevel);
+                         //$('#menu_status').selectpicker('val', status);
+
+
+
+                         $('#song_edit_div').attr("display", 'block');
+
+                         //$(".tempSkin .layui-layer-content").css("height", $(".tempSkin").height() - 36 * 2);
+                         //$(".tempSkin .layui-layer-btn a").removeClass().addClass('bottom_btn');
+                     },
+                     end: function () {
+                         $('#song_edit_div').attr("display", 'none');
+                     },
+                     yes: function (index, layero) {
+                         menuObj.SaveBtn();
+                     }
+                 });
+
+            }
+        });
+
+
+        // 审核列表
+        table.render({
+            elem: '#song_audit_list'
+            , url: '@Url.Action("GetAllSongBookList", "SongManage")'
+            , page: { //支持传入 laypage 组件的所有参数（某些参数除外，如：jump/elem） - 详见文档
+                layout: ['limit', 'count', 'prev', 'page', 'next', 'skip'] //自定义分页布局
+                //,curr: 5 //设定初始在第 5 页
+                , groups: 1 //只显示 1 个连续页码
+                , first: false //不显示首页
+                , last: false //不显示尾页
+
+            }
+            , cols: [[
+                { field: 'Id', width: 60, title: 'ID' }
+                , { field: 'SongName', minWidth: 100, title: '歌曲名' }
+                , { field: 'SongLength', width: 120, title: '时长'}
+                , { field: 'SingerName', width: 120, title: '歌手' }
+                , { field: 'ExpirationTime', title: '版权有效期至', width: 200 }
+                , { field: 'PlayTimes', width: 120, title: '播放次数', sort: true }
+                , { fixed: 'right', title: '操作', toolbar: '#barDemo', width: 140 }
+            ]]
+
+        });
+
+        // 左侧菜单切换
+        $(".my_nav_li").delegate("a", "click", function (e) {
+            var data = $(this).attr("data-name");
+            if (data == "list") {
+                $("#song_audit").hide();
+                $("#song_list").show();
+            } else if (data == "audit") {
+                $("#song_audit").show();
+                $("#song_list").hide();
+            }
         });
     });
 </script>
@@ -85,3 +206,7 @@
     <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
+
+<div id="song_edit_div" style="display:none">
+
+</div>
