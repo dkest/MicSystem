@@ -13,12 +13,15 @@ namespace Mic.Web.Controllers
         {
             adminrRepository = ClassInstance<AdminRepository>.Instance;
         }
-        public ActionResult LoginView()
+
+        [AllowAnonymous]
+        public ActionResult Login()
         {
             return View();
         }
         [HttpPost]
-        public ActionResult Login(Admin admin)
+        [AllowAnonymous]
+        public ActionResult VerifyLogin(Admin admin)
         {
             if (string.IsNullOrWhiteSpace(admin.UserName))
             {

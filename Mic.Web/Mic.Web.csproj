@@ -120,6 +120,9 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Common\Attribute\CustomActionFilterAttribute.cs" />
+    <Compile Include="Common\Attribute\CustomAuthorizeAttribute.cs" />
+    <Compile Include="Common\Attribute\GlobalHandleErrorAttribute.cs" />
     <Compile Include="Common\CommonConst.cs" />
     <Compile Include="Common\SessionHelper.cs" />
     <Compile Include="Controllers\BaseController.cs" />
@@ -271,7 +274,7 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Account\LoginView.cshtml" />
+    <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\SongManage\SongBookList.cshtml" />
   </ItemGroup>
   <ItemGroup>

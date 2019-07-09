@@ -12,5 +12,11 @@ namespace Mic.Repository
         public int PageSize { get; set; }
         public string Keyword { get; set; }
         public string OrderField { get; set; }
+        public string OrderType { get; set; }
+    }
+
+    public class AuditSongPageParam : PageParam
+    {
+        public int AuditStatus { get; set; } = -1;
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using Mic.Web.Common.Attribute;
+using System.Web;
 using System.Web.Mvc;
 
 namespace Mic.Web
@@ -8,6 +9,9 @@ namespace Mic.Web
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
+            filters.Add(new CustomAuthorizeAttribute());
+            //filters.Add(new CustomActionFilterAttribute());
+            //filters.Add(new GlobalHandleErrorAttribute());
         }
     }
 }

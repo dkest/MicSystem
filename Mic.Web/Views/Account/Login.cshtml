@@ -89,7 +89,7 @@
                     layer.msg(result.msg);
                     $("#username").select();
                 }
-            }, '@Url.Action("Login", "Account")', true, true);
+            }, '@Url.Action("VerifyLogin", "Account")', true, true);
         });
 
         $("body").keydown(function () {
@@ -100,6 +100,14 @@
         });
 
     });
+    </script>
+    <!--禁止页面回退-->
+    <script language="javascript">
+        //防止页面后退
+        history.pushState(null, null, document.URL);
+        window.addEventListener('popstate', function () {
+            history.pushState(null, null, document.URL);
+        });
     </script>
 </body>
 
