@@ -65,6 +65,7 @@
     <Compile Include="Repositories\BaseRepository.cs" />
     <Compile Include="Repositories\RepositoryFactory.cs" />
     <Compile Include="Repositories\SongMarkRepository.cs" />
+    <Compile Include="Repositories\SongAuditRepository.cs" />
     <Compile Include="Repositories\TokenRepository.cs" />
     <Compile Include="Repositories\AdminRepository.cs" />
     <Compile Include="Utils\ByShell32.cs" />

@@ -52,7 +52,7 @@
     <Compile Include="ResponseResult.cs" />
     <Compile Include="SingerDetailInfoEntity.cs" />
     <Compile Include="SingerTypeEntity.cs" />
-    <Compile Include="SongAuditDetail.cs" />
+    <Compile Include="SongOptDetail.cs" />
     <Compile Include="SongBookEntity.cs" />
     <Compile Include="SongMarkEntity.cs" />
     <Compile Include="SongPlayRecordEntity.cs" />

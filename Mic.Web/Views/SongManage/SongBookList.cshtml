@@ -42,6 +42,12 @@
     .alert_page_btn {
         margin-top: 8px;
     }
+
+    #song_mark_text {
+        margin-left: 10px;
+        height: 30px;
+        margin-top: 8px;
+    }
 </style>
 <div class="layui-row content">
     <div class="layui-col-sm2 layui-col-lg2 layui-col-md2 left_menu">
@@ -151,18 +157,22 @@
         });
 
 
-        //监听行工具事件
+        //曲库列表 按钮事件
         table.on('tool(songbook)', function (obj) { //注：tool 是工具条事件名，songbook 是 table 原始容器的属性 lay-filter="对应的值"
             var data = obj.data //获得当前行数据
                 , layEvent = obj.event; //获得 lay-event 对应的值
              if (layEvent === 'del') {
-                layer.confirm('真的删除行么', function (index) {
+                layer.confirm('删除后商家无法选择该歌曲，已产生的记录不受影响，确认要删除吗？', function (index) {
                     obj.del(); //删除对应行（tr）的DOM结构
                     layer.close(index);
-                    //向服务端发送删除指令
+                    Service.ajax(JSON.stringify({ id: data.Id }), function (result) {
+                        if (result.status) {
+                            layer.msg('删除成功');
+                                }
+                            }, '@Url.Action("DeleteSongById", "SongManage")', true, true);
                 });
             } else if (layEvent === 'edit') {
-                 layer.msg('编辑操作');
+                 layer.msg('编辑操作-待完成');
                  layer.open({
                      type: 1,
                      title: '<span style="font-weight:bolder;">上传歌曲</span>',
@@ -247,6 +257,59 @@
 
         });
 
+         //审核列表 按钮事件
+        table.on('tool(audit_list)', function (obj) { 
+            var data = obj.data //获得当前行数据
+                , layEvent = obj.event; //获得 lay-event 对应的值
+            if (layEvent === 'audit') {
+                 layer.msg('审核操作-待完成');
+                @*layer.confirm('删除后商家无法选择该歌曲，已产生的记录不受影响，确认要删除吗？', function (index) {
+                    obj.del(); //删除对应行（tr）的DOM结构
+                    layer.close(index);
+                    Service.ajax(JSON.stringify({ id: data.Id }), function (result) {
+                        if (result.status) {
+                            layer.msg('删除成功');
+                                }
+                            }, '@Url.Action("DeleteSongById", "SongManage")', true, true);
+                });*@
+             } else if (layEvent === 'audit_detail') {
+                 $("#song_audit_detail_div").empty();
+                 var htmlStr = '<ul class="layui-timeline">';
+                 htmlStr+=' <li class="layui-timeline-item">'+
+                        '<i class="layui-icon layui-timeline-axis"></i>' +
+                        '<div class="layui-timeline-content layui-text">' +
+                     '<h5 class="layui-timeline-title">2019-09-01 18:33:33  发布作品</h5>' +
+                     '</div></li>'
+
+                  htmlStr+=' <li class="layui-timeline-item">'+
+                        '<i class="layui-icon layui-timeline-axis"></i>' +
+                        '<div class="layui-timeline-content layui-text">' +
+                     '<h5 class="layui-timeline-title">2019-09-12 11:22:12  审核通过</h5>' +
+                     '</div></li>'
+                 htmlStr += "</ul>";
+                 $("#song_audit_detail_div").html(htmlStr);
+               
+                 layer.open({
+                     type: 1,
+                     title: '<span style="font-weight:bolder;">审核详情</span>',
+                     move: false,
+                     btn: ['确定'],
+                     skin: 'tempSkin',
+                     area: ["500px", "400px"],
+                     content: $('#song_audit_detail_div'),
+                     success: function () {
+                         $('#song_audit_detail_div').attr("display", 'block');
+                     },
+                     end: function () {
+                         $('#song_audit_detail_div').attr("display", 'none');
+                     },
+                     yes: function (index, layero) {
+                         layer.close(index);
+                     }
+                 });
+
+            }
+        });
         // 左侧菜单切换
         $(".my_nav_li").delegate("a", "click", function (e) {
             var data = $(this).attr("data-name");
@@ -306,7 +369,7 @@
                 move: false,
                 btn: ['确定', '取消'],
                 skin: 'tempSkin',
-                area: ['500px', '300px'],
+                area: ['500px', '350px'],
                 content: $('#song_label_edit_div'),
                 success: function () {
                     $('#song_label_edit_div').attr("display", 'block');
@@ -315,19 +378,25 @@
                     $('#song_label_edit_div').attr("display", 'none');
                 },
                 yes: function (index, layero) {
-                   
-                    @*// 保存编辑的数据到数据库 songmarkList
-                    $.each(songmarkList, function (index, item) {
-                       
-                        
+                    layer.close(index);
+                    // 保存编辑的数据到数据库 songmarkList
+                    @*$.each(songmarkList, function (index, item) {
+                        var param;
                         if (item.update) {
-                            
-                            Service.ajax(JSON.stringify(item), function (result) {
-                                item.update = false;
+                            if (item.add) {
+                                param = { "Id": -1, "MarkName": item.MarkName };
+                            } else {
+                                param = { "Id": item.Id, "MarkName": item.MarkName };
+                            }
+                            Service.ajax(JSON.stringify(param), function (result) {
+                                if (result.status) {
+
+                                }
                             }, '@Url.Action("AddOrUpdateSongMark", "SongManage")', true, true);
-                        } 
-                    });*@
-                    table.reload('songmark_table', {});
+                        }
+                    });
+                    layer.msg("保存成功");
+                    songmarkTable.reload({});*@
                 }
             });
         });
@@ -335,7 +404,7 @@
         // 标签列表
         songmarkTable = table.render({
             elem: '#songmark_table'
-            , height: "full"
+            , height: "180"
             , url: '@Url.Action("GetSongMakList", "SongManage")'
             , size: 'sm'
             , cols: [[
@@ -345,7 +414,7 @@
             ]]
             , done: function (res, curr, count) {//表格数据渲染完成时调用
                 songmarkList = res.data;
-               
+
             }
         });
         // 监听歌曲标签表格编辑
@@ -354,29 +423,77 @@
             var value = obj.value //得到修改后的值
                 , data = obj.data //得到所在行所有键值
                 , field = obj.field; //得到字段
-            var param = { "Id": obj.Id, "MarkName": obj.value };
+            var param = { "Id": obj.data.Id, "MarkName": obj.data.MarkName };
+            if (obj.data.MarkName == "") {
+                layer.msg("标签名称不能为空");
+                return;
+            }
             Service.ajax(JSON.stringify(param), function (result) {
                 if (result.status) {
                     layer.msg("保存成功");
                 }
-                obj.data = result.data;
             }, '@Url.Action("AddOrUpdateSongMark", "SongManage")', true, true);
+
+            //$.each(songmarkList, function (index, item) {
+            //    if (item.add) {
+            //        item.Id = -1;
+            //        item.MarkName = JSON.parse(obj.value);
+            //        item.update = true;
+            //    } else if (item.Id == obj.data.Id) {
+            //        item.MarkName = JSON.parse(obj.data.MarkName);//obj.data.MarkName.toString();
+            //        item.update = true;
+            //    }
+            //});
         });
 
         // 增加歌曲标签，新行
         $("#add_songmark_btn").click(function () {
-            var newNum = songmarkList.length +1;
-            var newRow = { "Id": -1, "MarkName": "", add: true };
-            songmarkList.push(newRow);
-            $($("#songmark_table").next().find(".layui-table-body").find("tbody")[0]).append('<tr data-index="3" class="">' +
-                '<td data-field="0" data-key="3-0-0" class="layui-table-col-special">' +
-                '<div class="layui-table-cell laytable-cell-3-0-0 laytable-cell-numbers">' + newNum +
-                '</div></td><td data-field="MarkName" data-key="3-0-1" data-edit="text" class="">' +
-                '<div class="layui-table-cell laytable-cell-3-0-1"> </div></td>' +
-                '<td data-field="3" data-key="3-0-3" data-off="true" class="layui-table-col-special">' +
-                '<div class="layui-table-cell laytable-cell-3-0-3"> ' +
-                '<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a> ' +
-                '</div></td></tr>');
+            if ($("#song_mark_text").val() == "") {
+                layer.msg("标签名称不能为空");
+                return;
+            }
+            var param = { "Id": -1, "MarkName": $("#song_mark_text").val() };
+            Service.ajax(JSON.stringify(param), function (result) {
+                if (result.status) {
+                    layer.msg("添加成功");
+                    $("#song_mark_text").val("");
+                    songmarkTable.reload({});
+                }
+            }, '@Url.Action("AddOrUpdateSongMark", "SongManage")', true, true);
+
+
+            //var newNum = songmarkList.length +1;
+            //var newRow = { "Id": -1, "MarkName": "", add: true };
+            //songmarkList.push(newRow);
+            //$($("#songmark_table").next().find(".layui-table-body").find("tbody")[0]).append('<tr data-index="3" class="">' +
+            //    '<td data-field="0" data-key="3-0-0" class="layui-table-col-special">' +
+            //    '<div class="layui-table-cell laytable-cell-3-0-0 laytable-cell-numbers">' + newNum +
+            //    '</div></td><td data-field="MarkName" data-key="3-0-1" data-edit="text" class="">' +
+            //    '<div class="layui-table-cell laytable-cell-3-0-1"> </div></td>' +
+            //    '<td data-field="3" data-key="3-0-3" data-off="true" class="layui-table-col-special">' +
+            //    '<div class="layui-table-cell laytable-cell-3-0-3"> ' +
+            //    '<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a> ' +
+            //    '</div></td></tr>');
+
+
+        });
+
+
+        table.on('tool(songmark_table)', function (obj) {
+            var data = obj.data //获得当前行数据
+                , layEvent = obj.event; //获得 lay-event 对应的值
+             if (layEvent === 'del') {
+                layer.confirm('删除后，上传或审核歌曲时无法选择标签，确认要删除吗？', function (index) {
+                    obj.del(); //删除对应行（tr）的DOM结构
+                    layer.close(index);
+                    //向服务端发送删除指令
+                    Service.ajax(JSON.stringify({ id: data.Id }), function (result) {
+                        if (result.status) {
+                            layer.msg("删除成功");
+                        }
+                    }, '@Url.Action("DeleteSongMark", "SongManage")', true, true);
+                });
+            }
         });
     });
 </script>
@@ -388,11 +505,11 @@
 
 <script type="text/html" id="barAudit">
     {{#  if(d.AuditStatus == '1'){ }}
-    <a class="layui-btn layui-btn-xs " lay-event="">审核</a>
+    <a class="layui-btn layui-btn-xs " lay-event="audit">审核</a>
     {{# }else{  }}
     <a class="layui-btn layui-btn-primary layui-btn-xs layui-btn-disabled " lay-event="">审核</a>
     {{# } }}
-    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="">查看详情</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="audit_detail">查看详情</a>
 </script>
 
 <!--禁止页面回退-->
@@ -408,11 +525,20 @@
 </div>
 
 <div id="song_label_edit_div" style="display:none">
+    <div class="layui-input-inline">
+        <input type="text" id="song_mark_text" autocomplete="off" placeholder="请输入歌曲标签名称" class="layui-input">
+    </div>
     <button type="button" id="add_songmark_btn" class="alert_page_btn layui-btn layui-btn-normal layui-btn-sm">新增</button>
-    <button type="button" id="edit_songmark_btn" class="alert_page_btn layui-btn layui-btn-primary layui-btn-sm">编辑</button>
+    @*<button type="button" id="edit_songmark_btn" class="alert_page_btn layui-btn layui-btn-primary layui-btn-sm">编辑</button>*@
 
     <table class="layui-table" lay-filter="songmark_table" id="songmark_table"></table>
 </div>
 <script type="text/html" id="songmakListOpt">
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
+
+
+<!--审核详情-->
+<div id="song_audit_detail_div" style="display:none;margin-left:15px;margin-top:10px;">
+    
+</div>

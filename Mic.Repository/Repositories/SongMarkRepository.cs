@@ -39,9 +39,9 @@ namespace Mic.Repository.Repositories
             return Tuple.Create(result > 0 ? true : false,updateEntity);
         }
 
-        public bool DeleteSongMark(int Id)
+        public bool DeleteSongMark(int id)
         {
-            int result = helper.Execute($@"delete from SongMark where Id={Id}");
+            int result = helper.Execute($@"delete from SongMark where Id={id}");
             return result > 0 ? true : false;
         }
 

@@ -9,10 +9,12 @@ namespace Mic.Web.Controllers
     {
         private SongBookRepository songBookRepository;
         private SongMarkRepository songMarkRepository;
+        private SongAuditRepository songAuditRepository;
         public SongManageController()
         {
             songBookRepository = ClassInstance<SongBookRepository>.Instance;
             songMarkRepository = ClassInstance<SongMarkRepository>.Instance;
+            songAuditRepository = ClassInstance<SongAuditRepository>.Instance;
         }
         public ActionResult SongBookList()
         {
@@ -61,13 +63,25 @@ namespace Mic.Web.Controllers
             var result = songBookRepository.GetAuditSongList(param);
             return Json(new { code = 0, msg = "", count = result.Item1, data = result.Item2 }, JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult DeleteSongById(int id)
+        {
+            var result = songBookRepository.DeleteSongById(id);
+            return Json(new { status = result }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult AddOrUpdateSong(SongBookEntity songBookEntity)
+        {
+            var result = songBookRepository.AddOrUpdateSong(songBookEntity);
+            return Json(new { status = result.Item1, data= result.Item2 }, JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
         #region SongMark 歌曲标签
         public ActionResult AddOrUpdateSongMark(SongMarkEntity songMarkEntity)
         {
             var result = songMarkRepository.AddOrUpdateSongMark(songMarkEntity);
-            return Json(new { status = result.Item1,data= result.Item2});
+            return Json(new { status = result.Item1, data = result.Item2 });
         }
 
         public ActionResult DeleteSongMark(int id)
@@ -80,6 +94,19 @@ namespace Mic.Web.Controllers
         {
             var result = songMarkRepository.GetSongMakList();
             return Json(new { code = 0, msg = "", count = result.Count, data = result }, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
+        #region 歌曲审核
+        /// <summary>
+        /// 获取歌曲审核明细
+        /// </summary>
+        /// <param name="songId"></param>
+        /// <returns></returns>
+        public ActionResult GetAuditDetail(int songId)
+        {
+            var result = songAuditRepository.GetAuditDetail(songId);
+            return Json(new { status = true, data = result },JsonRequestBehavior.AllowGet);
         }
         #endregion
 
