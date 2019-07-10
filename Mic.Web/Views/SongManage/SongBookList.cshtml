@@ -3,6 +3,8 @@
     ViewBag.Title = "曲库列表";
 }
 <style>
+
+
     .r_content {
         padding-top: 25px;
         padding-left: 20px;
@@ -63,7 +65,7 @@
     <!--列表-->
     <div id="song_list" class="layui-col-sm10 layui-col-lg10 layui-col-md10 r_content">
         <div style="margin-left:10px;">
-            <button type="button" class="layui-btn layui-btn-normal layui-btn-sm">上传歌曲</button>
+            <button type="button" id="upload_song_btn" class="layui-btn layui-btn-normal layui-btn-sm">上传歌曲</button>
             <button type="button" id="set_song_label_btn" class="layui-btn layui-btn-primary layui-btn-sm">设置标签</button>
 
         </div>
@@ -114,6 +116,7 @@
     var auditListTable;
     var songmarkTable;
     var songmarkList = [];
+    var formSelects;// 多选框 对象
     layui.use('table', function () {
         var table = layui.table;
         // 曲库列表
@@ -172,32 +175,28 @@
                             }, '@Url.Action("DeleteSongById", "SongManage")', true, true);
                 });
             } else if (layEvent === 'edit') {
-                 layer.msg('编辑操作-待完成');
+
+
                  layer.open({
-                     type: 1,
-                     title: '<span style="font-weight:bolder;">上传歌曲</span>',
-                     move: false,
-                     btn: ['确定', '取消'],
-                     skin: 'tempSkin',
-                     area: [window.dlgSizeInfo.dlgWidth, window.dlgSizeInfo.dlgHeight],
-                     content: $('#menu_edit_div'),
-                     success: function () {
-                         $('#menu_name').val(name);
-                         $("#menuLevel").val(menuLevel);
-                         //$('#menu_status').selectpicker('val', status);
+                      type: 1,
+                title: '上传歌曲',
+                move: false,
+                btn: ['确定', '取消'],
+                skin: 'tempSkin',
+                area: ['500px', '550px'],
+                content: $('#song_add_edit_div'),
+                success: function () {
+                    $('#song_add_edit_div').attr("display", 'block');
+                },
+                end: function () {
+                    $('#song_add_edit_div').attr("display", 'none');
+                },
+                yes: function (index, layero) {
+                    layer.close(index);
+                    formSelects.value('select1', 'valStr');
 
 
 
-                         $('#song_edit_div').attr("display", 'block');
-
-                         //$(".tempSkin .layui-layer-content").css("height", $(".tempSkin").height() - 36 * 2);
-                         //$(".tempSkin .layui-layer-btn a").removeClass().addClass('bottom_btn');
-                     },
-                     end: function () {
-                         $('#song_edit_div').attr("display", 'none');
-                     },
-                     yes: function (index, layero) {
-                         menuObj.SaveBtn();
                      }
                  });
 
@@ -258,7 +257,7 @@
         });
 
          //审核列表 按钮事件
-        table.on('tool(audit_list)', function (obj) { 
+        table.on('tool(audit_list)', function (obj) {
             var data = obj.data //获得当前行数据
                 , layEvent = obj.event; //获得 lay-event 对应的值
             if (layEvent === 'audit') {
@@ -288,7 +287,7 @@
                      '</div></li>'
                  htmlStr += "</ul>";
                  $("#song_audit_detail_div").html(htmlStr);
-               
+
                  layer.open({
                      type: 1,
                      title: '<span style="font-weight:bolder;">审核详情</span>',
@@ -401,6 +400,50 @@
             });
         });
 
+        //上传歌曲
+        $("#upload_song_btn").click(function () {
+
+            formSelects = layui.formSelects;
+
+            Service.ajax(JSON.stringify({}), function (result) {
+                if (result.count > 0) {
+                    $("#songmark_select").empty();
+                    var htmlStr = "";
+                    $.each(result.data, function (index, item) {
+                        htmlStr = '<option value="' + item.Id + '">' + item.MarkName + '</option>';
+                        $("#songmark_select").append(htmlStr);
+
+                    });
+                    formSelects.render('songmark');
+                }
+            }, '@Url.Action("GetSongMakList", "SongManage")', true, true);
+
+
+            layer.open({
+                type: 1,
+                title: '上传歌曲',
+                move: false,
+                btn: ['确定', '取消'],
+                skin: 'tempSkin',
+                area: ['500px', '550px'],
+                content: $('#song_add_edit_div'),
+                success: function () {
+                    $('#song_add_edit_div').attr("display", 'block');
+                },
+                end: function () {
+                    $('#song_add_edit_div').attr("display", 'none');
+                },
+                yes: function (index, layero) {
+                    layer.close(index);
+                    formSelects.value('select1', 'valStr');
+
+
+
+                }
+            });
+        });
+
+
         // 标签列表
         songmarkTable = table.render({
             elem: '#songmark_table'
@@ -414,7 +457,6 @@
             ]]
             , done: function (res, curr, count) {//表格数据渲染完成时调用
                 songmarkList = res.data;
-
             }
         });
         // 监听歌曲标签表格编辑
@@ -540,5 +582,74 @@
 
 <!--审核详情-->
 <div id="song_audit_detail_div" style="display:none;margin-left:15px;margin-top:10px;">
-    
+
 </div>
+
+
+<!--歌曲上传和编辑-->
+<div id="song_add_edit_div" style="display:none;margin-left:15px;margin-right:25px;margin-top:10px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">歌曲名称</label>
+        <div class="layui-input-block">
+            <input type="text" id="song_edit_songname" name="title" lay-verify="title" autocomplete="off" placeholder="请输入" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">歌手</label>
+        <div class="layui-input-block">
+            <input type="text" id="song_edit_singername" name="title" lay-verify="title" autocomplete="off" placeholder="请输入" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">歌曲标签</label>
+        <div class="layui-input-block">
+            <select id="songmark_select" name="songmark" xm-select="songmark"></select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">音频资源</label>
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn" id="upload_btn"><i class="layui-icon"></i>上传音频</button>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">歌曲BPM</label>
+        <div class="layui-input-block">
+            <input type="number" id="song_edit_songname" name="title" lay-verify="title" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">授权有效期</label>
+        <div class="layui-input-block">
+            <input type="text" class="layui-input" id="yxq_song">
+        </div>
+    </div>
+</div>
+v
+<script type="text/javascript">
+    //var fileName
+    var $ = layui.jquery
+        , upload = layui.upload;
+    upload.render({
+        elem: '#upload_btn'
+        , url: '@Url.Action("UploadAudioFile", "File")'
+        ,accept:'audio'
+        , done: function (res) {
+            console.log(res);
+            if (res.status) {
+                layer.msg("上传成功");
+            } else {
+                layer.msg("上传失败");
+            }
+        }
+
+    });
+
+    var laydate = layui.laydate;
+    laydate.render({
+        elem: '#yxq_song' //指定元素
+        , type:'date'
+  });
+
+
+</script>

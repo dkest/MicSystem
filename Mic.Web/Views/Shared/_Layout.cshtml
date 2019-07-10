@@ -12,6 +12,9 @@
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/layui")
     @Scripts.Render("~/bundles/minejs")
+    <link href="~/Content/layui-formSelects/formSelects-v4.css" rel="stylesheet" />
+    <script src="~/Content/layui-formSelects/formSelects-v4.js"></script>
+
 
     @using Mic.Web.Common
     @{
@@ -60,7 +63,7 @@
 
                     </li>
                     <li class="layui-nav-item"><a href="">账号管理</a></li>
-                    <li class="layui-nav-item" style="position: absolute;right: 0px" >
+                    <li class="layui-nav-item" style="position: absolute;right: 0px">
                         <a href="javascript:;">@UserName</a>
                         <dl class="layui-nav-child">
                             <dd><a href="javascript:;" id="logout">退出当前账号</a></dd>

@@ -148,6 +148,8 @@
     <Content Include="Content\js\jquery.validate.js" />
     <Content Include="Content\js\jquery.validate.min.js" />
     <Content Include="Content\js\service.js" />
+    <Content Include="Content\layui-formSelects\formSelects-v4.css" />
+    <Content Include="Content\layui-formSelects\formSelects-v4.js" />
     <Content Include="Content\layui\css\layui.css" />
     <Content Include="Content\layui\css\layui.mobile.css" />
     <Content Include="Content\layui\css\modules\code.css" />
