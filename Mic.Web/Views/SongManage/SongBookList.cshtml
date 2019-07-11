@@ -1,10 +1,7 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "曲库列表";
 }
 <style>
-
-
     .r_content {
         padding-top: 25px;
         padding-left: 20px;
@@ -117,14 +114,16 @@
     var songmarkTable;
     var songmarkList = [];
     var formSelects;// 多选框 对象
-
     var fileName = "";//上传文件的路径
     var duration = 0;// 音频文件的时长
+    var currentId = 0;
+
+    formSelects = layui.formSelects;
+
     layui.use('table', function () {
+
+
         var table = layui.table;
-
-
-
         // 曲库列表
         songListTable = table.render({
             elem: '#songbook'
@@ -162,10 +161,7 @@
                     "data": res.data //解析数据列表
                 };
             }
-
         });
-
-
         //曲库列表 按钮事件
         table.on('tool(songbook)', function (obj) { //注：tool 是工具条事件名，songbook 是 table 原始容器的属性 lay-filter="对应的值"
             var data = obj.data //获得当前行数据
@@ -180,16 +176,40 @@
                                 }
                             }, '@Url.Action("DeleteSongById", "SongManage")', true, true);
                 });
-             } else if (layEvent === 'edit') {
+             } else if (layEvent === 'edit') {//修改歌曲信息
+
+                 $("#song_edit_songname").val(data.SongName);
+                 $("#song_edit_singername").val(data.SingerName);
+                 $("#song_edit_bpm").val(data.SongBPM);
+                 $("#yxq_song").val(data.ExpirationTime);
+                 //$("#songmark_select").val(data.ma);
+                 var t = data.SongMark.split(',');
+
+
                  if (data.SingerId > 0) {
                      $("#song_edit_singername").attr("readonly", "readonly");
                  } else {
                      $("#song_edit_singername").removeAttr("readonly");
                  }
+                 currentId = data.Id;
+                 Service.ajax(JSON.stringify({}), function (result) {
+                if (result.count > 0) {
+
+                    $("#songmark_select").empty();
+                    var htmlStr = "";
+                    $.each(result.data, function (index, item) {
+                        htmlStr = '<option value="' + item.Id + '">' + item.MarkName + '</option>';
+                        $("#songmark_select").append(htmlStr);
+                    });
+                    formSelects.render('songmark');
+                    formSelects.value('songmark',t);
+                }
+                 }, '@Url.Action("GetSongMakList", "SongManage")', true, true);
+
 
                  layer.open({
                       type: 1,
-                title: '上传歌曲',
+                title: '<span style="font-weight:bolder;">上传歌曲</span>',
                 move: false,
                 btn: ['确定', '取消'],
                 skin: 'tempSkin',
@@ -205,11 +225,8 @@
                     saveSong(index);
                      }
                  });
-
             }
         });
-
-
         // 审核列表
         auditListTable = table.render({
             elem: '#audit_list'
@@ -259,9 +276,7 @@
                     "data": res.data //解析数据列表
                 };
             }
-
         });
-
          //审核列表 按钮事件
         table.on('tool(audit_list)', function (obj) {
             var data = obj.data //获得当前行数据
@@ -285,7 +300,6 @@
                         '<div class="layui-timeline-content layui-text">' +
                      '<h5 class="layui-timeline-title">2019-09-01 18:33:33  发布作品</h5>' +
                      '</div></li>'
-
                   htmlStr+=' <li class="layui-timeline-item">'+
                         '<i class="layui-icon layui-timeline-axis"></i>' +
                         '<div class="layui-timeline-content layui-text">' +
@@ -293,7 +307,6 @@
                      '</div></li>'
                  htmlStr += "</ul>";
                  $("#song_audit_detail_div").html(htmlStr);
-
                  layer.open({
                      type: 1,
                      title: '<span style="font-weight:bolder;">审核详情</span>',
@@ -312,7 +325,6 @@
                          layer.close(index);
                      }
                  });
-
             }
         });
         // 左侧菜单切换
@@ -333,10 +345,8 @@
                 , method: 'get'
             });
         });
-
         //监听排序
         table.on('sort(songbook)', function (obj) {
-
             songListTable.reload({
                 initSort: obj
                 , where: {
@@ -344,7 +354,6 @@
                     , order: obj.type
                 }
             });
-
         });
         $("#audit_search_btn").click(function () {
             auditListTable.reload({
@@ -356,7 +365,6 @@
                 , method: 'get'
             });
         });
-
         $("#song_search_reset_btn").click(function () {
             $("#song_search_text").val("");
             $("#song_search_btn").click();
@@ -370,7 +378,7 @@
         $("#set_song_label_btn").click(function () {
             layer.open({
                 type: 1,
-                title: '设置标签',
+                title: '<span style="font-weight:bolder;">设置标签</span>',
                 move: false,
                 btn: ['确定', '取消'],
                 skin: 'tempSkin',
@@ -395,7 +403,6 @@
                             }
                             Service.ajax(JSON.stringify(param), function (result) {
                                 if (result.status) {
-
                                 }
                             }, '@Url.Action("AddOrUpdateSongMark", "SongManage")', true, true);
                         }
@@ -405,11 +412,9 @@
                 }
             });
         });
-
         //上传歌曲
         $("#upload_song_btn").click(function () {
-
-            formSelects = layui.formSelects;
+            currentId = 0;
             $("#song_edit_songname").val("");
             $("#song_edit_singername").val("");
             $("#song_edit_bpm").val("");
@@ -424,16 +429,13 @@
                     $.each(result.data, function (index, item) {
                         htmlStr = '<option value="' + item.Id + '">' + item.MarkName + '</option>';
                         $("#songmark_select").append(htmlStr);
-
                     });
                     formSelects.render('songmark');
                 }
             }, '@Url.Action("GetSongMakList", "SongManage")', true, true);
-
-
             layer.open({
                 type: 1,
-                title: '上传歌曲',
+                title: '<span style="font-weight:bolder;">上传歌曲</span>',
                 move: false,
                 btn: ['确定', '取消'],
                 skin: 'tempSkin',
@@ -447,14 +449,12 @@
                 },
                 yes: function (index, layero) {
                     saveSong(index);
-                    
+
                 }
             });
         });
-
         var saveSong = function (layerIndex) {
             var mark = formSelects.value('songmark', 'valStr');
-
                     if ($("#song_edit_songname").val() == "") {
                         layer.msg("歌曲名不能为空"); return;
                     }
@@ -471,11 +471,11 @@
                         layer.msg("歌曲版权有效期不能为空");
                         return;
                     }
-                    if (fileName == "") {
+                    if (currentId<1 && fileName == "") {
                         layer.msg("请选择音频文件");
                         return;
                     }
-                    var param = {
+                    var param = {Id:currentId,
                         SongName: $("#song_edit_songname").val(), SingerName: $('#song_edit_singername').val(),
                         SongMark: mark, SongPath: fileName, SongBPM: $("#song_edit_bpm").val(),
                         ExpirationTime: $("#yxq_song").val(), SongLength: duration
@@ -487,7 +487,6 @@
                             layer.close(layerIndex);
                         }
                     }, '@Url.Action("AddOrUpdateSong", "SongManage")', true, true);
-
         };
         // 标签列表
         songmarkTable = table.render({
@@ -520,7 +519,6 @@
                     layer.msg("保存成功");
                 }
             }, '@Url.Action("AddOrUpdateSongMark", "SongManage")', true, true);
-
             //$.each(songmarkList, function (index, item) {
             //    if (item.add) {
             //        item.Id = -1;
@@ -532,7 +530,6 @@
             //    }
             //});
         });
-
         // 增加歌曲标签，新行
         $("#add_songmark_btn").click(function () {
             if ($("#song_mark_text").val() == "") {
@@ -547,8 +544,6 @@
                     songmarkTable.reload({});
                 }
             }, '@Url.Action("AddOrUpdateSongMark", "SongManage")', true, true);
-
-
             //var newNum = songmarkList.length +1;
             //var newRow = { "Id": -1, "MarkName": "", add: true };
             //songmarkList.push(newRow);
@@ -561,11 +556,7 @@
             //    '<div class="layui-table-cell laytable-cell-3-0-3"> ' +
             //    '<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a> ' +
             //    '</div></td></tr>');
-
-
         });
-
-
         table.on('tool(songmark_table)', function (obj) {
             var data = obj.data //获得当前行数据
                 , layEvent = obj.event; //获得 lay-event 对应的值
@@ -582,10 +573,6 @@
                 });
             }
         });
-
-
-
-
     });
 </script>
 <script type="text/html" id="barDemo">
@@ -629,10 +616,7 @@
 </script>
 
 
-<!--审核详情-->
-<div id="song_audit_detail_div" style="display:none;margin-left:15px;margin-top:10px;">
 
-</div>
 
 
 <!--歌曲上传和编辑-->
@@ -674,12 +658,14 @@
         </div>
     </div>
 </div>
-<script>
-    var upload = layui.upload;
-        // 文件上传
-        var $ = layui.jquery;
 
-    upload.render({
+<script src="~/Content/layui/lay/modules/jquery.js"></script>
+<script src="~/Content/layui/lay/modules/upload.js"></script>
+<script>
+    layui.use(['upload', 'jquery'], function () {
+        var upload = layui.upload;
+            var $ = layui.jquery;
+        upload.render({
         elem: '#upload_btn'
         , url: '@Url.Action("UploadAudioFile", "File")'
         ,accept:'audio'
@@ -693,9 +679,21 @@
             }
         }
     });
+    });
+
+
+</script>
+<script src="~/Content/layui/lay/modules/laydate.js"></script>
+<script>
     var laydate = layui.laydate;
     laydate.render({
         elem: '#yxq_song' //指定元素
         , type: 'date'
     });
 </script>
+
+
+<!--审核详情-->
+<div id="song_audit_detail_div" style="display:none;margin-left:15px;margin-top:10px;">
+
+</div>
