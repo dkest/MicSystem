@@ -27,5 +27,6 @@ namespace Mic.Entity
 
         //StoreIdList { get; set; }
         public bool Status { get; set; }
+        public string Memo { get; set; } //
     }
 }

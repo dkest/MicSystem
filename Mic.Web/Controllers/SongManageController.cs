@@ -73,7 +73,13 @@ namespace Mic.Web.Controllers
         public ActionResult AddOrUpdateSong(SongBookEntity songBookEntity)
         {
             var result = songBookRepository.AddOrUpdateSong(songBookEntity);
-            return Json(new { status = result.Item1, data= result.Item2 }, JsonRequestBehavior.AllowGet);
+            return Json(new { status = result.Item1, data = result.Item2 }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult AuditSong(SongBookEntity song)
+        {
+            var result = songAuditRepository.AuditSong(song);
+            return Json(new { status = result }, JsonRequestBehavior.AllowGet);
         }
         #endregion
 
@@ -106,7 +112,7 @@ namespace Mic.Web.Controllers
         public ActionResult GetAuditDetail(int songId)
         {
             var result = songAuditRepository.GetAuditDetail(songId);
-            return Json(new { status = true, data = result },JsonRequestBehavior.AllowGet);
+            return Json(new { status = true, data = result }, JsonRequestBehavior.AllowGet);
         }
         #endregion
 

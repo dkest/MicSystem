@@ -1,5 +1,6 @@
 ﻿using Mic.Entity;
 using Mic.Repository.Dapper;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -20,10 +21,30 @@ namespace Mic.Repository.Repositories
         /// <returns></returns>
         public List<SongOptDetail> GetAuditDetail(int songId)
         {
-
-            return helper.Query<SongOptDetail>($@"select * from SongAuditDetail where SongId={songId}").ToList(); ;
+            string sql = $@"select * from SongOptDetail where SongId={songId} order by OptTime asc;";
+            return helper.Query<SongOptDetail>(sql).ToList(); ;
            
         }
+
+        /// <summary>
+        /// 审核歌曲
+        /// </summary>
+        /// <param name="song"></param>
+        /// <returns></returns>
+        public bool AuditSong(SongBookEntity song)
+        {
+            if (song.AuditStatus==3)//不通过 需要通知歌手
+            {
+                helper.Execute($@"insert into SysNotice (Title,Content,UserId,NoticeTime) 
+values ('歌曲审核未通过','{song.Memo}',{song.SingerId},'{DateTime.Now}')");
+            }
+            string sql = $@"update SongBook set AuditStatus={song.AuditStatus},SongMark='{song.SongMark}',SongBPM='{song.SongBPM}'
+ where Id={song.Id};
+insert into SongOptDetail (SongId,Note,AuditStatus,OptType,OptTime) values(
+                {song.Id},'{song.Memo}',{song.AuditStatus},{4},'{DateTime.Now}')";
+            return helper.Execute(sql) > 0 ? true : false;
+        }
+
 
     }
 }

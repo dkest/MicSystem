@@ -47,6 +47,10 @@
         height: 30px;
         margin-top: 8px;
     }
+
+    #song_audit_detail_div {
+        margin-right: 25px;
+    }
 </style>
 <div class="layui-row content">
     <div class="layui-col-sm2 layui-col-lg2 layui-col-md2 left_menu">
@@ -82,7 +86,7 @@
     <!--审核-->
     <div id="song_audit" style="display:none;" class="layui-col-sm10 layui-col-lg10 layui-col-md10 r_content">
 
-        <div class="search_div">
+        <div class="search_div layui-form">
             搜索歌曲
             <div class="layui-input-inline">
                 <input type="text" id="audit_search_text" autocomplete="off" placeholder="请输入歌曲名称或歌手名称" class="layui-input">
@@ -90,7 +94,7 @@
 
             审核状态
             <div class="layui-input-inline">
-                <select id="audit_status_select">
+                <select id="audit_status_select" lay-filter="aihao">
                     <option value="-1" selected="">全部</option>
                     <option value="1">待审核</option>
                     <option value="2">已通过</option>
@@ -118,6 +122,8 @@
     var duration = 0;// 音频文件的时长
     var currentId = 0;
 
+
+    var auditStatus = 2;
     formSelects = layui.formSelects;
 
     layui.use('table', function () {
@@ -282,31 +288,96 @@
             var data = obj.data //获得当前行数据
                 , layEvent = obj.event; //获得 lay-event 对应的值
             if (layEvent === 'audit') {
-                 layer.msg('审核操作-待完成');
-                @*layer.confirm('删除后商家无法选择该歌曲，已产生的记录不受影响，确认要删除吗？', function (index) {
-                    obj.del(); //删除对应行（tr）的DOM结构
-                    layer.close(index);
-                    Service.ajax(JSON.stringify({ id: data.Id }), function (result) {
+                Service.ajax(JSON.stringify({}), function (result) {
+                    if (result.count > 0) {
+
+                        $("#songmark_select_audit").empty();
+                        var htmlStr = "";
+                        $.each(result.data, function (index, item) {
+                            htmlStr = '<option value="' + item.Id + '">' + item.MarkName + '</option>';
+                            $("#songmark_select_audit").append(htmlStr);
+                        });
+                        formSelects.render('songmark_audit');
+                    }
+                }, '@Url.Action("GetSongMakList", "SongManage")', true, true);
+
+
+                $("#bqzm_img_audit").attr('src', "~"+data.CopyrightFilePath);
+
+                 layer.open({
+                      type: 1,
+                title: '<span style="font-weight:bolder;">歌曲审核</span>',
+                move: false,
+                btn: ['确定', '取消'],
+                skin: 'tempSkin',
+                area: ['500px', '550px'],
+                content: $('#song_audit_detail_div'),
+                success: function () {
+                    $('#song_audit_detail_div').attr("display", 'block');
+                },
+                end: function () {
+                    $('#song_audit_detail_div').attr("display", 'none');
+                },
+                     yes: function (index, layero) {//审核完成 提交数据
+                         var mark = formSelects.value('songmark_audit', 'valStr');
+                         var bpm = $("#song_edit_bpm_audit").val() == null ? 0 : $("#song_edit_bpm_audit").val();
+                         var note = $("#audit_note").val() == null ? "" : $("#audit_note").val();
+                         var param = {
+                             Id: data.Id, AuditStatus: auditStatus, SongMark: mark,
+                             SongBPM: bpm, Memo: note, SingerId: data.SingerId
+                         };
+                    Service.ajax(JSON.stringify(param), function (result) {
                         if (result.status) {
-                            layer.msg('删除成功');
+                            layer.msg("操作成功");
+                            layer.close(index);
+                            auditListTable.reload({});
                                 }
-                            }, '@Url.Action("DeleteSongById", "SongManage")', true, true);
-                });*@
-             } else if (layEvent === 'audit_detail') {
-                 $("#song_audit_detail_div").empty();
-                 var htmlStr = '<ul class="layui-timeline">';
-                 htmlStr+=' <li class="layui-timeline-item">'+
-                        '<i class="layui-icon layui-timeline-axis"></i>' +
-                        '<div class="layui-timeline-content layui-text">' +
-                     '<h5 class="layui-timeline-title">2019-09-01 18:33:33  发布作品</h5>' +
-                     '</div></li>'
-                  htmlStr+=' <li class="layui-timeline-item">'+
-                        '<i class="layui-icon layui-timeline-axis"></i>' +
-                        '<div class="layui-timeline-content layui-text">' +
-                     '<h5 class="layui-timeline-title">2019-09-12 11:22:12  审核通过</h5>' +
-                     '</div></li>'
-                 htmlStr += "</ul>";
-                 $("#song_audit_detail_div").html(htmlStr);
+                            }, '@Url.Action("AuditSong", "SongManage")', true, true);
+
+
+                     }
+                 });
+
+            } else if (layEvent === 'audit_detail') {
+                $("#song_audit_detail_div").empty();
+                var htmlStr = '<ul class="layui-timeline">';
+                Service.ajax(JSON.stringify({ songId: data.Id }), function (result) {
+                    if (result.status) {
+                        $.each(result.data, function (index,item) {
+                            var s = "";
+                            switch (item.OptType) {
+                                case 1:
+                                    s = "上传作品";
+                                    break;
+                                case 2:
+                                    s = "发布作品";
+                                    
+                                    break;
+                                case 3:
+                                     s = "修改作品";
+                                    break;
+                                case 4:
+                                     s = "审核--"+((item.AuditStatus==2)?"通过":"未通过");
+                                    break;
+                                default:
+                            }
+                            htmlStr += ' <li class="layui-timeline-item">' +
+                                '<i class="layui-icon layui-timeline-axis"></i>' +
+                                    '<div class="layui-timeline-content layui-text">' +
+                                '<h5 class="layui-timeline-title">' +
+                                Service.FormatDate("yyyy-MM-dd HH:mm:ss", Service.ConvertNetDate(item.OptTime)) +"   "+ s 
+                                +'</h5>' +
+                                '</div></li>'
+                        });
+                        htmlStr += "</ul>";
+                        $("#song_audit_detail_div").html(htmlStr);
+                    }
+                }, '@Url.Action("GetAuditDetail", "SongManage")', true, true);
+
+
+
+
+                
                  layer.open({
                      type: 1,
                      title: '<span style="font-weight:bolder;">审核详情</span>',
@@ -694,6 +765,57 @@
 
 
 <!--审核详情-->
-<div id="song_audit_detail_div" style="display:none;margin-left:15px;margin-top:10px;">
-
+<div id="song_audit_detail_div" class="layui-form" style="display:none;margin-left:15px;margin-top:10px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">版权证明</label>
+        <div class="layui-input-block">
+            <img id="bqzm_img_audit" width="300" height="200" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">审核状态</label>
+        <div class="layui-input-block">
+            <input type="radio" lay-filter="audit_" name="audit_status" value="2" title="通过" checked="" />
+            <input type="radio" lay-filter="audit_" name="audit_status" value="3" title="未通过">
+        </div>
+    </div>
+    <div id="audit_tg">
+        <div class="layui-form-item">
+            <label class="layui-form-label">歌曲标签</label>
+            <div class="layui-input-block">
+                <select id="songmark_select_audit" name="songmark_audit" xm-select="songmark_audit"></select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">歌曲BPM</label>
+            <div class="layui-input-block">
+                <input type="number" id="song_edit_bpm_audit" name="title" lay-verify="title" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div id="audit_btg" style="display:none;" class="layui-form-item">
+        <label class="layui-form-label">审核意见</label>
+        <div class="layui-input-block">
+            <textarea id="audit_note" placeholder="请输入,150字以内" class="layui-textarea"></textarea>
+        </div>
+    </div>
 </div>
+<script>
+    layui.use('form', function () {
+        var form = layui.form;
+
+        //form.render('select', 'aihao');
+        //form.render('radio', 'audit_');
+        form.on('radio(audit_)', function (data) {
+            auditStatus = data.value;
+            if (data.value == 2) {//通过
+                $("#audit_btg").hide();
+                $("#audit_tg").show();
+
+            } else {
+                $("#audit_btg").show();
+                $("#audit_tg").hide()
+            }
+        });
+    });
+</script>
