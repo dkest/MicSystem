@@ -18,7 +18,11 @@ namespace Mic.Web
                       "~/Content/js/service.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/layui").Include(
-                      "~/Content/layui/layui.all.js"));
+                      "~/Content/layui/layui.all.js"//,
+                      //"~/Content/layui/layui.js",
+                      //"~/Content/layui/lay/modules/laydate.js",
+                      //"~/Content/layui/lay/modules/upload.js"
+                      ));
 
             bundles.Add(new StyleBundle("~/Content/mycss").Include(
                       "~/Content/css/mycss.css"));

@@ -32,7 +32,7 @@ namespace Mic.Web.Controllers
 
                 Duration duration = new ByShell32();
                 var result = duration.GetDuration(fullPath);
-                return Json(new { status = true, fileName = fileName + extensionName, duration = result.Item1 });
+                return Json(new { status = true, fileName = "/UploadFile/Audio/"+fileName + extensionName, duration = result.Item1 });
             }
             catch (Exception ex)
             {

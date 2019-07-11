@@ -117,8 +117,14 @@
     var songmarkTable;
     var songmarkList = [];
     var formSelects;// 多选框 对象
+
+    var fileName = "";//上传文件的路径
+    var duration = 0;// 音频文件的时长
     layui.use('table', function () {
         var table = layui.table;
+
+
+
         // 曲库列表
         songListTable = table.render({
             elem: '#songbook'
@@ -147,7 +153,7 @@
             , parseData: function (res) { //res 即为原始返回的数据
                 $.each(res.data, function (index, value) {
                     value.ExpirationTime = Service.FormatDate("yyyy-MM-dd HH:mm:ss", Service.ConvertNetDate(value.ExpirationTime));
-                    value.SongLength = Service.ConvertSecondsTime(value.SongLength);
+                   // value.SongLength = Service.ConvertSecondsTime(value.SongLength);
                 });
                 return {
                     "code": res.code, //解析接口状态
@@ -174,8 +180,12 @@
                                 }
                             }, '@Url.Action("DeleteSongById", "SongManage")', true, true);
                 });
-            } else if (layEvent === 'edit') {
-
+             } else if (layEvent === 'edit') {
+                 if (data.SingerId > 0) {
+                     $("#song_edit_singername").attr("readonly", "readonly");
+                 } else {
+                     $("#song_edit_singername").removeAttr("readonly");
+                 }
 
                  layer.open({
                       type: 1,
@@ -192,11 +202,7 @@
                     $('#song_add_edit_div').attr("display", 'none');
                 },
                 yes: function (index, layero) {
-                    layer.close(index);
-                    formSelects.value('select1', 'valStr');
-
-
-
+                    saveSong(index);
                      }
                  });
 
@@ -232,7 +238,7 @@
             , parseData: function (res) { //res 即为原始返回的数据
                 $.each(res.data, function (index, value) {
                     value.ExpirationTime = Service.FormatDate("yyyy-MM-dd HH:mm:ss", Service.ConvertNetDate(value.ExpirationTime));
-                    value.SongLength = Service.ConvertSecondsTime(value.SongLength);
+                    //value.SongLength = Service.ConvertSecondsTime(value.SongLength);
                     value.HasCopyright = Service.IsNullOrEmpty(value.CopyrightFilePath) ? "无" : "有";
                     switch (value.AuditStatus) {
                         case 1:
@@ -404,7 +410,13 @@
         $("#upload_song_btn").click(function () {
 
             formSelects = layui.formSelects;
-
+            $("#song_edit_songname").val("");
+            $("#song_edit_singername").val("");
+            $("#song_edit_bpm").val("");
+            $("#yxq_song").val("");
+            fileName = "";
+            duration = "";
+            $("#song_edit_singername").removeAttr("readonly");
             Service.ajax(JSON.stringify({}), function (result) {
                 if (result.count > 0) {
                     $("#songmark_select").empty();
@@ -434,16 +446,49 @@
                     $('#song_add_edit_div').attr("display", 'none');
                 },
                 yes: function (index, layero) {
-                    layer.close(index);
-                    formSelects.value('select1', 'valStr');
-
-
-
+                    saveSong(index);
+                    
                 }
             });
         });
 
+        var saveSong = function (layerIndex) {
+            var mark = formSelects.value('songmark', 'valStr');
 
+                    if ($("#song_edit_songname").val() == "") {
+                        layer.msg("歌曲名不能为空"); return;
+                    }
+                    if ($("#song_edit_singername").val() == "") {
+                        layer.msg("歌手名不能为空"); return;
+                    }
+                    if (mark == "") {
+                        layer.msg("歌曲标签不能为空"); return;
+                    }
+                    if ($("#song_edit_bpm").val()=="") {
+                        layer.msg("歌曲BPM不能为空"); return;
+                    }
+                    if ($("#yxq_song").val() == "") {
+                        layer.msg("歌曲版权有效期不能为空");
+                        return;
+                    }
+                    if (fileName == "") {
+                        layer.msg("请选择音频文件");
+                        return;
+                    }
+                    var param = {
+                        SongName: $("#song_edit_songname").val(), SingerName: $('#song_edit_singername').val(),
+                        SongMark: mark, SongPath: fileName, SongBPM: $("#song_edit_bpm").val(),
+                        ExpirationTime: $("#yxq_song").val(), SongLength: duration
+                    };
+                    Service.ajax(JSON.stringify(param), function (result) {
+                        if (result.status) {
+                            songListTable.reload({});
+                            layer.msg('保存成功');
+                            layer.close(layerIndex);
+                        }
+                    }, '@Url.Action("AddOrUpdateSong", "SongManage")', true, true);
+
+        };
         // 标签列表
         songmarkTable = table.render({
             elem: '#songmark_table'
@@ -537,6 +582,10 @@
                 });
             }
         });
+
+
+
+
     });
 </script>
 <script type="text/html" id="barDemo">
@@ -615,7 +664,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label">歌曲BPM</label>
         <div class="layui-input-block">
-            <input type="number" id="song_edit_songname" name="title" lay-verify="title" autocomplete="off" class="layui-input">
+            <input type="number" id="song_edit_bpm" name="title" lay-verify="title" autocomplete="off" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
@@ -625,31 +674,28 @@
         </div>
     </div>
 </div>
-v
-<script type="text/javascript">
-    //var fileName
-    var $ = layui.jquery
-        , upload = layui.upload;
+<script>
+    var upload = layui.upload;
+        // 文件上传
+        var $ = layui.jquery;
+
     upload.render({
         elem: '#upload_btn'
         , url: '@Url.Action("UploadAudioFile", "File")'
         ,accept:'audio'
         , done: function (res) {
-            console.log(res);
             if (res.status) {
+                fileName = res.fileName;
+                duration = res.duration;
                 layer.msg("上传成功");
             } else {
                 layer.msg("上传失败");
             }
         }
-
     });
-
     var laydate = layui.laydate;
     laydate.render({
         elem: '#yxq_song' //指定元素
-        , type:'date'
-  });
-
-
+        , type: 'date'
+    });
 </script>

@@ -29,7 +29,8 @@
                 if (location.pathname.length > 0 && location.pathname != '\/') {
                     basePath = location.href.replace(location.pathname, '');
                 }
-                location.href = basePath + "/Home/Error500";
+                console.log(data);
+                //location.href = basePath + "/Home/Error500";
             }
         });
     };

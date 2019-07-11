@@ -12,7 +12,7 @@ namespace Mic.Entity
         public string SongName { get; set; }
         public string SingerName { get; set; }
         public int SingerId { get; set; }
-        public int SongLength { get; set; } //歌曲时长，单位 秒
+        public string SongLength { get; set; } //歌曲时长，00:03:26
         public DateTime ExpirationTime { get; set; } // 版权到期时间
         public string CopyrightFilePath { get; set; } //版权到期证明
         public int PlayTimes { get; set; } // 播放次数

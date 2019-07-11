@@ -70,7 +70,13 @@ namespace Mic.Repository.Repositories
             int result = helper.Execute($@"update  SongBook set Status=0 where Id={id}");
             return result > 0 ? true : false;
         }
-        
+
+
+        /// <summary>
+        /// 主要用于后台上传和修改歌曲
+        /// </summary>
+        /// <param name="songBookEntity"></param>
+        /// <returns></returns>
         public Tuple<bool, SongBookEntity> AddOrUpdateSong(SongBookEntity songBookEntity)
         {
             SongBookEntity updateEntity = songBookEntity;
@@ -81,16 +87,24 @@ namespace Mic.Repository.Repositories
                     SingerName='{songBookEntity.SingerName}',SongMark='{songBookEntity.SongMark}',
                     SongPath='{songBookEntity.SongPath}',SongBPM='{songBookEntity.SongBPM}',
                     ExpirationTime='{songBookEntity.ExpirationTime}' where Id={songBookEntity.Id}");
+
             }
             else
             {
+
                 var p = new DynamicParameters();
                 p.Add("@Id", dbType: DbType.Int32, direction: ParameterDirection.Output);
-                result = helper.Execute($@"insert into SongBook (SongName,SingerName,SongMark,SongPath,SongBPM,ExpirationTime) 
+                result = helper.Execute($@"insert into SongBook (SongName,SingerName,SongMark,SongPath,SongBPM,
+ExpirationTime,AuditStatus,SongLength,UploadTime,Status) 
                     values ('{songBookEntity.SongName}','{songBookEntity.SingerName}','{songBookEntity.SongMark}',
-'{songBookEntity.SongPath}','{songBookEntity.SongBPM}','{songBookEntity.ExpirationTime}');SELECT @Id=SCOPE_IDENTITY()", p);
+'{songBookEntity.SongPath}','{songBookEntity.SongBPM}','{songBookEntity.ExpirationTime}',{2},
+'{songBookEntity.SongLength}','{DateTime.Now}',{1});SELECT @Id=SCOPE_IDENTITY()", p);
                 var id = p.Get<int>("@Id");
                 songBookEntity.Id = id;
+                helper.Execute($@"insert into SongOptDetail (SongId,Note,OptType,OptTime) values(
+                {id},'上传歌曲',{1},'{DateTime.Now}')");
+
+
             }
             return Tuple.Create(result > 0 ? true : false, updateEntity);
         }
