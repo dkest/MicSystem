@@ -263,7 +263,7 @@
                         $('#songPlay_divs').attr("display", 'none');
                     },
                     yes: function (index, layero) {
-                        layer.close();
+                        layer.close(index);
                     }
                 });
             }
@@ -339,7 +339,7 @@
                 }, '@Url.Action("GetSongMakList", "SongManage")', true, true);
 
 
-                $("#bqzm_img_audit").attr('src', "~" + data.CopyrightFilePath);
+                $("#bqzm_img_audit").attr('src',  data.FullCopyrightFilePath);
 
                 layer.open({
                     type: 1,
@@ -453,7 +453,7 @@
                         $('#songPlay_divs').attr("display", 'none');
                     },
                     yes: function (index, layero) {
-                        layer.close();
+                        layer.close(index);
                     }
                 });
             }
