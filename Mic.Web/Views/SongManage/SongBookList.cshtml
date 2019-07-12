@@ -1,6 +1,18 @@
 ﻿@{
     ViewBag.Title = "曲库列表";
 }
+<script>
+    var liList = $(".main-layout-header").find('li');
+    $(".main-layout-header").find('.layui-this').removeClass("layui-this");
+    $.each(liList, function (index, item) {
+        var selectIndex = $(item).attr("data-index");
+        if (selectIndex == "1") {
+            $(item).addClass("layui-this");
+        }
+    });
+    
+</script>
+
 <style>
     .r_content {
         padding-top: 25px;

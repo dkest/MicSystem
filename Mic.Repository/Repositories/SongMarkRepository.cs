@@ -51,6 +51,7 @@ namespace Mic.Repository.Repositories
                 if (arr.Contains(id.ToString()))
                 {
                     hasUsed = true;
+                    break;
                 }
             }
             if (hasUsed)

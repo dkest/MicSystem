@@ -1,0 +1,215 @@
+﻿
+@{
+    ViewBag.Title = "StoreManageList";
+}
+<script>
+    var liList = $(".main-layout-header").find('li');
+
+    $(".main-layout-header").find('.layui-this').removeClass("layui-this");
+    $.each(liList, function (index, item) {
+
+        var selectIndex = $(item).attr("data-index");
+
+        if (selectIndex == "2") {
+            $(item).addClass("layui-this");
+        }
+    });
+
+
+</script>
+<style>
+    .search_div {
+        padding-left: 10px;
+        margin-top: 10px;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        line-height: 50px;
+        height: 50px;
+        background-color: rgb(244,244,244);
+    }
+
+    #store_search_text {
+        width: 250px;
+        height: 32px;
+        margin-right: 20px;
+    }
+</style>
+<div class=" content">
+    <div class="layui-row layui-form">
+        <div style="margin-left:10px;  margin-left: 10px;padding-top: 20px;padding-bottom: 20px;">
+            <button type="button" id="add_store_btn" class="layui-btn layui-btn-normal layui-btn-sm">增加商家</button>
+            <button type="button" id="store_type_btn" class="layui-btn layui-btn-primary layui-btn-sm">商家类型</button>
+            <button type="button" id="" class="layui-btn layui-btn-primary layui-btn-sm">散户收入</button>
+
+        </div>
+        <div class="search_div">
+            搜索商家:
+            <div class="layui-input-inline">
+                <input type="text" id="store_search_text" autocomplete="off" placeholder="请输入商家名称或登录手机号" class="layui-input">
+            </div>
+            <button id="search_btn" type="button" class="layui-btn layui-btn-normal layui-btn-sm">搜索</button>
+            <button id="search_reset_btn" type="button" class="layui-btn layui-btn-primary layui-btn-sm">重置</button>
+
+        </div>
+    </div>
+    <div id="table_content">
+        <table class="layui-table" lay-filter="store_list" id="store_list"></table>
+    </div>
+
+</div>
+
+
+<div id="store_type_edit_div" style="display:none">
+    <div class="layui-input-inline">
+        <input type="text" id="store_type_text" autocomplete="off" placeholder="请输入商家类型名称" class="layui-input">
+    </div>
+    <button type="button" id="add_store_type_btn" class="alert_page_btn layui-btn layui-btn-normal layui-btn-sm">新增</button>
+  
+    <table class="layui-table" lay-filter="store_type_table" id="store_type_table"></table>
+</div>
+<script type="text/html" id="store_type_opt">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+
+<script>
+    var storeListTable;
+    var storeTypeTable;
+    layui.use('table', function () {
+        var table = layui.table;
+        // 商家列表
+        storeListTable = table.render({
+            elem: '#store_list'
+            , height: "full-285"
+            ,page: true
+            //, url: '@Url.Action("GetApprovedSongList", "SongManage")'
+            ,limit: 10
+            ,limits: [10, 20, 30, 40, 50]
+            ,autoSort: false
+            , cols: [[
+                , {
+                    field: 'StoreName', width: 200, title: '商家名称', event: 'store_detail', style: 'cursor: pointer;',
+                    templet: function (d) {
+                        return '<a style="text-decoration:none;">'+d+'</a>';
+                    }
+                }
+                , { field: 'Phone', minWidth: 100, title: '登录手机号' }
+                , { field: 'SongLength', width: 120, title: '商家类型'}
+                , { field: 'SingerName', width: 120, title: '分店数' }
+                , { field: 'ExpirationTimeStr', event:'change_status', title: '启用状态', width: 200 }
+                , { fixed: 'right', title: '操作', toolbar: '#store_list_opt', width: 140 }
+            ]]
+            , parseData: function (res) {
+                $.each(res.data, function (index, value) {
+                   //数据格式化
+
+                });
+                return {"code": res.code, "msg": res.msg,"count": res.count,"data": res.data };
+            }
+        });
+
+        table.on('tool(store_list)', function (obj) {
+            var data = obj.data
+            var layEvent = obj.event;
+            if (layEvent === 'manage') {
+
+            } else if (layEvent === 'edit') {
+
+
+            }
+            else if (layEvent === 'store_detail') {//跳转商家详情
+
+
+            } else if (layEvent == 'change_status') {//改变启用状态
+                if (data.Status) {//禁用商家
+                    layer.confirm('禁用后，该商家及分店登录手机号不可登录系统，确定要禁用该商家吗？', function (index) {
+
+
+                    @*Service.ajax(JSON.stringify({ id: data.Id }), function (result) {
+                        if (result.status) {
+                            layer.msg('删除成功');
+                        }
+                    }, '@Url.Action("DeleteSongById", "SongManage")', true, true);*@
+                    });
+                } else {//启用商家
+
+                }
+
+            }
+        });
+
+        // 商家类型表格
+         storeTypeTable = table.render({
+             elem: '#store_type_table'
+            , height: "180"
+            , url: '@Url.Action("GetStoreTypeList", "StoreManage")'
+            , size: 'sm'
+            , cols: [[
+                {type: "numbers", fixed:"left", width:50}
+                , { field: 'StoreTypeName', width: 280, title: '商家类型',edit:'text' }
+                , { fixed: 'right', title: '操作', toolbar: '#songmakListOpt', width: 140 }
+            ]]
+            
+        });
+        // 监听商家类型表格编辑
+        table.on('edit(store_type_table)', function (obj) {
+            var temp;
+            var value = obj.value //得到修改后的值
+                , data = obj.data //得到所在行所有键值
+                , field = obj.field; //得到字段
+            var param = { "Id": obj.data.Id, "StoreTypeName": obj.data.StoreTypeName };
+            if (obj.data.StoreTypeName == "") {
+                layer.msg("商家类型名称不能为空");
+                return;
+            }
+            Service.ajax(JSON.stringify(param), function (result) {
+                if (result.status) {
+                    layer.msg("保存成功");
+                }
+            }, '@Url.Action("AddOrUpdateStoreType", "StoreManage")', true, true);
+
+        });
+        // 增加歌曲标签，新行
+        $("#add_store_type_btn").click(function () {
+            if ($("#store_type_text").val() == "") {
+                layer.msg("标签名称不能为空");
+                return;
+            }
+            var param = { "Id": -1, "StoreTypeName": $("#store_type_text").val() };
+            Service.ajax(JSON.stringify(param), function (result) {
+                if (result.status) {
+                    layer.msg("添加成功");
+                    $("#store_type_text").val("");
+                    storetypeTable.reload({});
+                }
+            }, '@Url.Action("AddOrUpdateStoreType", "StoreManage")', true, true);
+               
+    });
+    //商家类型 其他事件监听
+    table.on('tool(store_type_table)', function (obj) {
+            var data = obj.data //获得当前行数据
+                , layEvent = obj.event; //获得 lay-event 对应的值
+             if (layEvent === 'del') {
+                layer.confirm('删除后，新商家无法选择该类型，确认要删除吗？', function (index) {
+
+                    layer.close(index);
+                    //向服务端发送删除指令
+                    Service.ajax(JSON.stringify({ id: data.Id }), function (result) {
+                        if (result.status) {
+                            layer.msg("删除成功");
+                            obj.del(); //删除对应行（tr）的DOM结构
+                        } else {
+                            layer.msg(result.msg);
+                        }
+                    }, '@Url.Action("DeleteStoreType", "StoreManage")', true, true);
+                });
+            }
+        });
+
+
+    });
+</script>
+<script type="text/html" id="store_list_opt">
+    <a class="layui-btn layui-btn-xs" lay-event="manage">管理</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="edit">编辑</a>
+</script>

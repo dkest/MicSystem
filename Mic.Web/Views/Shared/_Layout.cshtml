@@ -49,20 +49,20 @@
                 <ul class="layui-nav">
                     <li class="layui-nav-item"><a><img src="~/Content/images/logo.jpg" /></a></li>
 
-                    <li class="layui-nav-item layui-this">
-                        <a href="">曲库管理</a>
+                    <li data-index="1" class="layui-nav-item layui-this">
+                        <a  href="/SongManage/SongBookList">曲库管理</a>
 
                     </li>
+                    <li data-index="2" class="layui-nav-item">
+                        <a  href="/StoreManage/StoreManageList">商家管理</a>
+
+                    </li>
+                    <li data-index="3" class="layui-nav-item"><a  href="">独立音乐人管理</a></li>
                     <li class="layui-nav-item">
-                        <a href="javascript:;">商家管理</a>
+                        <a data-index="4" href="javascript:;">统计分析</a>
 
                     </li>
-                    <li class="layui-nav-item"><a href="">独立音乐人管理</a></li>
-                    <li class="layui-nav-item">
-                        <a href="javascript:;">统计分析</a>
-
-                    </li>
-                    <li class="layui-nav-item"><a href="">账号管理</a></li>
+                    <li data-index="5"  class="layui-nav-item"><a  href="">账号管理</a></lidata-index="5">
                     <li class="layui-nav-item" style="position: absolute;right: 0px">
                         <a href="javascript:;">@UserName</a>
                         <dl class="layui-nav-child">
@@ -94,6 +94,7 @@
         $("#logout").click(function () {
            window.location.assign('@Url.Action("Login", "Account")');
         });
+       
     </script>
 
 </body>

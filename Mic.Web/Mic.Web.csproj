@@ -287,7 +287,6 @@
     <Folder Include="Views\File\" />
     <Folder Include="Views\SingerManage\" />
     <Folder Include="Views\Statistics\" />
-    <Folder Include="Views\StoreManage\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
@@ -296,6 +295,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <Content Include="Views\StoreManage\StoreManageList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mic.Entity\Mic.Entity.csproj">
