@@ -93,7 +93,7 @@ namespace Mic.Web.Controllers
         public ActionResult DeleteSongMark(int id)
         {
             var result = songMarkRepository.DeleteSongMark(id);
-            return Json(new { status = result });
+            return Json(new { status = result.Item1, msg=result.Item2 });
         }
 
         public ActionResult GetSongMakList()

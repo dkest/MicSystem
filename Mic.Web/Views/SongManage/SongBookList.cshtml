@@ -151,14 +151,26 @@
                 , { field: 'SongName', minWidth: 100, title: '歌曲名' }
                 , { field: 'SongLength', width: 120, title: '时长'}
                 , { field: 'SingerName', width: 120, title: '歌手' }
-                , { field: 'ExpirationTime', title: '版权有效期至', width: 200 }
+                , { field: 'ExpirationTimeStr', title: '版权有效期至', width: 200 }
                 , { field: 'PlayTimes', width: 120, title: '播放次数', sort: true }
                 , { fixed: 'right', title: '操作', toolbar: '#barDemo', width: 140 }
             ]]
             , parseData: function (res) { //res 即为原始返回的数据
                 $.each(res.data, function (index, value) {
-                    value.ExpirationTime = Service.FormatDate("yyyy-MM-dd HH:mm:ss", Service.ConvertNetDate(value.ExpirationTime));
-                   // value.SongLength = Service.ConvertSecondsTime(value.SongLength);
+                    value.ExpirationTime = Service.FormatDate("yyyy-MM-dd", Service.ConvertNetDate(value.ExpirationTime));
+                    // value.SongLength = Service.ConvertSecondsTime(value.SongLength);
+                    var currentTime = new Date();
+                    if (value.ExpirationTime) {
+                        var arr1 = value.ExpirationTime.split(" ");
+                        var sdate = arr1[0].split('-');
+                        var date = new Date(sdate[0], sdate[1] - 1, sdate[2]);
+                        if (date < currentTime) {
+                            value.ExpirationTimeStr = "已过期";
+                        } else {
+                            value.ExpirationTimeStr = value.ExpirationTime;
+                        }
+                    } 
+                    
                 });
                 return {
                     "code": res.code, //解析接口状态
@@ -251,8 +263,8 @@
                         return "<i class='layui-icon' >&#xe652;</i>";
                     }
                 }
-                , { field: 'SongName', width: 200, title: '歌曲名' }
-                , { field: 'SongLength', width: 80, title: '时长'}
+                , { field: 'SongName', width: 170, title: '歌曲名' }
+                , { field: 'SongLength', width: 110, title: '时长'}
                 , { field: 'SingerName', width: 140, title: '独立音乐人' }
                 , { field: 'AuditStatusStr', title: '审核状态', width: 100 }
                 , { field: 'HasCopyright', width: 100, title: '版权证明' }
@@ -411,7 +423,10 @@
         });
         $("#song_search_btn").click(function () {
             songListTable.reload({
-                where: { keyword: $("#song_search_text").val() }
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+                ,where: { keyword: $("#song_search_text").val(), }
                 , url: '@Url.Action("GetApprovedSongList", "SongManage")'
                 , method: 'get'
             });
@@ -428,7 +443,10 @@
         });
         $("#audit_search_btn").click(function () {
             auditListTable.reload({
-                where: {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+                ,where: {
                     keyword: $("#audit_search_text").val(),
                     auditStatus: $("#audit_status_select").val()
                 }
@@ -633,12 +651,15 @@
                 , layEvent = obj.event; //获得 lay-event 对应的值
              if (layEvent === 'del') {
                 layer.confirm('删除后，上传或审核歌曲时无法选择标签，确认要删除吗？', function (index) {
-                    obj.del(); //删除对应行（tr）的DOM结构
+                    
                     layer.close(index);
                     //向服务端发送删除指令
                     Service.ajax(JSON.stringify({ id: data.Id }), function (result) {
                         if (result.status) {
                             layer.msg("删除成功");
+                            obj.del(); //删除对应行（tr）的DOM结构
+                        } else {
+                            layer.msg(result.msg);
                         }
                     }, '@Url.Action("DeleteSongMark", "SongManage")', true, true);
                 });

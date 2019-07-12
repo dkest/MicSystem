@@ -58,7 +58,15 @@ namespace Mic.Repository.Repositories
             string sql = string.Format(@"
                 select top {0} * from (select row_number() over(order by Id) as rownumber,SongBook.*
                     from SongBook  where Status=1 and {2}  {3}) temp_row
-                    where temp_row.rownumber>(({1}-1)*{0});", pageParam.PageSize, pageParam.PageIndex, auditSql, likeSql);
+                    where temp_row.rownumber>(({1}-1)*{0})
+order by   
+    case AuditStatus   
+    when 1 then 1     
+    when 3 then 2     
+    when 2 then 3     
+    end  
+asc     
+;", pageParam.PageSize, pageParam.PageIndex, auditSql, likeSql);
             int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from SongBook where Status=1 and  {auditSql} {likeSql}"));
             return Tuple.Create(count, helper.Query<SongBookEntity>(sql).ToList());
 

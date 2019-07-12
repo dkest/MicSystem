@@ -39,10 +39,27 @@ namespace Mic.Repository.Repositories
             return Tuple.Create(result > 0 ? true : false,updateEntity);
         }
 
-        public bool DeleteSongMark(int id)
+        public Tuple<bool,string> DeleteSongMark(int id)
         {
+            //删除之前判断该标签是否被使用
+            List<int> usedIdList = new List<int>();
+            bool hasUsed = false;
+            var temp = helper.Query<SongBookEntity>($@"select distinct SongMark from SongBook;");
+            foreach (var item in temp)
+            {
+                var arr = item.SongMark.Split(',');
+                if (arr.Contains(id.ToString()))
+                {
+                    hasUsed = true;
+                }
+            }
+            if (hasUsed)
+            {
+                return Tuple.Create(false,"该歌曲标签正在被使用，无法被删除。");
+            }
+
             int result = helper.Execute($@"delete from SongMark where Id={id}");
-            return result > 0 ? true : false;
+            return Tuple.Create( result > 0 ? true : false,string.Empty);
         }
 
         public List<SongMarkEntity> GetSongMakList()
