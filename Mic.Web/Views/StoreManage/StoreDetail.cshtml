@@ -1,0 +1,399 @@
+﻿
+@{
+    ViewBag.Title = "商家详情";
+}
+<script>
+    var liList = $(".main-layout-header").find('li');
+    $(".main-layout-header").find('.layui-this').removeClass("layui-this");
+    $.each(liList, function (index, item) {
+        var selectIndex = $(item).attr("data-index");
+        if (selectIndex == "2") {
+            $(item).addClass("layui-this");
+        }
+    });
+</script>
+<style>
+    .label_title {
+        width: 100%;
+        text-align: end;
+        line-height: 32px;
+    }
+
+    .label_content {
+        width: 100%;
+        text-align: left;
+        line-height: 32px;
+    }
+</style>
+<div class="layui-form">
+    <div class="layui-row" style="padding-top:20px;">
+        <div class="layui-col-lg1 layui-col-md1">
+            <label class="label_title">商家名称：</label>
+        </div>
+        <div class="layui-col-lg5 layui-col-md5">
+            <span id="store_name" class="label_content"></span>
+        </div>
+        <div class="layui-col-lg1 layui-col-md1">
+            <label class="label_title">商家类型：</label>
+        </div>
+        <div class="layui-col-lg4 layui-col-md4">
+            <span id="store_type" class="label_content"></span>
+        </div>
+        <div class="layui-col-lg1 layui-col-md1">
+            <button id="edit_store_info" class="layui-btn layui-btn-normal">编辑</button>
+        </div>
+    </div>
+    <div class="layui-row" style="padding-top:15px;">
+        <div class="layui-col-lg1 layui-col-md1">
+            <label class="label_title">登陆手机号：</label>
+        </div>
+        <div class="layui-col-lg5 layui-col-md5">
+            <span id="store_phone" class="label_content"></span>
+        </div>
+        <div class="layui-col-lg1 layui-col-md1">
+            <label class="label_title">所在地址：</label>
+        </div>
+        <div class="layui-col-lg5 layui-col-md5">
+            <span id="store_address" class="label_content"></span>
+        </div>
+    </div>
+    <div class="layui-row" style="padding-top:15px;">
+        <div class="layui-col-lg1 layui-col-md1">
+            <label class="label_title">授权合同：</label>
+        </div>
+        <div class="layui-col-lg5 layui-col-md5">
+            <img id="sqht_img" width="200" height="150" />
+        </div>
+    </div>
+    <div class="layui-row" style="padding-top:20px;">
+        <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+            <ul class="layui-tab-title">
+                <li class="layui-this">网站设置</li>
+                <li>用户管理</li>
+
+            </ul>
+            <div class="layui-tab-content" style="height: 270px;">
+                <div class="layui-tab-item layui-show">内容不一样是要有，因为你可以监听tab事件（阅读下文档就是了）</div>
+                <div class="layui-tab-item">内容2</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var province;
+    var city;
+    var county;
+    var currentInfo;
+    var storeTypeName;
+
+    var currentId  = @ViewBag.storeId;
+    
+    var  fileName = "";
+    layui.use('table', function () {
+        var table = layui.table;
+        var form = layui.form;
+         // 商家类型下拉框初始化
+        $("#store_type_edit").empty();
+        $("#store_type_edit").append('<option value="-1">请选择</option>');
+         Service.ajax(JSON.stringify({ }), function (result) {
+             if (result.code==0) {
+                 $.each(result.data, function (index, item) {
+                     $("#store_type_edit").append('<option value="' + item.Id + '">'+item.StoreTypeName+'</option>');
+                 });
+                 form.on('select(store_type_select)', function (data) {
+                     currentInfo.StoreTypeId = data.value;
+                     storeTypeName = data.elem[data.elem.selectedIndex].text;
+                 });
+                 form.render();
+            }
+         }, '@Url.Action("GetStoreTypeList", "StoreManage")', false);
+        
+
+
+        //省市区选择初始化
+        $("#add_province").empty();
+        $("#add_province").append('<option value="-1">请选择省</option>');
+        $("#add_city").empty();
+        $("#add_city").append('<option value="-1">请选择市</option>');
+        $("#add_county").empty();
+        $("#add_county").append('<option value="-1">请选择县</option>');
+        Service.ajax(JSON.stringify({ }), function (result) {
+             $.each(result.data, function (index, item) {
+                 $("#add_province").append('<option value="' + item.Id + '">'+item.CityName+'</option>');
+             });
+
+        }, '@Url.Action("GetProvinceList", "City")', false);
+
+
+
+        Service.ajax(JSON.stringify({ storeId:currentId}), function (result) {
+            if (result.status) {
+                currentInfo = result.data
+
+                $("#store_name").html(result.data.StoreName);
+                $("#store_type").html(result.data.StoreTypeName);
+                $("#store_phone").html(result.data.Phone);
+                var imgPath = currentInfo.FullDelegatingContractPath;
+                $("#sqht_img").attr("src", imgPath);
+                // 编辑框信息
+                $("#store_type_edit").val(result.data.StoreTypeId);
+                $("#store_name_edit").val(currentInfo.StoreName);
+                $("#store_type_edit").val(currentInfo.StoreTypeId);
+                $("#store_phone_edit").val(currentInfo.Phone);
+                $("#store_count_edit").val(currentInfo.MaximumStore);
+                $("#store_password_edit").val(currentInfo.Password);
+                $("#detail_address_edit").val(currentInfo.DetailAddress);
+
+                $("#add_province").val(currentInfo.Province);
+                form.on('select(province)', function (data) {
+                    currentInfo.Province = data.value;
+                    province = data.elem[data.elem.selectedIndex].text;
+                });
+
+                $("#add_city").empty();
+                $("#add_city").append('<option value="-1">请选择市</option>');
+                Service.ajax(JSON.stringify({ provinceId: currentInfo.Province }), function (result) {
+                    $.each(result.data, function (index, item) {
+                         $("#add_city").append('<option value="' + item.Id + '">' + item.CityName + '</option>');
+                    });
+                    $("#add_city").val(currentInfo.City);
+                    form.render();
+                    form.on('select(city)', function (data) {
+                        currentInfo.City = data.value;
+                        city = data.elem[data.elem.selectedIndex].text;
+                    });
+
+                }, '@Url.Action("GetCityList", "City")', false);
+
+
+                 $("#add_county").empty();
+                $("#add_county").append('<option value="-1">请选择</option>');
+                Service.ajax(JSON.stringify({ cityId: currentInfo.City }), function (result) {
+                    $.each(result.data, function (index, item) {
+                         $("#add_county").append('<option value="' + item.Id + '">' + item.CityName + '</option>');
+                    });
+                    $("#add_county").val(currentInfo.County);
+                     form.render();
+                    form.on('select(county)', function (data) {
+                        currentInfo.County = data.value;
+                        county = data.elem[data.elem.selectedIndex].text;
+                            });
+                }, '@Url.Action("GetCountyList", "City")', false);
+
+                form.render()
+
+
+
+                $("#sqht_img").click(function () {
+                    layer.open({
+                        type: 1,
+                        title: false,
+                        closeBtn: 0,
+                        area:['auto','auto'],
+                        skin: 'layui-layer-nobg', //没有背景色
+                        shadeClose: true,
+                        content: "<img src='"+imgPath+"'/>"
+                    });
+                });
+                var detailAddress = result.data.DetailAddress;
+                var param = { province: result.data.Province, city: result.data.City, county: result.data.County };
+                Service.ajax(JSON.stringify(param), function (result) {
+                    province = result.province;
+                    city = result.city;
+                    county = result.county;
+                    $("#store_address").html(province+" " + city+" " + county +" " + detailAddress);
+                }, '@Url.Action("GetDeatilCity", "City")', true, true);
+            }
+            else {
+                layer.msg("获取商家信息失败");
+            }
+        }, '@Url.Action("GetStoreDetailById", "StoreManage")', false);
+
+
+       
+        bindEvent();
+    });
+
+    var bindEvent = function () {
+        $('#edit_store_info').click(function () {
+
+            layer.open({
+                    type: 1,
+                    title: '<span style="font-weight:bolder;">编辑商家</span>',
+                    move: false,
+                    btn: ['确定', '取消'],
+                    skin: 'tempSkin',
+                    area: ['800px', '550px'],
+                    content: $('#store_add_edit_div'),
+                    success: function () {
+                        $('#store_add_edit_div').attr("display", 'block');
+                    },
+                    end: function () {
+                        $('#store_add_edit_div').attr("display", 'none');
+                    },
+                    yes: function (index, layero) {
+                        saveStoreInfo(index);
+                    }
+                });
+        });
+    };
+
+    var saveStoreInfo = function (layerIndex) {
+        if (currentInfo.StoreTypeId == -1) {
+            layer.msg("请选择商家类型");
+            return;
+        }
+        if ($("#store_name_edit").val()=="") {
+            layer.msg("商家名称不能为空");
+            return;
+        }
+        if ($("#store_phone_edit").val()=="") {
+            layer.msg("登录手机号不能为空");
+            return;
+        }
+        if ($("#store_password_edit").val()=="") {
+            layer.msg("登录密码不能为空");
+            return;
+        }
+        if ($("#store_count_edit").val()=="") {
+            layer.msg("分店数量不能为空");
+            return;
+        }
+        if (currentInfo.DelegatingContract == "") {
+            layer.msg("必须先选择授权和同文件");
+            return;
+        }
+        var param = {
+            Id: currentId, StoreId: currentId,
+            UserName: $("#store_name_edit").val(),StoreName:$("#store_name_edit").val(), StoreTypeId: currentInfo.StoreTypeId,
+            Phone: $("#store_phone_edit").val(), Password: $("#store_password_edit").val(),
+            MaximumStore: $("#store_count_edit").val(), Province: currentInfo.Province == null ? -1 : currentInfo.Province,
+            City: currentInfo.City == null ? "-1" : currentInfo.City, County: currentInfo.County == null ? "-1" : currentInfo.County,
+            DetailAddress: $("#detail_address_edit").val(), DelegatingContract: currentInfo.DelegatingContract
+       };
+       Service.ajax(JSON.stringify(param), function (result) {
+           if (result.status) {
+
+                $("#store_name").html($("#store_name_edit").val());
+                $("#store_type").html(storeTypeName);
+                $("#store_phone").html($("#store_phone_edit").val());
+                var imgPath = currentInfo.FullDelegatingContractPath;
+               $("#sqht_img").attr("src", imgPath);
+               $("#store_address").html(province + " " + city + " " + county+" " +  $("#detail_address_edit").val());
+               layer.msg('保存成功');
+               layer.close(layerIndex);
+           }
+       }, '@Url.Action("AddOrUpdateStoreInfo", "StoreManage")', true, true);
+    };
+
+
+</script>
+
+<script>
+    layui.use(['upload', 'jquery'], function () {
+        var upload = layui.upload;
+            var $ = layui.jquery;
+        upload.render({
+        elem: '#upload_btn'
+        , url: '@Url.Action("UploadOrdinaryFile", "File")'
+        ,accept:'file' //普通文件
+        , done: function (res) {
+            if (res.status) {
+                currentInfo.DelegatingContract = res.fileName;
+                layer.msg("上传成功");
+            } else {
+                layer.msg("上传失败");
+            }
+        }
+    });
+    });
+
+
+</script>
+
+<div id="store_add_edit_div" class="layui-form" style="display:none;margin-right:20px; margin-top:20px;">
+    <div class="layui-row" style="margin-top:20px;">
+        <div class="layui-col-sm6 layui-col-md6 ">
+            <div class="layui-form-item">
+                <label class="layui-form-label">商家名称</label>
+                <div class="layui-input-block">
+                    <input type="text" id="store_name_edit" name="title" lay-verify="required" autocomplete="off" placeholder="请输入" class="layui-input">
+                </div>
+
+            </div>
+
+        </div>
+        <div class="layui-col-sm6 layui-col-xs6 layui-col-md6 ">
+            <label class="layui-form-label">商家类型</label>
+            <div class="layui-input-block">
+                <select id="store_type_edit" lay-filter="store_type_select">
+                    <option value="-1" selected="">请选择</option>
+
+                </select>
+            </div>
+
+        </div>
+    </div>
+    <div class="layui-row" style="margin-top:8px;">
+        <div class="layui-col-md6 ">
+            <label class="layui-form-label">登录手机号</label>
+            <div class="layui-input-block">
+                <input type="number" id="store_phone_edit" placeholder="请输入" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-col-md6">
+            <label class="layui-form-label">登录密码</label>
+            <div class="layui-input-block">
+                <input type="password" id="store_password_edit" placeholder="包含数字和字母，不可少于6位" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-row" style="margin-top:20px;margin-right:15px;">
+        <div class="layui-col-md6 ">
+            <div class="layui-row">
+                <label class="layui-form-label">分店数量</label>
+                <div class="layui-input-block">
+                    <input type="number" id="store_count_edit" placeholder="请输入" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-row" style="margin-top:8px;">
+                <label class="layui-form-label">所在地址</label>
+                <div class="layui-input-block" id="area-picker">
+                    <div style="margin-bottom:10px;" lay-filter="province" class="layui-form">
+                        <select id="add_province" name="province" class="province-selector" style="margin-bottom:8px;" lay-filter="province">
+                            <option value="">请选择省</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom:10px;">
+                        <select id="add_city" name="city" class="city-selector" style="margin-bottom:8px;" lay-filter="city">
+                            <option value="">请选择市</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom:10px;">
+                        <select id="add_county" name="county" class="county-selector" style="margin-bottom:8px;" lay-filter="county">
+                            <option value="">请选择区</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-row" style="margin-top:8px;">
+                <label class="layui-form-label"></label>
+                <div class="layui-input-block">
+                    <textarea id="detail_address_edit" placeholder="请输入内容" class="layui-textarea"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md6">
+            <label class="layui-form-label">授权合同</label>
+            <div class="layui-input-block">
+                <div class="layui-upload-drag" id="upload_btn" style="height:100px;width: 225px;">
+                    <i class="layui-icon layui-icon-add-1" style="font-size: 30px; color: #1E9FFF;"></i>
+                    <p>点击上传</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

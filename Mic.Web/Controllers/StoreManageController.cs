@@ -18,6 +18,11 @@ namespace Mic.Web.Controllers
         {
             return View();
         }
+        public ActionResult StoreDetail()
+        {
+            ViewBag.storeId = GetIntValFromReq("storeId");
+            return View();
+        }
 
         #region 商家类型
         public ActionResult GetStoreTypeList()
@@ -67,6 +72,13 @@ namespace Mic.Web.Controllers
         {
             var result = storeRepository.AddOrUpdateStoreInfo(entity);
             return Json(new { status=result.Item1, data=result.Item2},JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetStoreDetailById(int storeId)
+        {
+            var result = storeRepository.GetStoreDetailById(storeId);
+            return Json(new { status = result.Item1, data = result.Item2 }, JsonRequestBehavior.AllowGet);
+
         }
         #endregion
     }

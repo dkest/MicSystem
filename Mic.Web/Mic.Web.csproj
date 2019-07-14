@@ -126,6 +126,7 @@
     <Compile Include="Common\CommonConst.cs" />
     <Compile Include="Common\SessionHelper.cs" />
     <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\CityController.cs" />
     <Compile Include="Controllers\FileController.cs" />
     <Compile Include="Controllers\StoreManageController.cs" />
     <Compile Include="Controllers\StatisticsController.cs" />
@@ -285,6 +286,7 @@
     <Folder Include="Models\" />
     <Folder Include="Utils\" />
     <Folder Include="Views\Base\" />
+    <Folder Include="Views\City\" />
     <Folder Include="Views\File\" />
     <Folder Include="Views\SingerManage\" />
     <Folder Include="Views\Statistics\" />
@@ -297,6 +299,7 @@
     <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <Content Include="Views\StoreManage\StoreManageList.cshtml" />
+    <Content Include="Views\StoreManage\StoreDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mic.Entity\Mic.Entity.csproj">

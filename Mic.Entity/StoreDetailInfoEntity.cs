@@ -19,14 +19,20 @@ namespace Mic.Entity
         public string StoreTypeName { get; set; }//商家类型名称
         public string BusinessLicense { get; set; }
         public string LegalPerson { get; set; }
-        public string Provice { get; set; }
-        public string City { get; set; }
-        public string County { get; set; }
+        public int Province { get; set; }
+        public string ProvinceName { get; set; }
+        public int City { get; set; }
+        public string CityName { get; set; }
+        public int County { get; set; }
+        public string CountyName { get; set; }
         public string DetailAddress { get; set; }
         public int MaximumStore { get; set; } //最大分店数量
         public int ValidSonStoreNum { get; set; } //有效分店数量
         public string DelegatingContract { get; set; } //授权合同文件路径
-        
+        public string FullDelegatingContractPath
+        {
+            get { return "http://152.136.227.143" + DelegatingContract; }
+        }
         public DateTime CreateTime { get; set; }
         public bool Enabled { get; set; }
         //public bool Status { get; set; }

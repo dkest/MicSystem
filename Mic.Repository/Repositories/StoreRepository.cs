@@ -37,10 +37,6 @@ where a.Status=1 and a.UserType=2  and a.IsMain=1  {likeSql}"));
             return Tuple.Create(count, helper.Query<StoreDetailInfoEntity>(sql).ToList());
         }
 
-
-
-
-
         /// <summary>
         /// 添加或更新商家
         /// </summary>
@@ -55,7 +51,7 @@ where a.Status=1 and a.UserType=2  and a.IsMain=1  {likeSql}"));
                 result = helper.Execute($@"update [User] set UserName='{storeInfo.UserName}',
  Phone='{storeInfo.Phone}',Password='{storeInfo.Password}' where Id={storeInfo.StoreId};
 update StoreDetailInfo set StoreName='{storeInfo.StoreName}',StoreTypeId={storeInfo.StoreTypeId},MaximumStore={storeInfo.MaximumStore},
-DelegatingContract='{storeInfo.DelegatingContract}',Provice='{storeInfo.Provice}',City='{storeInfo.City}',
+DelegatingContract='{storeInfo.DelegatingContract}',Province='{storeInfo.Province}',City='{storeInfo.City}',
 County='{storeInfo.County}',DetailAddress='{storeInfo.DetailAddress}' where UserId={storeInfo.StoreId};");
                 id = storeInfo.StoreId;
             }
@@ -66,15 +62,15 @@ County='{storeInfo.County}',DetailAddress='{storeInfo.DetailAddress}' where User
                 string sql = $@"insert into [User] (UserName,Password,Phone,UserType,IsMain,
 StoreCode,StoreManage,SongManage,UserManage,Status) values ('{storeInfo.UserName}','{storeInfo.Password}',
 '{storeInfo.Phone}',{2},{1},'{Guid.NewGuid().ToString()}',{1},{1},{1},{1});SELECT @Id=SCOPE_IDENTITY()";
-                result = helper.Execute(sql,p);
+                result = helper.Execute(sql, p);
 
                 id = p.Get<int>("@Id");
-                var detailSql = $@"insert into StoreDetailInfo (UserId,StoreName,StoretypeId,Provice,City,County,
+                var detailSql = $@"insert into StoreDetailInfo (UserId,StoreName,StoretypeId,Province,City,County,
 DetailAddress,MaximumStore,DelegatingContract,CreateTime,Enabled) values ({id},'{storeInfo.StoreName}',
-{storeInfo.StoreTypeId},'{storeInfo.Provice}','{storeInfo.City}','{storeInfo.County}','{storeInfo.DetailAddress}',
+{storeInfo.StoreTypeId},'{storeInfo.Province}','{storeInfo.City}','{storeInfo.County}','{storeInfo.DetailAddress}',
 {storeInfo.MaximumStore},'{storeInfo.DelegatingContract}','{DateTime.Now}',{1});";
                 helper.Execute(detailSql);
-                
+
             }
             return Tuple.Create(true, id);
         }
@@ -89,6 +85,19 @@ DetailAddress,MaximumStore,DelegatingContract,CreateTime,Enabled) values ({id},'
         {
             string sql = $@"update [StoreDetailInfo] set  Enabled='{status}' where UserId={id};";
             return helper.Execute(sql) > 0 ? true : false;
+        }
+
+        /// <summary>
+        /// 根据商家Id 获取商家详细信息
+        /// </summary>
+        /// <param name="storeId"></param>
+        /// <returns></returns>
+        public Tuple<bool, StoreDetailInfoEntity> GetStoreDetailById(int storeId)
+        {
+            string sql = $@"select * from [User] a  left join StoreDetailInfo b on a.Id= b.UserId 
+left join StoreType c on c.Id=b.StoreTypeId  where a.Id = {storeId}";
+            var result = helper.Query<StoreDetailInfoEntity>(sql).FirstOrDefault();
+            return Tuple.Create(result == null ? false : true, result);
         }
 
     }
