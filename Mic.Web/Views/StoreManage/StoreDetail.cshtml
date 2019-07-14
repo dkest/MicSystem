@@ -26,7 +26,7 @@
     }
 </style>
 <div class="layui-form">
-    <div class="layui-row" style="padding-top:20px;">
+    <div class="layui-row" style="padding-top:15px;">
         <div class="layui-col-lg1 layui-col-md1">
             <label class="label_title">商家名称：</label>
         </div>
@@ -43,7 +43,7 @@
             <button id="edit_store_info" class="layui-btn layui-btn-normal">编辑</button>
         </div>
     </div>
-    <div class="layui-row" style="padding-top:15px;">
+    <div class="layui-row" style="padding-top:12px;">
         <div class="layui-col-lg1 layui-col-md1">
             <label class="label_title">登陆手机号：</label>
         </div>
@@ -57,7 +57,7 @@
             <span id="store_address" class="label_content"></span>
         </div>
     </div>
-    <div class="layui-row" style="padding-top:15px;">
+    <div class="layui-row" style="padding-top:12px;">
         <div class="layui-col-lg1 layui-col-md1">
             <label class="label_title">授权合同：</label>
         </div>
@@ -65,16 +65,35 @@
             <img id="sqht_img" width="200" height="150" />
         </div>
     </div>
-    <div class="layui-row" style="padding-top:20px;">
+    <div class="layui-row" style="padding-top:15px;">
         <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
             <ul class="layui-tab-title">
-                <li class="layui-this">网站设置</li>
-                <li>用户管理</li>
+                <li class="layui-this">商家分店</li>
+                <li>商家歌单</li>
 
             </ul>
-            <div class="layui-tab-content" style="height: 270px;">
-                <div class="layui-tab-item layui-show">内容不一样是要有，因为你可以监听tab事件（阅读下文档就是了）</div>
-                <div class="layui-tab-item">内容2</div>
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+                    <div>分店上限：<span id="FDMax"></span> ；已开通: <span id="YKT"></span></div>
+                    <div id="table_content">
+                        <table class="layui-table" lay-filter="son_store_list" id="son_store_list"></table>
+                    </div>
+                </div>
+                <div class="layui-tab-item">
+                    <div class="layui-row">
+                        <div class="layui-col-md11 layui-col-lg11">
+                            <button id="edit_song_list_btn" class="layui-btn layui-btn-normal layui-btn-sm">编辑歌单</button>
+                            <button id="publish_song_list_btn" class="layui-btn layui-btn-primary layui-btn-sm">发布歌单</button>
+                        </div>
+                        <div class="layui-col-md1 layui-col-lg1">
+                            <span id="song_list_his_btn" style="color:blue;cursor:pointer;">查看历史歌单</span>
+                        </div>
+                    </div>
+                    <div style="margin:5px;">商家当前歌单更新时间：<span id="songListUpdateTime"></span> </div>
+                    <div id="table_content">
+                        <table class="layui-table" lay-filter="store_song_list" id="store_song_list"></table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -88,8 +107,11 @@
     var storeTypeName;
 
     var currentId  = @ViewBag.storeId;
-    
-    var  fileName = "";
+
+    var fileName = "";
+
+    var songListUpdateTime = "";
+
     layui.use('table', function () {
         var table = layui.table;
         var form = layui.form;
@@ -108,7 +130,7 @@
                  form.render();
             }
          }, '@Url.Action("GetStoreTypeList", "StoreManage")', false);
-        
+
 
 
         //省市区选择初始化
@@ -130,6 +152,9 @@
         Service.ajax(JSON.stringify({ storeId:currentId}), function (result) {
             if (result.status) {
                 currentInfo = result.data
+
+                $("#FDMax").html(currentInfo.MaximumStore);
+                $("#YKT").html(currentInfo.ValidSonStoreNum);
 
                 $("#store_name").html(result.data.StoreName);
                 $("#store_type").html(result.data.StoreTypeName);
@@ -161,14 +186,14 @@
 
 
                     $("#add_city").empty();
-                $("#add_city").append('<option value="-1">请选择市</option>');
-                Service.ajax(JSON.stringify({ provinceId: currentInfo.Province }), function (result) {
-                    $.each(result.data, function (index, item) {
-                         $("#add_city").append('<option value="' + item.Id + '">' + item.CityName + '</option>');
-                    });
-                    $("#add_city").val(currentInfo.City);
-                    form.render();
-                    form.on('select(city)', function (data) {
+                    $("#add_city").append('<option value="-1">请选择市</option>');
+                    Service.ajax(JSON.stringify({ provinceId: currentInfo.Province }), function (result) {
+                        $.each(result.data, function (index, item) {
+                            $("#add_city").append('<option value="' + item.Id + '">' + item.CityName + '</option>');
+                        });
+                        $("#add_city").val(currentInfo.City);
+                        form.render();
+                        form.on('select(city)', function (data) {
                         currentInfo.City = data.value;
                         city = data.elem[data.elem.selectedIndex].text;
 
@@ -181,19 +206,13 @@
                         $("#add_county").val(currentInfo.County);
                         form.render();
                         form.on('select(county)', function (data) {
-                        currentInfo.County = data.value;
-                        county = data.elem[data.elem.selectedIndex].text;
-                            });
-                }, '@Url.Action("GetCountyList", "City")', false);
-
-                form.render()
-                    });
-
-                }, '@Url.Action("GetCityList", "City")', false);
-
-
-
-
+                            currentInfo.County = data.value;
+                            county = data.elem[data.elem.selectedIndex].text;
+                        });
+                        }, '@Url.Action("GetCountyList", "City")', false);
+                            form.render()
+                        });
+                    }, '@Url.Action("GetCityList", "City")', false);
                 });
 
                 $("#add_city").empty();
@@ -255,8 +274,76 @@
             }
         }, '@Url.Action("GetStoreDetailById", "StoreManage")', false);
 
+        //商家分店
+        table.render({
+            elem: '#son_store_list'
+            , height: "230"
+            , page: false
+            , url: '@Url.Action("GetSonStoreListByStoreId", "StoreManage")'
+            , limit: 10
+            ,size:'sm'
+            , where: { keyword: "", storeId: currentId }
+            ,limits: [10, 20, 30, 40, 50]
+            ,autoSort: false
+            , cols: [[
+                  { field: 'StoreName', width: '50%', title: '分店名称'}
+                , { field: 'Phone', width: '50%', title: '登录手机号' }
+            ]]
+            , parseData: function (res) {
+                $.each(res.data, function (index, value) {
+                    value.FDS = value.ValidSonStoreNum + "/" + value.MaximumStore;
 
-       
+                });
+                return {"code": res.code, "msg": res.msg,"count": res.count,"data": res.data };
+            }
+        });
+
+        //商家歌单
+        table.render({
+            elem: '#store_song_list'
+            , height: "190"
+            , page: false
+            , url: '@Url.Action("GetPlayListByStoreId", "StoreManage")'
+            , limit: 10
+            ,size:'sm'
+            , where: { keyword: "", storeId: currentId }
+            ,limits: [10, 20, 30, 40, 50]
+            ,autoSort: false
+            , cols: [[
+                 {type: "numbers", fixed:"left", width:50}
+                , { field: 'SongName', minWidth: 100, title: '歌曲名称' }
+                , { field: 'SongLength', width: 150, title: '时长'}
+                , { field: 'SingerName', width: 150, title: '歌手' }
+                , { field: 'ExpirationTimeStr', title: '版权有效期至', width: 220 }
+            ]]
+            , parseData: function (res) {
+                songListUpdateTime = res.updateTime;
+
+                $.each(res.data, function (index, value) {
+                    value.ExpirationTime = Service.FormatDate("yyyy-MM-dd", Service.ConvertNetDate(value.ExpirationTime));
+
+                    var currentTime = new Date();
+                    if (value.ExpirationTime) {
+                        var arr1 = value.ExpirationTime.split(" ");
+                        var sdate = arr1[0].split('-');
+                        var date = new Date(sdate[0], sdate[1] - 1, sdate[2]);
+                        if (date < currentTime) {
+                            value.ExpirationTimeStr = "已过期";
+                        } else {
+                            value.ExpirationTimeStr = value.ExpirationTime;
+                        }
+                    }
+
+                });
+                return {
+                    "code": res.code, "msg": res.msg, "count": res.count, "data": res.data //解析数据列表
+                };
+            }
+            , done: function (res,curr,count) {
+                $("#songListUpdateTime").html(songListUpdateTime);
+            }
+        });
+
         bindEvent();
     });
 
@@ -281,6 +368,10 @@
                         saveStoreInfo(index);
                     }
                 });
+        });
+
+        $("#song_list_his_btn").click(function () {
+            location.href = '@Url.Action("HisSongList", "StoreManage")?storeId=' + currentId;
         });
     };
 
@@ -392,8 +483,8 @@
             <div class="layui-input-block">
                 <input type="number" id="store_count_edit" placeholder="请输入" class="layui-input">
             </div>
-            <label style="display:none"  class="layui-form-label">登录密码</label>
-            <div style="display:none"  class="layui-input-block">
+            <label style="display:none" class="layui-form-label">登录密码</label>
+            <div style="display:none" class="layui-input-block">
                 <input type="password" id="store_password_edit" placeholder="包含数字和字母，不可少于6位" class="layui-input">
             </div>
         </div>
@@ -401,11 +492,11 @@
     <div class="layui-row" style="margin-top:20px;margin-right:15px;">
         <div class="layui-col-md6 ">
             @*<div class="layui-row">
-                <label class="layui-form-label">分店数量</label>
-                <div class="layui-input-block">
-                    <input type="number" id="store_count_edit" placeholder="请输入" class="layui-input">
-                </div>
-            </div>*@
+                    <label class="layui-form-label">分店数量</label>
+                    <div class="layui-input-block">
+                        <input type="number" id="store_count_edit" placeholder="请输入" class="layui-input">
+                    </div>
+                </div>*@
             <div class="layui-row" style="margin-top:8px;">
                 <label class="layui-form-label">所在地址</label>
                 <div class="layui-input-block" id="area-picker">

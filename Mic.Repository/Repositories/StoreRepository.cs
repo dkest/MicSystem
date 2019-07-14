@@ -100,5 +100,19 @@ left join StoreType c on c.Id=b.StoreTypeId  where a.Id = {storeId}";
             return Tuple.Create(result == null ? false : true, result);
         }
 
+        /// <summary>
+        /// 根据商家Id 获取 商家分店列表
+        /// </summary>
+        /// <param name="storeId"></param>
+        /// <returns></returns>
+        public List<StoreDetailInfoEntity> GetSonStoreListById(int storeId)
+        {
+            string storeCode = helper.QueryScalar($@"select StoreCode from [User] where Id={storeId}").ToString();
+
+            var result = helper.Query<StoreDetailInfoEntity>($@"select * from [User] a  left join StoreDetailInfo b on a.Id= b.UserId 
+left join StoreType c on c.Id=b.StoreTypeId  where a.StoreCode = '{storeCode}' and UserType=3;").ToList();
+            return result;
+        }
+
     }
 }

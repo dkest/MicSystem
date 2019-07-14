@@ -62,6 +62,7 @@
     <Compile Include="IRepositories\ITokenRepository.cs" />
     <Compile Include="IRepositories\IUserRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\PlayListRepository.cs" />
     <Compile Include="Repositories\CityRepository.cs" />
     <Compile Include="Repositories\StoreRepository.cs" />
     <Compile Include="Repositories\StoreTypeRepository.cs" />

@@ -1,0 +1,114 @@
+﻿
+@{
+    ViewBag.Title = "历史歌单";
+}
+<script>
+    var liList = $(".main-layout-header").find('li');
+    $(".main-layout-header").find('.layui-this').removeClass("layui-this");
+    $.each(liList, function (index, item) {
+        var selectIndex = $(item).attr("data-index");
+        if (selectIndex == "2") {
+            $(item).addClass("layui-this");
+        }
+    });
+</script>
+<div id="his_song_time_line" style="padding-top:30px;padding-bottom:30px;">
+    <ul class="layui-timeline">
+        <li class="layui-timeline-item">
+            <i class="layui-icon layui-timeline-axis"></i>
+            <div class="layui-timeline-content layui-text">
+                <h5 class="layui-timeline-title"><span>2019-7-14 12:34:30 </span><span id="show_table_btn" style="color:blue;cursor:pointer;margin-left:20px;">查看歌单详情</span></h5>
+                <div>
+                </div>
+            </div>
+        </li>
+
+        <li class="layui-timeline-item">
+            <i class="layui-icon layui-timeline-axis"></i>
+            <div class="layui-timeline-content layui-text">
+                <div class="layui-timeline-title">过去</div>
+            </div>
+        </li>
+    </ul>
+</div>
+<div id="table_content_div" style="display:none;">
+    <table class="layui-table" lay-filter="his_song_list" id="his_song_list"></table>
+</div>
+<script>
+    var table;
+    var hisSongListTable;
+    layui.use('table', function () {
+        table = layui.table;
+        var form = layui.form;
+    });
+
+
+
+    $("#his_song_time_line").empty();
+    var htmlStr = '<ul class="layui-timeline">';
+    Service.ajax(JSON.stringify({ storeId: @ViewBag.storeId }), function (result) {
+        if (result.status) {
+            $.each(result.data, function (index, item) {
+                 htmlStr += ' <li class="layui-timeline-item">' +
+                     '<i class="layui-icon layui-timeline-axis"></i>' +
+                     '<div class="layui-timeline-content layui-text">' +
+                     '<h5 class="layui-timeline-title">' +
+                     Service.FormatDate("yyyy-MM-dd HH:mm:ss", Service.ConvertNetDate(item.UpdateTime)) + "   " +
+                     '<span id="show_table_btn" data-show="0" data-id="' + item.Id + '" data-list="' + item.ListContent + '" style="color:blue;cursor:pointer;margin-left:20px;">查看歌单详情</span>'
+                     + '</h5>' +
+                     '<table style="display:none;" class="layui-table" lay-filter="his_song_list' + item.Id + '" id="his_song_list'+item.Id+'"></table>'
+                    '</div></li>'
+            });
+            htmlStr += "</ul>";
+            $("#his_song_time_line").html(htmlStr);
+        }
+    }, '@Url.Action("GetHisPlayList", "StoreManage")', true);
+
+    $('#his_song_time_line').delegate('ul li div h5 span#show_table_btn', 'click', function () {
+        var listContent = $(this).attr("data-list");
+        var show = $(this).attr("data-show");
+        
+        var id = $(this).attr("data-id");
+        var temp = "his_song_list" + id;
+        if (show == '0') {
+            $(this).attr("data-show", '1');
+            $(this).html("收起");
+            $("#" + temp).show();
+        }
+        else {
+            $(this).attr("data-show", '0');
+            $(this).html("查看歌单详情");
+            $("#" + temp).next().hide();
+            return;
+        }
+        
+
+        table.render({
+            elem: '#' + temp
+            , page: false
+            , url: '@Url.Action("GetHisSongList", "StoreManage")'
+            , limit: 10
+            , size: 'sm'
+            , where: { keyword: "", listContent: listContent }
+            ,autoSort: false
+            , cols: [[
+                {type: "numbers", fixed:"left", width:50}
+
+                , { field: 'SongName', minWidth: 200, title: '歌曲名称' }
+                , { field: 'SongLength', width: 120, title: '时长'}
+                , { field: 'SingerName', width: 120, title: '歌手' }
+                , { field: 'SongMark', title: '标签', width: 200 }
+                , { field: 'PlayTimes', width: 120, title: '累计播放次数'}
+               //, { field: 'PlayTimes', width: 120, title: '累计播放时长', sort: true }
+            ]]
+            , parseData: function (res) {
+                $.each(res.data, function (index, value) {
+
+                });
+                return {"code": res.code, "msg": res.msg, "count": res.count, "data": res.data };
+            }
+        });
+    });
+
+</script>
+
