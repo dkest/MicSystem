@@ -47,20 +47,22 @@
     $("#his_song_time_line").empty();
     var htmlStr = '<ul class="layui-timeline">';
     Service.ajax(JSON.stringify({ storeId: @ViewBag.storeId }), function (result) {
-        if (result.status) {
+        if (result.status && result.data.length > 0) {
             $.each(result.data, function (index, item) {
-                 htmlStr += ' <li class="layui-timeline-item">' +
-                     '<i class="layui-icon layui-timeline-axis"></i>' +
-                     '<div class="layui-timeline-content layui-text">' +
-                     '<h5 class="layui-timeline-title">' +
-                     Service.FormatDate("yyyy-MM-dd HH:mm:ss", Service.ConvertNetDate(item.UpdateTime)) + "   " +
-                     '<span id="show_table_btn" data-show="0" data-id="' + item.Id + '" data-list="' + item.ListContent + '" style="color:blue;cursor:pointer;margin-left:20px;">查看歌单详情</span>'
-                     + '</h5>' +
-                     '<table style="display:none;" class="layui-table" lay-filter="his_song_list' + item.Id + '" id="his_song_list'+item.Id+'"></table>'
-                    '</div></li>'
+                htmlStr += ' <li class="layui-timeline-item">' +
+                    '<i class="layui-icon layui-timeline-axis"></i>' +
+                    '<div class="layui-timeline-content layui-text">' +
+                    '<h5 class="layui-timeline-title">' +
+                    Service.FormatDate("yyyy-MM-dd HH:mm:ss", Service.ConvertNetDate(item.UpdateTime)) + "   " +
+                    '<span id="show_table_btn" data-show="0" data-id="' + item.Id + '" data-list="' + item.ListContent + '" style="color:blue;cursor:pointer;margin-left:20px;">查看歌单详情</span>'
+                    + '</h5>' +
+                    '<table style="display:none;" class="layui-table" lay-filter="his_song_list' + item.Id + '" id="his_song_list' + item.Id + '"></table>'
+                '</div></li>'
             });
             htmlStr += "</ul>";
             $("#his_song_time_line").html(htmlStr);
+        } else {
+            $("#his_song_time_line").html("当前商家没有任何历史歌单。");
         }
     }, '@Url.Action("GetHisPlayList", "StoreManage")', true);
 

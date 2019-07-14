@@ -414,7 +414,7 @@
                 $("#store_name").html($("#store_name_edit").val());
                 $("#store_type").html(storeTypeName);
                 $("#store_phone").html($("#store_phone_edit").val());
-                var imgPath = currentInfo.FullDelegatingContractPath;
+               var imgPath = "http://152.136.227.143" +currentInfo.DelegatingContract;//currentInfo.FullDelegatingContractPath;
                $("#sqht_img").attr("src", imgPath);
                $("#store_address").html(province + " " + city + " " + county+" " +  $("#detail_address_edit").val());
                layer.msg('保存成功');
