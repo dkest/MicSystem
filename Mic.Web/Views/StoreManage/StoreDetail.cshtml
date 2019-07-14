@@ -149,6 +149,51 @@
                 form.on('select(province)', function (data) {
                     currentInfo.Province = data.value;
                     province = data.elem[data.elem.selectedIndex].text;
+                      $("#add_city").empty();
+                    $("#add_city").append('<option value="-1">请选择市</option>');
+                     $("#add_county").empty();
+                    $("#add_county").append('<option value="-1">请选择</option>');
+                    currentInfo.City = -1;
+                    currentInfo.County = -1;
+                    $("#add_city").val(currentInfo.City);
+                    $("#add_county").val(currentInfo.City);
+                    form.render();
+
+
+                    $("#add_city").empty();
+                $("#add_city").append('<option value="-1">请选择市</option>');
+                Service.ajax(JSON.stringify({ provinceId: currentInfo.Province }), function (result) {
+                    $.each(result.data, function (index, item) {
+                         $("#add_city").append('<option value="' + item.Id + '">' + item.CityName + '</option>');
+                    });
+                    $("#add_city").val(currentInfo.City);
+                    form.render();
+                    form.on('select(city)', function (data) {
+                        currentInfo.City = data.value;
+                        city = data.elem[data.elem.selectedIndex].text;
+
+                        $("#add_county").empty();
+                        $("#add_county").append('<option value="-1">请选择</option>');
+                        Service.ajax(JSON.stringify({ cityId: currentInfo.City }), function (result) {
+                        $.each(result.data, function (index, item) {
+                            $("#add_county").append('<option value="' + item.Id + '">' + item.CityName + '</option>');
+                         });
+                        $("#add_county").val(currentInfo.County);
+                        form.render();
+                        form.on('select(county)', function (data) {
+                        currentInfo.County = data.value;
+                        county = data.elem[data.elem.selectedIndex].text;
+                            });
+                }, '@Url.Action("GetCountyList", "City")', false);
+
+                form.render()
+                    });
+
+                }, '@Url.Action("GetCityList", "City")', false);
+
+
+
+
                 });
 
                 $("#add_city").empty();
@@ -343,20 +388,24 @@
             </div>
         </div>
         <div class="layui-col-md6">
-            <label class="layui-form-label">登录密码</label>
+            <label class="layui-form-label">分店数量</label>
             <div class="layui-input-block">
+                <input type="number" id="store_count_edit" placeholder="请输入" class="layui-input">
+            </div>
+            <label style="display:none"  class="layui-form-label">登录密码</label>
+            <div style="display:none"  class="layui-input-block">
                 <input type="password" id="store_password_edit" placeholder="包含数字和字母，不可少于6位" class="layui-input">
             </div>
         </div>
     </div>
     <div class="layui-row" style="margin-top:20px;margin-right:15px;">
         <div class="layui-col-md6 ">
-            <div class="layui-row">
+            @*<div class="layui-row">
                 <label class="layui-form-label">分店数量</label>
                 <div class="layui-input-block">
                     <input type="number" id="store_count_edit" placeholder="请输入" class="layui-input">
                 </div>
-            </div>
+            </div>*@
             <div class="layui-row" style="margin-top:8px;">
                 <label class="layui-form-label">所在地址</label>
                 <div class="layui-input-block" id="area-picker">
