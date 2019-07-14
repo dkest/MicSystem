@@ -6,6 +6,7 @@ namespace Mic.Entity
     {
         public int Id { get; set; }
         public string UserName { get; set; }
+        public string Password { get; set; }
         public string Phone { get; set; }
         public int UserType { get; set; } // 1-音乐人；2-商家；3-分店
         public bool IsMain { get; set; } //只有当userType=2的时候，此字段才有效，1是商家主体，0则为商家员工

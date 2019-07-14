@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using Mic.Entity;
 using Mic.Repository.Dapper;
-using Mic.Repository.IRepositories;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,8 +9,6 @@ using System.Linq;
 
 namespace Mic.Repository.Repositories
 {
-    //ZNJSToolUtil.MD5Encrypt(password)
-
     public class StoreTypeRepository
     {
         private DapperHelper<SqlConnection> helper;
@@ -52,7 +49,7 @@ namespace Mic.Repository.Repositories
             var temp = helper.Query<StoreDetailInfoEntity>($@"select distinct StoreTypeId from StoreDetailInfo;");
             foreach (var item in temp)
             {
-                if (item.StoreTypeId== id)
+                if (item.StoreTypeId == id)
                 {
                     hasUsed = true;
                     break;

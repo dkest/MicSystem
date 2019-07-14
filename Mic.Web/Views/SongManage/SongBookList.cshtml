@@ -10,7 +10,7 @@
             $(item).addClass("layui-this");
         }
     });
-    
+
 </script>
 
 <style>
@@ -212,7 +212,7 @@
                 $("#song_edit_singername").val(data.SingerName);
                 $("#song_edit_bpm").val(data.SongBPM);
                 $("#yxq_song").val(data.ExpirationTime);
-                //$("#songmark_select").val(data.ma);
+                
                 var t = data.SongMark.split(',');
 
 
@@ -222,6 +222,7 @@
                     $("#song_edit_singername").removeAttr("readonly");
                 }
                 currentId = data.Id;
+                fileName = data.SongPath;
                 Service.ajax(JSON.stringify({}), function (result) {
                     if (result.count > 0) {
 
@@ -541,23 +542,6 @@
                 },
                 yes: function (index, layero) {
                     layer.close(index);
-                    // 保存编辑的数据到数据库 songmarkList
-                    @*$.each(songmarkList, function (index, item) {
-                        var param;
-                        if (item.update) {
-                            if (item.add) {
-                                param = { "Id": -1, "MarkName": item.MarkName };
-                            } else {
-                                param = { "Id": item.Id, "MarkName": item.MarkName };
-                            }
-                            Service.ajax(JSON.stringify(param), function (result) {
-                                if (result.status) {
-                                }
-                            }, '@Url.Action("AddOrUpdateSongMark", "SongManage")', true, true);
-                        }
-                    });
-                    layer.msg("保存成功");
-                    songmarkTable.reload({});*@
                 }
             });
         });

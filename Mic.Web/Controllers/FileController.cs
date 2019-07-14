@@ -13,13 +13,7 @@ namespace Mic.Web.Controllers
         {
             try
             {
-                //HttpPostedFileBase
-                //HttpFileCollection filelist = HttpContext.Current.Request.Files;
-                ///获取上传的文件
                 var file = Request.Files[0];
-                //HttpFileCollectionBase files = Request.Files;
-                //HttpPostedFileBase file = files[0];
-
                 var strServerFilePath = Server.MapPath("/UploadFile/Audio/");
 
                 if (!Directory.Exists(strServerFilePath))
@@ -36,7 +30,33 @@ namespace Mic.Web.Controllers
             }
             catch (Exception ex)
             {
+                Logger.FileLoggerHelper.WriteErrorLog("upload Audio file error-"+ex.Message);
+                throw;
+            }
 
+        }
+
+        [HttpPost]
+        public ActionResult UploadOrdinaryFile()
+        {
+            try
+            {
+                var file = Request.Files[0];
+                var strServerFilePath = Server.MapPath("/UploadFile/Other/");
+
+                if (!Directory.Exists(strServerFilePath))
+                    Directory.CreateDirectory(strServerFilePath);
+                int fileSize = file.ContentLength; //得到文件大小
+                string extensionName = Path.GetExtension(file.FileName); //得到扩展名
+                string fileName = Guid.NewGuid().ToString();
+                string fullPath = Path.Combine(strServerFilePath, fileName + extensionName);
+                file.SaveAs(fullPath);
+
+                return Json(new { status = true, fileName = "/UploadFile/Other/" + fileName + extensionName });
+            }
+            catch (Exception ex)
+            {
+                Logger.FileLoggerHelper.WriteErrorLog("upload Audio file error-" + ex.Message);
                 throw;
             }
 

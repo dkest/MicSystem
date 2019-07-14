@@ -33,6 +33,10 @@
         height: 32px;
         margin-right: 20px;
     }
+
+    #store_add_edit_div input {
+        height: 32px;
+    }
 </style>
 <div class=" content">
     <div class="layui-row layui-form">
@@ -58,13 +62,13 @@
 
 </div>
 
-
-<div id="store_type_edit_div" style="display:none">
+<!--商家类型管理-->
+<div id="store_type_edit_div" style="display:none;margin:15px ">
     <div class="layui-input-inline">
-        <input type="text" id="store_type_text" autocomplete="off" placeholder="请输入商家类型名称" class="layui-input">
+        <input type="text" id="store_type_text" style="height:32px;" autocomplete="off" placeholder="请输入商家类型名称" class="layui-input">
     </div>
     <button type="button" id="add_store_type_btn" class="alert_page_btn layui-btn layui-btn-normal layui-btn-sm">新增</button>
-  
+
     <table class="layui-table" lay-filter="store_type_table" id="store_type_table"></table>
 </div>
 <script type="text/html" id="store_type_opt">
@@ -75,33 +79,42 @@
 <script>
     var storeListTable;
     var storeTypeTable;
+
+    var currentId = -1;
+    var currentSelectStoreTypeId;
+    var fileName;
+    var address;
+
     layui.use('table', function () {
         var table = layui.table;
+        var form = layui.form;
+
         // 商家列表
         storeListTable = table.render({
             elem: '#store_list'
             , height: "full-285"
             ,page: true
-            //, url: '@Url.Action("GetApprovedSongList", "SongManage")'
-            ,limit: 10
+            , url: '@Url.Action("GetStoreList", "StoreManage")'
+            , limit: 10
+            ,where: { keyword: "" }
             ,limits: [10, 20, 30, 40, 50]
             ,autoSort: false
             , cols: [[
-                , {
-                    field: 'StoreName', width: 200, title: '商家名称', event: 'store_detail', style: 'cursor: pointer;',
+                 {
+                    field: 'StoreName', width: 380, title: '商家名称', event: 'store_detail', style: 'cursor: pointer;',
                     templet: function (d) {
-                        return '<a style="text-decoration:none;">'+d+'</a>';
+                        return '<span style="color:blue;">'+d.StoreName+'</span>';
                     }
                 }
-                , { field: 'Phone', minWidth: 100, title: '登录手机号' }
-                , { field: 'SongLength', width: 120, title: '商家类型'}
-                , { field: 'SingerName', width: 120, title: '分店数' }
-                , { field: 'ExpirationTimeStr', event:'change_status', title: '启用状态', width: 200 }
+                , { field: 'Phone', width: 160, title: '登录手机号' }
+                , { field: 'StoreTypeName', width: 160, title: '商家类型'}
+                , { field: 'FDS', width: 140, title: '分店数' }
+                , { field: 'Enabled', title: '启用状态', width: 140,event:'change_status', templet: '#switchTpl', unresize: true  }
                 , { fixed: 'right', title: '操作', toolbar: '#store_list_opt', width: 140 }
             ]]
             , parseData: function (res) {
                 $.each(res.data, function (index, value) {
-                   //数据格式化
+                    value.FDS = value.ValidSonStoreNum + "/" + value.MaximumStore;
 
                 });
                 return {"code": res.code, "msg": res.msg,"count": res.count,"data": res.data };
@@ -114,25 +127,86 @@
             if (layEvent === 'manage') {
 
             } else if (layEvent === 'edit') {
+                initStoreTypeSelect();
+                currentId = data.StoreId;
+                fileName = data.DelegatingContract;
+                address = { city: data.City, province: data.Provice, county: data.County };
+                $("#store_name_edit").val(data.StoreName);
+                $("#store_type_edit").val(data.StoreTypeId);
 
+                var select = 'dd[lay-value=' + data.StoreTypeId + ']';
+                $('#store_type_edit').siblings("div.layui-form-select").find('dl').find(select).click();// 查找点击
+               
+
+                $("#store_phone_edit").val(data.Phone);
+                $("#store_count_edit").val(data.MaximumStore);
+                $("#store_password_edit").val(data.Password);
+                $("#detail_address_edit").val(data.DetailAddress);
+                form.render("province-1");
+                $("#add_province").attr('data-value', data.Provice);
+                $("#add_city").attr('data-value', data.City);
+                $("#add_county").attr('data-value', data.County);
+                $("#add_province option[text='" + data.Provice + "']").attr("selected", true);
+                $("#add_city option[text='" + data.City + "']").attr("selected", true); 
+                $("#add_county option[text='"+data.County+"']").attr("selected", true); 
+                //var select = 'dd[lay-value=' + data.StoreTypeId + ']';
+               // $('#store_type_edit').siblings("div.layui-form-select").find('dl').find(select).click();// 查找点击
+               
+
+
+                form.render('select')
+                layer.open({
+                    type: 1,
+                    title: '<span style="font-weight:bolder;">修改商家</span>',
+                    move: false,
+                    btn: ['确定', '取消'],
+                    skin: 'tempSkin',
+                    area: ['800px', '550px'],
+                    content: $('#store_add_edit_div'),
+                    success: function () {
+                        $('#store_add_edit_div').attr("display", 'block');
+                    },
+                    end: function () {
+                        $('#store_add_edit_div').attr("display", 'none');
+                    },
+                    yes: function (index, layero) {
+                        saveStoreInfo(index);
+                    }
+                });
 
             }
             else if (layEvent === 'store_detail') {//跳转商家详情
 
 
             } else if (layEvent == 'change_status') {//改变启用状态
-                if (data.Status) {//禁用商家
-                    layer.confirm('禁用后，该商家及分店登录手机号不可登录系统，确定要禁用该商家吗？', function (index) {
+                if (data.Enabled) {
+                    layer.confirm('禁用后，该商家及分店登录手机号不可登录系统，确认禁用该商家？', { btn: ['确定', '取消'] },
+                        function (index) {
+                            layer.close(index);
+                            Service.ajax(JSON.stringify({ id: data.StoreId, status: false }), function (result) {
+                                if (result.status) {
+                                    layer.msg("禁用成功");
+                                    storeListTable.reload({});
+                                } else {
+                                    layer.msg(result.msg);
+                                }
+                            }, '@Url.Action("UpdateStoreStatus", "StoreManage")', true, true);
+                        },
+                        function (index) {
+                            layer.close(index);
+                            storeListTable.reload({});
+                        });
+                } else {
+                    console.log(data);
+                    Service.ajax(JSON.stringify({ id: data.StoreId, status: true }), function (result) {
+                            if (result.status) {
+                                layer.msg("启用成功");
+                                storeListTable.reload({});
 
-
-                    @*Service.ajax(JSON.stringify({ id: data.Id }), function (result) {
-                        if (result.status) {
-                            layer.msg('删除成功');
-                        }
-                    }, '@Url.Action("DeleteSongById", "SongManage")', true, true);*@
-                    });
-                } else {//启用商家
-
+                            } else {
+                                layer.msg(result.msg);
+                            }
+                        }, '@Url.Action("UpdateStoreStatus", "StoreManage")', true, true);
                 }
 
             }
@@ -141,7 +215,7 @@
         // 商家类型表格
          storeTypeTable = table.render({
              elem: '#store_type_table'
-            , height: "180"
+            , height: "160"
             , url: '@Url.Action("GetStoreTypeList", "StoreManage")'
             , size: 'sm'
             , cols: [[
@@ -149,7 +223,7 @@
                 , { field: 'StoreTypeName', width: 280, title: '商家类型',edit:'text' }
                 , { fixed: 'right', title: '操作', toolbar: '#songmakListOpt', width: 140 }
             ]]
-            
+
         });
         // 监听商家类型表格编辑
         table.on('edit(store_type_table)', function (obj) {
@@ -169,10 +243,10 @@
             }, '@Url.Action("AddOrUpdateStoreType", "StoreManage")', true, true);
 
         });
-        // 增加歌曲标签，新行
+        // 增加商家类型
         $("#add_store_type_btn").click(function () {
             if ($("#store_type_text").val() == "") {
-                layer.msg("标签名称不能为空");
+                layer.msg("商家类型名称不能为空");
                 return;
             }
             var param = { "Id": -1, "StoreTypeName": $("#store_type_text").val() };
@@ -180,20 +254,19 @@
                 if (result.status) {
                     layer.msg("添加成功");
                     $("#store_type_text").val("");
-                    storetypeTable.reload({});
+                    storeTypeTable.reload({});
                 }
             }, '@Url.Action("AddOrUpdateStoreType", "StoreManage")', true, true);
-               
-    });
+
+        });
     //商家类型 其他事件监听
-    table.on('tool(store_type_table)', function (obj) {
+         table.on('tool(store_type_table)', function (obj) {
             var data = obj.data //获得当前行数据
                 , layEvent = obj.event; //获得 lay-event 对应的值
              if (layEvent === 'del') {
                 layer.confirm('删除后，新商家无法选择该类型，确认要删除吗？', function (index) {
 
                     layer.close(index);
-                    //向服务端发送删除指令
                     Service.ajax(JSON.stringify({ id: data.Id }), function (result) {
                         if (result.status) {
                             layer.msg("删除成功");
@@ -204,12 +277,288 @@
                     }, '@Url.Action("DeleteStoreType", "StoreManage")', true, true);
                 });
             }
-        });
+         });
+
+        bindEvent();
 
 
     });
+
+    var saveStoreInfo = function (layerIndex) {
+        if (currentSelectStoreTypeId == -1) {
+            layer.msg("请选择商家类型");
+            return;
+        }
+        if ($("#store_name_edit").val()=="") {
+            layer.msg("商家名称不能为空");
+            return;
+        }
+        if ($("#store_phone_edit").val()=="") {
+            layer.msg("登录手机号不能为空");
+            return;
+        }
+        if ($("#store_password_edit").val()=="") {
+            layer.msg("登录密码不能为空");
+            return;
+        }
+        if ($("#store_count_edit").val()=="") {
+            layer.msg("分店数量不能为空");
+            return;
+        }
+        if (fileName=="") {
+            layer.msg("必须先选择授权和同文件");
+            return;
+        }
+        var param = {
+            Id: currentId, StoreId: currentId,
+            UserName: $("#store_name_edit").val(),StoreName:$("#store_name_edit").val(), StoreTypeId: currentSelectStoreTypeId,
+            Phone: $("#store_phone_edit").val(), Password: $("#store_password_edit").val(),
+            MaximumStore: $("#store_count_edit").val(), Provice: address == null ? "" : address.province,
+            City: address == null ? "" : address.city, County: address == null ? "" : address.county,
+            DetailAddress: $("#detail_address_edit").val(), DelegatingContract: fileName
+       };
+       Service.ajax(JSON.stringify(param), function (result) {
+           if (result.status) {
+               storeListTable.reload({});
+               layer.msg('保存成功');
+               layer.close(layerIndex);
+           }
+       }, '@Url.Action("AddOrUpdateStoreInfo", "StoreManage")', true, true);
+    };
+    function renderForm() {
+        layui.use('form', function () {
+        var form = layui.form;
+            form.render();
+            form.on('select(store_type_select)', function (data) {
+                currentSelectStoreTypeId = data.value;
+            });
+        });
+    }
+    //初始化商家类型下拉选择列表
+    var initStoreTypeSelect = function () {
+        $("#store_type_edit").empty();
+        $("#store_type_edit").append('<option value="-1">请选择</option>');
+         Service.ajax(JSON.stringify({ }), function (result) {
+             if (result.code==0) {
+                 $.each(result.data, function (index, item) {
+                     $("#store_type_edit").append('<option value="' + item.Id + '">'+item.StoreTypeName+'</option>');
+                 });
+                 
+                 renderForm();
+            }
+        }, '@Url.Action("GetStoreTypeList", "StoreManage")',false);
+
+    };
+    var bindEvent = function () {
+        $('#add_store_btn').click(function () {
+            initStoreTypeSelect();
+            currentId = -1;
+            currentSelectStoreTypeId = -1;
+            fileName = "";
+            address = null;
+            $("#store_name_edit").val("");
+            $("#store_type_edit").val("-1");
+            $("#store_phone_edit").val("");
+            $("#store_password_edit").val("");
+            $("#detail_address_edit").val("");
+
+            layer.open({
+                    type: 1,
+                    title: '<span style="font-weight:bolder;">新增商家</span>',
+                    move: false,
+                    btn: ['确定', '取消'],
+                    skin: 'tempSkin',
+                    area: ['800px', '550px'],
+                    content: $('#store_add_edit_div'),
+                    success: function () {
+                        $('#store_add_edit_div').attr("display", 'block');
+                    },
+                    end: function () {
+                        $('#store_add_edit_div').attr("display", 'none');
+                    },
+                    yes: function (index, layero) {
+                        saveStoreInfo(index);
+                    }
+                });
+        });
+        $('#store_type_btn').click(function () {
+            layer.open({
+                    type: 1,
+                    title: '<span style="font-weight:bolder;">商家类型</span>',
+                    move: false,
+                    btn: ['确定', '取消'],
+                    skin: 'tempSkin',
+                    area: ['500px', '350px'],
+                    content: $('#store_type_edit_div'),
+                    success: function () {
+                        $('#store_type_edit_div').attr("display", 'block');
+                    },
+                    end: function () {
+                        $('#store_type_edit_div').attr("display", 'none');
+                    },
+                yes: function (index, layero) {
+                    layer.close(index);
+                    }
+                });
+        });
+        $("#search_btn").click(function () {
+            storeListTable.reload({
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+                ,where: { keyword: $("#store_search_text").val(), }
+                , url: '@Url.Action("GetStoreList", "StoreManage")'
+                , method: 'get'
+            });
+        });
+        $("#search_reset_btn").click(function () {
+            $("#store_search_text").val("");
+            $("#search_btn").click();
+        });
+
+    };
 </script>
 <script type="text/html" id="store_list_opt">
     <a class="layui-btn layui-btn-xs" lay-event="manage">管理</a>
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="edit">编辑</a>
+</script>
+<script type="text/html" id="songmakListOpt">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script type="text/html" id="switchTpl">
+    <input type="checkbox" name="store_status" value="{{d.Enabled}}" lay-skin="switch" lay-text="启用|禁用" lay-filter="store_status" {{ d.Enabled == true ? 'checked' : '' }}>
+</script>
+
+<!--添加和编辑商家信息-->
+<div id="store_add_edit_div" class="layui-form" style="display:none;margin-right:20px; margin-top:20px;">
+    <div class="layui-row" style="margin-top:20px;">
+        <div class="layui-col-sm6 layui-col-md6 ">
+            <div class="layui-form-item">
+                <label class="layui-form-label">商家名称</label>
+                <div class="layui-input-block">
+                    <input type="text" id="store_name_edit" name="title" lay-verify="required" autocomplete="off" placeholder="请输入" class="layui-input">
+                </div>
+
+            </div>
+
+        </div>
+        <div class="layui-col-sm6 layui-col-xs6 layui-col-md6 ">
+            <label class="layui-form-label">商家类型</label>
+            <div class="layui-input-block">
+                <select id="store_type_edit" lay-filter="store_type_select">
+                    <option value="-1" selected="">请选择</option>
+
+                </select>
+            </div>
+
+        </div>
+    </div>
+    <div class="layui-row" style="margin-top:8px;">
+        <div class="layui-col-md6 ">
+            <label class="layui-form-label">登录手机号</label>
+            <div class="layui-input-block">
+                <input type="number" id="store_phone_edit" placeholder="请输入" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-col-md6">
+            <label class="layui-form-label">登录密码</label>
+            <div class="layui-input-block">
+                <input type="password" id="store_password_edit" placeholder="包含数字和字母，不可少于6位" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-row" style="margin-top:20px;margin-right:15px;">
+        <div class="layui-col-md6 ">
+            <div class="layui-row">
+                <label class="layui-form-label">分店数量</label>
+                <div class="layui-input-block">
+                    <input type="number" id="store_count_edit" placeholder="请输入" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-row" style="margin-top:8px;">
+                <label class="layui-form-label">所在地址</label>
+                <div class="layui-input-block" id="area-picker">
+                    <div style="margin-bottom:10px;">
+                        <select id="add_province" name="province" class="province-selector" style="margin-bottom:8px;" data-value="" lay-filter="province-1">
+                            <option value="">请选择省</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom:10px;">
+                        <select id="add_city" name="city" class="city-selector" style="margin-bottom:8px;" data-value="" lay-filter="city-1">
+                            <option value="">请选择市</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom:10px;">
+                        <select id="add_county" name="county" class="county-selector" style="margin-bottom:8px;" data-value="" lay-filter="county-1">
+                            <option value="">请选择区</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-row" style="margin-top:8px;">
+                <label class="layui-form-label"></label>
+                <div class="layui-input-block">
+                    <textarea id="detail_address_edit" placeholder="请输入内容" class="layui-textarea"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md6">
+            <label class="layui-form-label">授权合同</label>
+            <div class="layui-input-block">
+                <div class="layui-upload-drag" id="upload_btn" style="height:100px;">
+                    <i class="layui-icon layui-icon-add-1" style="font-size: 30px; color: #1E9FFF;"></i>
+                    <p>点击上传</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*<script src="~/Content/layui/lay/modules/jquery.js"></script>
+    <script src="~/Content/layui/lay/modules/upload.js"></script>*@
+<script>
+    layui.use(['upload', 'jquery'], function () {
+        var upload = layui.upload;
+            var $ = layui.jquery;
+        upload.render({
+        elem: '#upload_btn'
+        , url: '@Url.Action("UploadOrdinaryFile", "File")'
+        ,accept:'file' //普通文件
+        , done: function (res) {
+            if (res.status) {
+                fileName = res.fileName;
+                layer.msg("上传成功");
+            } else {
+                layer.msg("上传失败");
+            }
+        }
+    });
+    });
+
+
+</script>
+
+<!--s省市区三级联动-->
+<script>
+    //配置插件目录
+    layui.config({
+        base: '../Content/mods/'
+        , version: '1.0'
+    });
+    //一般直接写在一个js文件中
+    layui.use(['layer', 'form', 'layarea'], function () {
+        var layer = layui.layer
+            , form = layui.form
+            , layarea = layui.layarea;
+
+        layarea.render({
+            elem: '#area-picker',
+            change: function (res) {
+                address = res;
+                //选择结果
+                console.log(res);
+            }
+        });
+    });
 </script>
