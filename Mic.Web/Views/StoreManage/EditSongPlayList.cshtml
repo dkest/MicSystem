@@ -11,7 +11,7 @@
 
 <div style="margin:10px;">
     <div class="layui-row">
-        <button id="save_btn" class="layui-btn layui-btn-normal layui-btn-sm">保存</button>
+        <button style="display:none;" id="save_btn" class="layui-btn layui-btn-normal layui-btn-sm">保存</button>
         <button id="cancel_btn" class="layui-btn layui-btn-primary layui-btn-sm">取消</button>
     </div>
     <div id="table_content" style="height:300px;">
@@ -92,18 +92,24 @@
             layer.alert("请选择一条数据操作");
             return false;
         } else {
+            var idList = '';
             cbList = table.cache.edit_song_list;
             for (var k = 0; k < checkStatus.data.length; k++) {
                 var _delId = checkStatus.data[k].Id;
                 for (var i = 0; i < cbList.length; i++) {
                     var _id = cbList[i].Id;
-                    if (_id == _delId) {
-                        cbList.splice(i, 1);
-                        break;
+                    if (_id != _delId) {
+                        idList += (_id+",")
                     }
                 }
             }
-            table.reload('edit_song_list', { data: cbList});
+            Service.ajax(JSON.stringify({ id:'@ViewBag.id',  listContent:'@ViewBag.listContent' }), function (result) {
+             if (result) {
+                 table.reload('edit_song_list');
+            }
+         }, '@Url.Action("GetStoreTypeList", "StoreManage")', false);
+
+            
         }
         //parent.layer.closeAll();
     });

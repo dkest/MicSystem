@@ -154,8 +154,11 @@ values ('{playList.ListName}','{playList.ListContent}','{playList.StoreCode}','{
         /// <returns></returns>
         public bool UpdateSongList(PlayListEntity playList)
         {
-            string sql = $@"update PlayList set [ListName]='{playList.ListName}',[ListContent]='{playList.ListContent}',
-[StoreCode]='{playList.StoreCode}',[IsPublish]='{playList.IsPublish}',[UpdateTime]='{DateTime.Now}') ;";
+            //            string sql = $@"update PlayList set [ListName]='{playList.ListName}',[ListContent]='{playList.ListContent}',
+            //[StoreCode]='{playList.StoreCode}',[IsPublish]='{playList.IsPublish}',[UpdateTime]='{DateTime.Now}') ;";
+
+            string sql = $@"update PlayList set [ListContent]='{playList.ListContent}',
+[UpdateTime]='{DateTime.Now}' where Id = {playList.Id} ;";
             return helper.Execute(sql) > 0 ? true : false;
         }
 

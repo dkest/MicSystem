@@ -34,6 +34,7 @@ namespace Mic.Web.Controllers
 
         public ActionResult EditSongPlayList()
         {
+            ViewBag.id = GetStrValFromReq("id");
             ViewBag.listContent = GetStrValFromReq("listContent");
             return View();
         }
@@ -136,7 +137,7 @@ namespace Mic.Web.Controllers
             var result = playListRepository.GetStoreSongListForAdminByListContent(listContent);
             return Json(new { code = 0, msg = string.Empty, count = result.Count, data = result }, JsonRequestBehavior.AllowGet);
         }
-        
+
 
         public ActionResult GetHisPlayList(int storeId)
         {
@@ -156,7 +157,18 @@ namespace Mic.Web.Controllers
         public ActionResult PublishSongList(int playListId)
         {
             var result = playListRepository.PublishSongList(playListId);
-            return Json(new { status=result }, JsonRequestBehavior.AllowGet);
+            return Json(new { status = result }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult UpdateSongList(int id, string listContent)
+        {
+            PlayListEntity playListEntity = new PlayListEntity
+            {
+                Id=id,
+                ListContent = listContent
+            };
+            var result = playListRepository.UpdateSongList(playListEntity);
+            return Json(new { status = result }, JsonRequestBehavior.AllowGet);
         }
         #endregion
     }

@@ -381,7 +381,7 @@
                 title: ['歌单编辑', 'font-size:16px;'],
                 fixed: false, //不固定
                 maxmin: true,
-                content: '@Url.Action("EditSongPlayList", "StoreManage")?listContent=' + listItem.ListContent
+                content: '@Url.Action("EditSongPlayList", "StoreManage")?listContent=' + listItem.ListContent + "&id=" + listItem.Id
             });
         });
         $("#publish_song_list_btn").click(function () {
