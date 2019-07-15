@@ -63,7 +63,8 @@ namespace Mic.Repository.Repositories
                     resultSql += ");";
                     list = helper.Query<SongBookEntity>(resultSql).ToList();
                 }
-                else { //该商家没有后台歌单
+                else
+                { //该商家没有后台歌单
                     status = false;
                     message = "该商家没有歌单";
                     //listItem = new PlayListEntity();
@@ -77,6 +78,22 @@ namespace Mic.Repository.Repositories
             }
             return Tuple.Create(status, message, listItem, list);
         }
+
+        public List<SongBookEntity> GetStoreSongListForAdminByListContent(string listContent)
+        {
+            string[] arr = listContent.Split(',');
+            StringBuilder sb = new StringBuilder("select * from SongBook where Id in (");
+            foreach (var item in arr)
+            {
+                sb.Append(item).Append(",");
+            }
+            string resultSql = sb.ToString();
+            int length = resultSql.Length;
+            resultSql = resultSql.Substring(0, length - 1);
+            resultSql += ");";
+            return helper.Query<SongBookEntity>(resultSql).ToList();
+        }
+
 
         /// <summary>
         /// 获取历史歌单
@@ -108,6 +125,38 @@ namespace Mic.Repository.Repositories
             resultSql = resultSql.Substring(0, length - 1);
             resultSql += ");";
             return helper.Query<SongBookEntity>(resultSql).ToList();
+        }
+
+        /// <summary>
+        /// 发布歌单
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public bool PublishSongList(int id)
+        {
+            return helper.Execute($@"update PlayList set IsPublish=1,UpdateTime='{DateTime.Now}' where Id ={id}") > 0 ? true : false;
+        }
+
+        /// <summary>
+        /// 添加歌单
+        /// </summary>
+        /// <returns></returns>
+        public bool AddSongList(PlayListEntity playList)
+        {
+            string sql = $@"insert into PlayList ([ListName],[ListContent],[StoreCode],[IsPublish],[UpdateTime],[Status]) 
+values ('{playList.ListName}','{playList.ListContent}','{playList.StoreCode}','{playList.IsPublish}','{DateTime.Now}','{1}')";
+            return helper.Execute(sql) > 0 ? true : false;
+        }
+
+        /// <summary>
+        /// 更新歌单
+        /// </summary>
+        /// <returns></returns>
+        public bool UpdateSongList(PlayListEntity playList)
+        {
+            string sql = $@"update PlayList set [ListName]='{playList.ListName}',[ListContent]='{playList.ListContent}',
+[StoreCode]='{playList.StoreCode}',[IsPublish]='{playList.IsPublish}',[UpdateTime]='{DateTime.Now}') ;";
+            return helper.Execute(sql) > 0 ? true : false;
         }
 
     }

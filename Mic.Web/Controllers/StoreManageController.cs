@@ -130,6 +130,13 @@ namespace Mic.Web.Controllers
             var result = playListRepository.GetStoreSongListForAdmin(storeId);
             return Json(new { code = 0, msg = result.Item2, listItem = result.Item3, count = result.Item4.Count, data = result.Item4 }, JsonRequestBehavior.AllowGet);
         }
+        public ActionResult GetPlayListByListContent()
+        {
+            string listContent = GetStrValFromReq("listContent");
+            var result = playListRepository.GetStoreSongListForAdminByListContent(listContent);
+            return Json(new { code = 0, msg = string.Empty, count = result.Count, data = result }, JsonRequestBehavior.AllowGet);
+        }
+        
 
         public ActionResult GetHisPlayList(int storeId)
         {
@@ -144,6 +151,12 @@ namespace Mic.Web.Controllers
             string listContent = GetStrValFromReq("listContent");
             var result = playListRepository.GetSongListByPlayListStr(listContent);
             return Json(new { code = 0, msg = string.Empty, count = result.Count, data = result }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult PublishSongList(int playListId)
+        {
+            var result = playListRepository.PublishSongList(playListId);
+            return Json(new { status=result }, JsonRequestBehavior.AllowGet);
         }
         #endregion
     }

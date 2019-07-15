@@ -111,7 +111,7 @@
     var fileName = "";
 
     var listItem = null;
-
+    var storeSongListTable;
     layui.use('table', function () {
         var table = layui.table;
         var form = layui.form;
@@ -299,7 +299,7 @@
         });
 
         //商家歌单
-        table.render({
+        storeSongListTable = table.render({
             elem: '#store_song_list'
             , height: "190"
             , page: false
@@ -377,14 +377,29 @@
         $("#edit_song_list_btn").click(function () {
             layer.open({
                 type: 2,
-                area: ['700px', '450px'],
+                area: ['800px', '500px'],
+                title: ['歌单编辑', 'font-size:16px;'],
                 fixed: false, //不固定
                 maxmin: true,
                 content: '@Url.Action("EditSongPlayList", "StoreManage")?listContent=' + listItem.ListContent
             });
         });
         $("#publish_song_list_btn").click(function () {
-            
+            layer.confirm('发布后，商家歌单更新为当前歌单内容，确认发布歌单吗？', { btn: ['确定', '取消'] },
+                function (index) {
+                    layer.close(index);
+                    Service.ajax(JSON.stringify({ playListId: listItem.Id}), function (result) {
+                        if (result.status) {
+                            layer.msg("发布歌单成功");
+                            storeSongListTable.reload({});
+                        } else {
+                            layer.msg("发布歌单失败");
+                        }
+                    }, '@Url.Action("PublishSongList", "StoreManage")', true);
+                },
+                function (index) {
+                    layer.close(index);
+                });
         });
     };
 
