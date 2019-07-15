@@ -55,7 +55,11 @@ namespace Mic.Repository.Repositories
                     StringBuilder sb = new StringBuilder("select * from SongBook where Id in (");
                     foreach (var item in arr)
                     {
-                        sb.Append(item).Append(",");
+                        if (!string.IsNullOrWhiteSpace(item))
+                        {
+                            sb.Append(item).Append(",");
+                        }
+                        
                     }
                     string resultSql = sb.ToString();
                     int length = resultSql.Length;
@@ -85,7 +89,11 @@ namespace Mic.Repository.Repositories
             StringBuilder sb = new StringBuilder("select * from SongBook where Id in (");
             foreach (var item in arr)
             {
-                sb.Append(item).Append(",");
+                if (!string.IsNullOrWhiteSpace(item))
+                {
+                    sb.Append(item).Append(",");
+                }
+                
             }
             string resultSql = sb.ToString();
             int length = resultSql.Length;
@@ -125,6 +133,7 @@ namespace Mic.Repository.Repositories
             resultSql = resultSql.Substring(0, length - 1);
             resultSql += ");";
             return helper.Query<SongBookEntity>(resultSql).ToList();
+
         }
 
         /// <summary>
@@ -158,6 +167,14 @@ values ('{playList.ListName}','{playList.ListContent}','{playList.StoreCode}','{
             //[StoreCode]='{playList.StoreCode}',[IsPublish]='{playList.IsPublish}',[UpdateTime]='{DateTime.Now}') ;";
 
             string sql = $@"update PlayList set [ListContent]='{playList.ListContent}',
+[UpdateTime]='{DateTime.Now}' where Id = {playList.Id} ;";
+            return helper.Execute(sql) > 0 ? true : false;
+        }
+
+        public bool AppendSongList(PlayListEntity playList)
+        {
+            var t = helper.QueryScalar($@"select ListContent from PlayList where Id={playList.Id}; ");
+            string sql = $@"update PlayList set [ListContent]='{playList.ListContent+ t.ToString()}',
 [UpdateTime]='{DateTime.Now}' where Id = {playList.Id} ;";
             return helper.Execute(sql) > 0 ? true : false;
         }

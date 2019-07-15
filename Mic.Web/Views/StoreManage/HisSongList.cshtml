@@ -99,9 +99,9 @@
                 , { field: 'SongName', minWidth: 200, title: '歌曲名称' }
                 , { field: 'SongLength', width: 120, title: '时长'}
                 , { field: 'SingerName', width: 120, title: '歌手' }
-                , { field: 'SongMark', title: '标签', width: 200 }
+                , { field: 'SongMarkStr', title: '标签', width: 200 }
                 , { field: 'PlayTimes', width: 120, title: '累计播放次数'}
-               //, { field: 'PlayTimes', width: 120, title: '累计播放时长', sort: true }
+               , { field: 'TotalPlayTimeStr', width: 120, title: '累计播放时长', sort: true }
             ]]
             , parseData: function (res) {
                 $.each(res.data, function (index, value) {

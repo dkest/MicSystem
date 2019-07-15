@@ -36,7 +36,34 @@ namespace Mic.Repository.Repositories
             return Tuple.Create(count, helper.Query<SongBookEntity>(sql).ToList());
         }
         /// <summary>
-        /// 
+        /// 获取所有审核通过，且没有过期的歌曲
+        /// </summary>
+        /// <param name="keyword"></param>
+        /// <returns></returns>
+        public List<SongBookEntity> GetApprovedSongList(string keyword, string markId)
+        {
+            List<SongBookEntity> list = new List<SongBookEntity>();
+            string likeSql = string.IsNullOrWhiteSpace(keyword) ? string.Empty : $@" and (SingerName like '%{keyword}%'  or SongName like '%{keyword}%')";
+            string sql = $@"select * from SongBook  where Status=1 and AuditStatus=2  and ExpirationTime> '{DateTime.Now}'  {likeSql} ;";
+            var result = helper.Query<SongBookEntity>(sql).ToList();
+            if (markId=="-1")
+            {
+                return result;
+            }
+            foreach (var item in result)
+            {
+                var arr = item.SongMark.Split(',');
+                if (arr.Contains(markId))
+                {
+                    list.Add(item);
+                }
+            }
+            return list;
+        }
+
+
+        /// <summary>
+        /// 获取待审核歌曲
         /// </summary>
         /// <param name="pageParam"></param>
         /// <returns></returns>

@@ -8,14 +8,18 @@
 @Scripts.Render("~/bundles/jquery")
 @Scripts.Render("~/bundles/layui")
 @Scripts.Render("~/bundles/minejs")
-
+<style>
+    #song_select_div input {
+        height: 32px;
+    }
+</style>
 <div style="margin:10px;">
     <div class="layui-row">
         <button style="display:none;" id="save_btn" class="layui-btn layui-btn-normal layui-btn-sm">保存</button>
         <button id="cancel_btn" class="layui-btn layui-btn-primary layui-btn-sm">取消</button>
     </div>
-    <div id="table_content" style="height:300px;">
-        
+    <div id="table_content" style="height:500px;">
+
         <table class="layui-table" lay-filter="edit_song_list" id="edit_song_list"></table>
     </div>
     <div class="layui-row">
@@ -26,22 +30,25 @@
 
 <script>
     var table;
+    var form;
+    var songListId ='@ViewBag.id';
+    var songIds = new Array();
     layui.use('table', function () {
         table = layui.table;
-        var form = layui.form;
+        form = layui.form;
 
         table.render({
             elem: '#edit_song_list'
-            , height: "250"
+            , height: "300"
             , page: false
-            , url: '@Url.Action("GetPlayListByListContent", "StoreManage")'
+            , url: '@Url.Action("GetPlayListByStoreId", "StoreManage")'
             , limit: 10
             ,size:'sm'
-            , where: { keyword: "", listContent: '@ViewBag.listContent' }
+            , where: { keyword: "", storeId: @ViewBag.storeId }
             ,limits: [10, 20, 30, 40, 50]
             ,autoSort: false
             , cols: [[
-                { type: 'checkbox' }
+                { type: 'checkbox',event: 'checked' }
                 ,{type: "numbers", width:50}
                 , { field: 'SongName', minWidth: 100, title: '歌曲名称' }
                 , { field: 'SongLength', width: 130, title: '时长'}
@@ -67,24 +74,130 @@
 
                 });
                 return {
-                    "code": res.code, "msg": res.msg, "count": res.count, "data": res.data 
+                    "code": res.code, "msg": res.msg, "count": res.count, "data": res.data
                 };
             }
-            , done: function (res,curr,count) {
-                //$("#songListUpdateTime").html(Service.FormatDate("yyyy-MM-dd HH:mm:ss", Service.ConvertNetDate(listItem.UpdateTime)));
+            , done: function (res, curr, count) {
+                songIds = new Array();
+                $.each(res.data, function (index, item) {
+                    songIds.push(item.Id);
+                });
             }
         });
-
     });
 
     $("#cancel_btn").click(function () {
         parent.layer.closeAll();
     });
-    $("#save_btn").click(function () {
-        layer.closeAll('iframe');
-    });
+
     $("#import_song_list_btn").click(function () {
-        layer.closeAll('iframe');
+        Service.ajax(JSON.stringify({}), function (result) {
+             $("#song_mark_select").empty();
+             var htmlStr = "<option value='-1'>请选择</opyion>";
+            $.each(result.data, function (index, item) {
+                 htmlStr += '<option value="' + item.Id + '">' + item.MarkName + '</option>';
+
+            });
+            $("#song_mark_select").append(htmlStr);
+            form.render();
+        }, '@Url.Action("GetSongMakList", "SongManage")', true, true);
+        var tempIdListStr = "";
+        $.each(songIds, function (index, item) {
+            tempIdListStr += (item+",");
+        });
+        table.render({
+            elem: '#song_select_list'
+            , height: "300"
+            , page: false
+            , url: '@Url.Action("GetApprovedSongList", "StoreManage")'
+            , limit: 10
+            , size: 'sm'
+            , where: { keyword: $('#song_search_text').val(), ids: tempIdListStr, searchMarkId: $('#song_mark_select').val() }
+            ,limits: [10, 20, 30, 40, 50]
+            ,autoSort: false
+            , cols: [[
+                { type: 'checkbox',event: 'checked' }
+                ,{type: "numbers", width:50}
+                , { field: 'SongName', minWidth: 100, title: '歌曲名称' }
+                , { field: 'SongLength', width: 100, title: '时长'}
+                , { field: 'SingerName', width: 120, title: '歌手' }
+                , { field: 'SongMarkStr', width: 150, title: '标签' }
+                , { field: 'ExpirationTime', title: '版权有效期至', width: 120 }
+            ]]
+            , parseData: function (res) {
+                $.each(res.data, function (index, value) {
+                    value.ExpirationTime = Service.FormatDate("yyyy-MM-dd", Service.ConvertNetDate(value.ExpirationTime));
+                });
+                return {"code": res.code, "msg": res.msg, "count": res.count, "data": res.data};
+            }
+            //, done: function (res, curr, count) {
+            //    var data = res.data;
+            //    var allck = true;
+            //    for (var item in data) {
+            //        var a = songIds.indexOf(data[item].Id);
+            //        if (a != -1) {
+            //            allck = false;
+            //        }
+            //        break;
+            //    }
+            //    if (!allck) {
+            //        $(".layui-table-header").find("input[name = 'layTableCheckbox'][lay-filter='layTableAllChoose']").each(function () {
+            //            $(this).attr("disabled", 'disabled').next().removeClass("layui-form-checked");
+            //            form.render('checkbox');
+            //        });
+            //    }
+            //    var i = 0;
+            //    $(".layui-table-body.layui-table-main").find("input[name='layTableCheckbox']").each(function () {
+            //        if (a != -1) {
+            //            $(this).attr("disabled", 'disabled').removeAttr("checked");
+            //            form.render('checkbox');
+            //        }
+            //        i++;
+            //    });
+            //    i = 0;
+            //    $(".layui-table-fixed.layui-table-fixed-l").find(".layui-table-body").find("input[name='layTableCheckbox']").each(function () {
+            //        if (a !=-1) {
+            //            $(this).attr("disabled", 'disabled').removeAttr("checked");
+            //            form.render('checkbox');
+            //        }
+            //        i++;
+            //    });
+            //}
+        });
+
+
+        layer.open({
+            type: 1,
+             title: '<span style="font-weight:bolder;">导入歌单</span>',
+             move: false,
+             btn: ['确定', '取消'],
+             area: ['800px', '550px'],
+             content: $('#song_select_list_div'),
+             success: function () {
+                 $('#song_select_list_div').attr("display", 'block');
+             },
+             end: function () {
+                 $('#song_select_list_div').attr("display", 'none');
+             },
+            yes: function (index, layero) {
+                var selectedIds = ",";
+                var checkStatus = table.checkStatus('song_select_list');
+                $.each(checkStatus.data, function (index, item) {
+                    selectedIds += (item.Id+",");
+                });
+
+                Service.ajax(JSON.stringify({ id: songListId, listContent: selectedIds }), function (result) {
+                    if (result) {
+                        layer.msg('导入歌单成功');
+                        table.reload('edit_song_list', { where: { keyword: "", storeId: @ViewBag.storeId } });
+                        layer.close(index);
+                    }
+                }, '@Url.Action("AppendSongList", "StoreManage")', false);
+
+                //table.reload('edit_song_list');
+            }
+        });
+
     });
     $("#delete_song_btn").click(function () {
         var checkStatus = table.checkStatus('edit_song_list');
@@ -92,26 +205,75 @@
             layer.alert("请选择一条数据操作");
             return false;
         } else {
-            var idList = '';
-            cbList = table.cache.edit_song_list;
+            var idsStr = "";
+
             for (var k = 0; k < checkStatus.data.length; k++) {
                 var _delId = checkStatus.data[k].Id;
-                for (var i = 0; i < cbList.length; i++) {
-                    var _id = cbList[i].Id;
-                    if (_id != _delId) {
-                        idList += (_id+",")
+                for (var i = 0; i < songIds.length; i++) {
+                    if (songIds[i] == _delId) {
+                        songIds.splice(i, 1);
                     }
                 }
             }
-            Service.ajax(JSON.stringify({ id:'@ViewBag.id',  listContent:'@ViewBag.listContent' }), function (result) {
-             if (result) {
-                 table.reload('edit_song_list');
-            }
-         }, '@Url.Action("GetStoreTypeList", "StoreManage")', false);
+            $.each(songIds, function (index, item) {
+                idsStr +=(item+",")
+            });
+            console.log(idsStr);
+            Service.ajax(JSON.stringify({ id:songListId,  listContent:idsStr }), function (result) {
+                if (result) {
+                    layer.msg('删除成功');
 
-            
+                    table.reload('edit_song_list');
+            }
+            }, '@Url.Action("UpdateSongList", "StoreManage")', false);
         }
-        //parent.layer.closeAll();
     });
 </script>
 
+<div id="song_select_list_div" style="display:none;">
+    <div class="search_div layui-form" style="margin-top:10px;margin-left:20px;">
+        搜索歌曲
+        <div class="layui-input-inline">
+            <input type="text" id="song_search_text" style="width:250px; height:32px;margin-right: 10px;" autocomplete="off" placeholder="请输入歌曲名称或歌手名称" class="layui-input">
+        </div>
+
+        歌曲标签
+        <div class="layui-input-inline" id="song_select_div" style="margin-left:20px;height:32px;">
+            <select id="song_mark_select" lay-filter="aihao">
+                <option value="-1" selected="">请选择</option>
+
+            </select>
+        </div>
+
+        <button id="add_song_search_btn" type="button" style="margin-left:20px;" class="layui-btn layui-btn-normal layui-btn-sm">搜索</button>
+        <button id="add_song_search_reset_btn" type="button" class="layui-btn layui-btn-primary layui-btn-sm">重置</button>
+
+    </div>
+    <table class="layui-table" lay-filter="song_select_list" id="song_select_list"></table>
+</div>
+<script>
+    $("#add_song_search_reset_btn").click(function () {
+        var tempIdListStr = "";
+        $.each(songIds, function (index, item) {
+            tempIdListStr += (item+",");
+        });
+        $("#song_search_text").val('');
+        $("#song_mark_select").val('-1');
+        form.render();
+        table.reload('song_select_list', {
+            where: { keyword: $('#song_search_text').val(), ids: tempIdListStr, searchMarkId: $('#song_mark_select').val() }
+        });
+
+
+
+
+    });
+    $("#add_song_search_btn").click(function () {
+        var tempIdListStr = "";
+        $.each(songIds, function (index, item) {
+            tempIdListStr += (item+",");
+        });
+        table.reload('song_select_list', { where: { keyword: $('#song_search_text').val(), ids: tempIdListStr, searchMarkId: $('#song_mark_select').val() } });
+
+    });
+</script>

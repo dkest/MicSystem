@@ -33,5 +33,19 @@ namespace Mic.Entity
         //StoreIdList { get; set; }
         public bool Status { get; set; }
         public string Memo { get; set; } //
+
+        public int TotalPlayTime { get; set; }//累计播放时长
+        public string TotalPlayTimeStr
+        {
+            get {
+                var temp = string.Empty;
+                int hour = Convert.ToInt32(Math.Floor(TotalPlayTime / 3600.0));
+                int min = Convert.ToInt32(Math.Floor((TotalPlayTime - 3600 * hour) / 60.0));
+                int sec = TotalPlayTime - 3600 * hour - 60 * min;
+                return hour+":"+min+":"+sec;
+            }
+        }
+        public string SongMarkStr { get; set; }
+
     }
 }
