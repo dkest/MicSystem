@@ -110,7 +110,7 @@
 
     var fileName = "";
 
-    var songListUpdateTime = "";
+    var listItem = null;
 
     layui.use('table', function () {
         var table = layui.table;
@@ -317,7 +317,7 @@
                 , { field: 'ExpirationTimeStr', title: '版权有效期至', width: 220 }
             ]]
             , parseData: function (res) {
-                songListUpdateTime = res.updateTime;
+                listItem = res.listItem;
 
                 $.each(res.data, function (index, value) {
                     value.ExpirationTime = Service.FormatDate("yyyy-MM-dd", Service.ConvertNetDate(value.ExpirationTime));
@@ -340,7 +340,7 @@
                 };
             }
             , done: function (res,curr,count) {
-                $("#songListUpdateTime").html(songListUpdateTime);
+                $("#songListUpdateTime").html(Service.FormatDate("yyyy-MM-dd HH:mm:ss", Service.ConvertNetDate(listItem.UpdateTime)));
             }
         });
 
@@ -372,6 +372,19 @@
 
         $("#song_list_his_btn").click(function () {
             location.href = '@Url.Action("HisSongList", "StoreManage")?storeId=' + currentId;
+        });
+
+        $("#edit_song_list_btn").click(function () {
+            layer.open({
+                type: 2,
+                area: ['700px', '450px'],
+                fixed: false, //不固定
+                maxmin: true,
+                content: '@Url.Action("EditSongPlayList", "StoreManage")?listContent=' + listItem.ListContent
+            });
+        });
+        $("#publish_song_list_btn").click(function () {
+            
         });
     };
 

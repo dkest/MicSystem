@@ -32,6 +32,12 @@ namespace Mic.Web.Controllers
             return View();
         }
 
+        public ActionResult EditSongPlayList()
+        {
+            ViewBag.listContent = GetStrValFromReq("listContent");
+            return View();
+        }
+
         #region 商家类型
         public ActionResult GetStoreTypeList()
         {
@@ -114,11 +120,15 @@ namespace Mic.Web.Controllers
             return Json(new { code = 0, msg = "", count = result.Count, data = result }, JsonRequestBehavior.AllowGet);
         }
 
+        /// <summary>
+        /// 管理员获取后台歌单
+        /// </summary>
+        /// <returns></returns>
         public ActionResult GetPlayListByStoreId()
         {
             int storeId = GetIntValFromReq("storeId");
             var result = playListRepository.GetStoreSongListForAdmin(storeId);
-            return Json(new { code = 0, msg = result.Item2, updateTime = result.Item3, count = result.Item4.Count, data = result.Item4 }, JsonRequestBehavior.AllowGet);
+            return Json(new { code = 0, msg = result.Item2, listItem = result.Item3, count = result.Item4.Count, data = result.Item4 }, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult GetHisPlayList(int storeId)

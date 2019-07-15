@@ -301,6 +301,7 @@
     <Content Include="Views\StoreManage\StoreManageList.cshtml" />
     <Content Include="Views\StoreManage\StoreDetail.cshtml" />
     <Content Include="Views\StoreManage\HisSongList.cshtml" />
+    <Content Include="Views\StoreManage\EditSongPlayList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mic.Entity\Mic.Entity.csproj">

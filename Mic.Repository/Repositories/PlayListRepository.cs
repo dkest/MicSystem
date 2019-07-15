@@ -24,11 +24,12 @@ namespace Mic.Repository.Repositories
         /// </summary>
         /// <param name="storeId"></param>
         /// <returns></returns>
-        public Tuple<bool, string,string, List<SongBookEntity>> GetStoreSongListForAdmin(int storeId)
+        public Tuple<bool, string, PlayListEntity, List<SongBookEntity>> GetStoreSongListForAdmin(int storeId)
         {
             bool status = false;
             string message = string.Empty;
             string updateTimeStr = string.Empty;
+            PlayListEntity listItem = new PlayListEntity();
             List<SongBookEntity> list = new List<SongBookEntity>();
             string storeCode = helper.QueryScalar($@"select StoreCode from [User] where Id={storeId}").ToString();
             string sql = $@"select * from PlayList where StoreCode='{storeCode}' and Status=1";
@@ -40,33 +41,41 @@ namespace Mic.Repository.Repositories
                 if (unPublish != null)
                 {
                     songListStr = unPublish.ListContent;
-                    updateTimeStr = unPublish.UpdateTime.ToString("yyyy-MM-dd HH:mm:ss:ms");
+                    updateTimeStr = unPublish.UpdateTime.ToString("yyyy-MM-dd HH:mm:ss");
+                    listItem = unPublish;
+
+                    //else
+                    //{
+                    //    var temp = result.OrderByDescending(a => a.UpdateTime).FirstOrDefault();
+                    //    songListStr = temp.ListContent;
+                    //    updateTimeStr = temp.UpdateTime.ToString("yyyy-MM-dd HH:mm:ss");
+                    //    listItem = temp;
+                    //}
+                    string[] arr = songListStr.Split(',');
+                    StringBuilder sb = new StringBuilder("select * from SongBook where Id in (");
+                    foreach (var item in arr)
+                    {
+                        sb.Append(item).Append(",");
+                    }
+                    string resultSql = sb.ToString();
+                    int length = resultSql.Length;
+                    resultSql = resultSql.Substring(0, length - 1);
+                    resultSql += ");";
+                    list = helper.Query<SongBookEntity>(resultSql).ToList();
                 }
-                else
-                {
-                    var temp = result.OrderByDescending(a => a.UpdateTime).FirstOrDefault();
-                    songListStr = temp.ListContent;
-                    updateTimeStr = temp.UpdateTime.ToString("yyyy-MM-dd HH:mm:ss:ms");
+                else { //该商家没有后台歌单
+                    status = false;
+                    message = "该商家没有歌单";
+                    //listItem = new PlayListEntity();
                 }
-                string[] arr = songListStr.Split(',');
-                StringBuilder sb = new StringBuilder("select * from SongBook where Id in (");
-                foreach (var item in arr)
-                {
-                    sb.Append(item).Append(",");
-                }
-                string resultSql = sb.ToString();
-                int length = resultSql.Length;
-                resultSql = resultSql.Substring(0, length - 1);
-                resultSql += ");";
-                list = helper.Query<SongBookEntity>(resultSql).ToList();
             }
             else
             {
                 status = false;
                 message = "该商家没有歌单";
-                
+
             }
-            return Tuple.Create(status,message, updateTimeStr,list);
+            return Tuple.Create(status, message, listItem, list);
         }
 
         /// <summary>
