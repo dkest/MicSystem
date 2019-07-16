@@ -1,0 +1,17 @@
+﻿
+@{
+    ViewBag.Title = "SingerDetail";
+}
+
+<script>
+    var liList = $(".main-layout-header").find('li');
+    $(".main-layout-header").find('.layui-this').removeClass("layui-this");
+    $.each(liList, function (index, item) {
+        var selectIndex = $(item).attr("data-index");
+        if (selectIndex == "3") {
+            $(item).addClass("layui-this");
+        }
+    });
+</script>
+<h2>获取代音乐人Id = @ViewBag.SingerId</h2>
+

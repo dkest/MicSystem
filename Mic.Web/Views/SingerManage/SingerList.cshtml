@@ -29,7 +29,7 @@
     <div class="layui-row layui-form">
         <div style="margin-left:10px;  margin-left: 10px;padding-top: 20px;padding-bottom: 20px;">
             <button type="button" id="add_edit_singer_type_btn" class="layui-btn layui-btn-primary layui-btn-sm">设置流派</button>
-            <button type="button" id="" class="layui-btn layui-btn-primary layui-btn-sm">入住条款</button>
+            <button type="button" id="update_rztk_btn" class="layui-btn layui-btn-primary layui-btn-sm">入驻条款</button>
         </div>
         <div class="search_div">
             搜索音乐人:
@@ -46,6 +46,33 @@
     </div>
 
 </div>
+<script type="text/html" id="switchTpl">
+    <input type="checkbox" name="store_status" value="{{d.Enabled}}" lay-skin="switch" lay-text="启用|禁用" lay-filter="store_status" {{ d.Enabled == true ? 'checked' : '' }}>
+</script>
+<script type="text/html" id="singer_list_opt">
+    <a class="layui-btn layui-btn-xs" lay-event="manage">管理</a>
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-xs" lay-event="auth">认证</a>
+</script>
+
+<!--编辑音乐人-->
+<div id="show_name_edit_div" class="layui-form" style="display:none; margin-top:50px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">显示名称</label>
+        <div class="layui-input-block" style="margin-right:30px;">
+            <input type="text" id="singer_show_name" name="title" autocomplete="off" placeholder="艺名" class="layui-input">
+        </div>
+    </div>
+</div>
+
+<!--音乐人认证-->
+<div id="singer_auth_div" class="layui-form" style="display:none; margin-top:50px;">
+    音乐人认证
+</div>
+
+
+
+
 
 <!--音乐人流派管理-->
 <div id="singer_type_edit_div" style="display:none;margin:15px ">
@@ -60,22 +87,189 @@
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
 
+
+<!--音乐人入驻条款-->
+<div id="singer_rztk_div" style="display:none;margin:25px;">
+    <textarea id="singer_rztk_edit" placeholder="请输入入驻条款，限制1000字以内" style="height:390px;width:100%;" class="layui-textarea" name="rztk"></textarea>
+</div>
+
 <script>
     layui.use('table', function () {
         var table = layui.table;
         var form = layui.form;
 
+        // 音乐人列表
+        table.render({
+             elem: '#singer_list'
+            , height: "full-275"
+            , url: '@Url.Action("GetSingerList", "SingerManage")'
+            , limit: 10
+            , where: { keyword: $('#singer_search_text').val() }
+            , limits: [10, 20, 30, 40, 50]
+            ,page: true
+            ,autoSort: false
+            , cols: [[
+                {
+                    field: 'SingerName', minWidth: 200, title: '音乐人名称', event: 'singer_detail', style: 'cursor: pointer;',
+                    templet: function (d) {
+                        return '<span style="color:blue;">'+d.SingerName+'</span>';
+                    }
+                }
+                , { field: 'Phone', width: 120, title: '登录手机号' }
+                , { field: 'SingerNameForStore', minWidth: 200, title: '商家端显示名称' }
+                , { field: 'AuthenticationStr', width: 120, title: '认证状态' }
+                , { field: 'Enabled', title: '启用状态', width: 140,event:'change_status', templet: '#switchTpl', unresize: true  }
+                , { fixed: 'right', title: '操作', toolbar: '#singer_list_opt', width: 160 }
+            ]]
+
+        });
+
+
+
+
+        table.on('tool(singer_list)', function (obj) {
+            var data = obj.data
+            var layEvent = obj.event;
+            if (layEvent === 'manage') {
+                location.href = '@Url.Action("SingerDetail", "SingerManage")?singerId=' + data.SingerId;
+            } else if (layEvent === 'edit') {
+                layer.open({
+                    type: 1,
+                    title: '<span style="font-weight:bolder;">编辑显示名称</span>',
+                    move: false,
+                    btn: ['确定', '取消'],
+                    skin: 'tempSkin',
+                    area: ['500px', '350px'],
+                    content: $('#show_name_edit_div'),
+                    success: function () {
+                        $('#show_name_edit_div').attr("display", 'block');
+                    },
+                    end: function () {
+                        $('#show_name_edit_div').attr("display", 'none');
+                    },
+                    yes: function (index, layero) {
+                        Service.ajax(JSON.stringify({ singerId: data.SingerId, name: $("#singer_show_name").val() }), function (result) {
+                            if (result.status) {
+                                layer.msg('艺名更新成功');
+                                table.reload('singer_list');
+                                layer.close(index);
+                            }
+                        }, '@Url.Action("UpdateSingerName", "SingerManage")', true);
+                    }
+                });
+
+            }
+            else if (layEvent === 'singer_detail') {
+                location.href = '@Url.Action("SingerDetail", "SingerManage")?singerId=' + data.SingerId;
+
+            } else if (layEvent == 'change_status') {//改变启用状态
+                if (data.Enabled) {
+                    layer.confirm('禁用后，该音乐人登录手机号不可登录系统，确认禁用该音乐人？', { btn: ['确定', '取消'] },
+                        function (index) {
+                            layer.close(index);
+                            Service.ajax(JSON.stringify({ id: data.SingerId, status: false }), function (result) {
+                                if (result.status) {
+                                    layer.msg("禁用成功");
+                                    table.reload('singer_list');
+                                } else {
+                                    layer.msg(result.msg);
+                                }
+                            }, '@Url.Action("UpdateSingerStatus", "SingerManage")', true);
+                        },
+                        function (index) {
+                            layer.close(index);
+                            table.reload('singer_list');
+                        });
+                } else {
+                    Service.ajax(JSON.stringify({ id: data.SingerId, status: true }), function (result) {
+                        if (result.status) {
+                            layer.msg("启用成功");
+                            table.reload('singer_list');
+
+                        } else {
+                            layer.msg(result.msg);
+                        }
+                    }, '@Url.Action("UpdateSingerStatus", "SingerManage")', true);
+                }
+
+            } else if (layEvent == 'auth') {
+
+                if (data.Authentication == 1) {//待审核
+                    layer.open({
+                        type: 1,
+                        title: '<span style="font-weight:bolder;">音乐人认证</span>',
+                        move: false,
+                        btn: ['通过', '未通过'],
+                        skin: 'tempSkin',
+                        area: ['800px', '550px'],
+                        content: $('#singer_auth_div'),
+                        success: function () {
+                            $('#singer_auth_div').attr("display", 'block');
+                        },
+                        end: function () {
+                            $('#singer_auth_div').attr("display", 'none');
+                        },
+                        yes: function (index, layero) {
+                            layer.msg('点击了通过');
+                            layer.close(index);
+                            Service.ajax(JSON.stringify({ singerId: data.SingerId, auth: 3 }), function (result) {
+                                if (result.status) {
+                                    layer.msg('审核通过-成功');
+                                    table.reload('singer_list');
+                                    layer.close(index);
+                                }
+                            }, '@Url.Action("UpdateAuthStatus", "SingerManage")', true);
+                        },
+                        btn2: function (index, layero) {
+                            Service.ajax(JSON.stringify({ singerId: data.SingerId, auth: 2 }), function (result) {
+                                if (result.status) {
+                                    layer.msg('审核未通过-成功');
+                                    table.reload('singer_list');
+                                    layer.close(index);
+                                }
+                            }, '@Url.Action("UpdateAuthStatus", "SingerManage")', true);
+                        }
+                    });
+                }
+                else if (data.Authentication == 0) {
+                    layer.alert("该音乐人未申请认证");
+                } else {
+                    layer.open({
+                        type: 1,
+                        title: '<span style="font-weight:bolder;">音乐人认证</span>',
+                        move: false,
+                        //btn: ['通过', '未通过'],
+                        skin: 'tempSkin',
+                        area: ['800px', '550px'],
+                        content: $('#singer_auth_div'),
+                        success: function () {
+                            $('#singer_auth_div').attr("display", 'block');
+                        },
+                        end: function () {
+                            $('#singer_auth_div').attr("display", 'none');
+                        },
+                        
+                    });
+                }
+
+            }
+        });
+
+
+
+
+
 
         // 音乐人流派类型表格
-         storeTypeTable = table.render({
+        table.render({
              elem: '#singer_type_table'
             , height: "160"
             , url: '@Url.Action("GetSingerTypeList", "SingerManage")'
             , size: 'sm'
             , cols: [[
                 {type: "numbers", fixed:"left", width:50}
-                , { field: 'SingerTypeName', width: 280, title: '流派名称',edit:'text' }
-                , { fixed: 'right', title: '操作', toolbar: '#singer_type_opt', width: 140 }
+                , { field: 'SingerTypeName', width: 310, title: '流派名称',edit:'text' }
+                , { fixed: 'right', title: '操作', toolbar: '#singer_type_opt', width: 100 }
             ]]
 
         });
@@ -151,6 +345,54 @@
                     layer.close(index);
                 }
             });
+        });
+        $("#update_rztk_btn").click(function () {
+            Service.ajax(JSON.stringify({}), function (result) {
+                if (result.status) {
+                    $("#singer_rztk_edit").val(result.data.ParamContent);
+                   // form.render();
+                }
+            }, '@Url.Action("GetParamByType", "SingerManage")', true);
+
+            layer.open({
+                type: 1,
+                title: '<span style="font-weight:bolder;">设置入驻条款</span>',
+                move: false,
+                btn: ['确定', '取消'],
+                area: ['700px', '550px'],
+                content: $('#singer_rztk_div'),
+                success: function () {
+                    $('#singer_rztk_div').attr("display", 'block');
+                },
+                end: function () {
+                    $('#singer_rztk_div').attr("display", 'none');
+                },
+                yes: function (index, layero) {
+                    Service.ajax(JSON.stringify({ ParamContent: $("#singer_rztk_edit").val(),ParamType:1 }), function (result) {
+                        if (result.status) {
+                            layer.msg("保存成功");
+                        }
+                    }, '@Url.Action("UpdateParam", "SingerManage")', true);
+                    layer.close(index);
+                }
+            });
+        });
+
+        $("#search_btn").click(function () {
+            table.reload('singer_list',
+                {
+                    page: {curr: 1 }
+                    ,where: { keyword: $("#singer_search_text").val(), }
+                });
+        });
+
+        $("#search_reset_btn").click(function () {
+            $("#singer_search_text").val('');
+            table.reload('singer_list',
+                {
+                    page: {curr: 1 }
+                    ,where: { keyword: '', }
+                });
         });
     });
 </script>
