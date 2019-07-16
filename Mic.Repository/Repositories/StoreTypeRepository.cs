@@ -27,14 +27,14 @@ namespace Mic.Repository.Repositories
             int result = 0;
             if (storeTypeEntity.Id > 0)
             {
-                result = helper.Execute($@"update StoreType set StoreTypeName='{storeTypeEntity.StoreTypeName}' where Id={storeTypeEntity.Id}");
+                result = helper.Execute($@"update StoreType set StoreTypeName='{storeTypeEntity.StoreTypeName}',UpdateTime='{DateTime.Now}' where Id={storeTypeEntity.Id}");
                 updateEntity = storeTypeEntity;
             }
             else
             {
                 var p = new DynamicParameters();
                 p.Add("@Id", dbType: DbType.Int32, direction: ParameterDirection.Output);
-                result = helper.Execute($@"insert into StoreType (StoreTypeName) values ('{storeTypeEntity.StoreTypeName}');SELECT @Id=SCOPE_IDENTITY()", p);
+                result = helper.Execute($@"insert into StoreType (StoreTypeName,UpdateTime) values ('{storeTypeEntity.StoreTypeName}','{DateTime.Now}');SELECT @Id=SCOPE_IDENTITY()", p);
                 var id = p.Get<int>("@Id");
                 storeTypeEntity.Id = id;
             }
@@ -66,7 +66,7 @@ namespace Mic.Repository.Repositories
 
         public List<StoreTypeEntity> GetStoreTypeList()
         {
-            return helper.Query<StoreTypeEntity>($@"select * from StoreType;").ToList();
+            return helper.Query<StoreTypeEntity>($@"select * from StoreType order by UpdateTime desc;").ToList();
         }
     }
 }

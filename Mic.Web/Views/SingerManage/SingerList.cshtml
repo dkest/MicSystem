@@ -1,0 +1,157 @@
+﻿
+@{
+    ViewBag.Title = "SingerList";
+}
+<script>
+    var liList = $(".main-layout-header").find('li');
+    $(".main-layout-header").find('.layui-this').removeClass("layui-this");
+    $.each(liList, function (index, item) {
+        var selectIndex = $(item).attr("data-index");
+        if (selectIndex == "3") {
+            $(item).addClass("layui-this");
+        }
+    });
+
+</script>
+<style>
+    .search_div {
+        padding-left: 10px;
+        margin-top: 10px;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        line-height: 50px;
+        height: 50px;
+        background-color: rgb(244,244,244);
+    }
+</style>
+
+<div class=" content">
+    <div class="layui-row layui-form">
+        <div style="margin-left:10px;  margin-left: 10px;padding-top: 20px;padding-bottom: 20px;">
+            <button type="button" id="add_edit_singer_type_btn" class="layui-btn layui-btn-primary layui-btn-sm">设置流派</button>
+            <button type="button" id="" class="layui-btn layui-btn-primary layui-btn-sm">入住条款</button>
+        </div>
+        <div class="search_div">
+            搜索音乐人:
+            <div class="layui-input-inline">
+                <input type="text" id="singer_search_text" style="height:32px;width:250px;margin-right:30px;" autocomplete="off" placeholder="请输入音乐人名称或登录手机号" class="layui-input">
+            </div>
+            <button id="search_btn" type="button" class="layui-btn layui-btn-normal layui-btn-sm">搜索</button>
+            <button id="search_reset_btn" type="button" class="layui-btn layui-btn-primary layui-btn-sm">重置</button>
+
+        </div>
+    </div>
+    <div id="table_content">
+        <table class="layui-table" lay-filter="singer_list" id="singer_list"></table>
+    </div>
+
+</div>
+
+<!--音乐人流派管理-->
+<div id="singer_type_edit_div" style="display:none;margin:15px ">
+    <div class="layui-input-inline">
+        <input type="text" id="singer_type_text" style="height:32px;" autocomplete="off" placeholder="请输入音乐人流派名称" class="layui-input">
+    </div>
+    <button type="button" id="add_singer_type_btn" class="alert_page_btn layui-btn layui-btn-normal layui-btn-sm">新增</button>
+
+    <table class="layui-table" lay-filter="singer_type_table" id="singer_type_table"></table>
+</div>
+<script type="text/html" id="singer_type_opt">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script>
+    layui.use('table', function () {
+        var table = layui.table;
+        var form = layui.form;
+
+
+        // 音乐人流派类型表格
+         storeTypeTable = table.render({
+             elem: '#singer_type_table'
+            , height: "160"
+            , url: '@Url.Action("GetSingerTypeList", "SingerManage")'
+            , size: 'sm'
+            , cols: [[
+                {type: "numbers", fixed:"left", width:50}
+                , { field: 'SingerTypeName', width: 280, title: '流派名称',edit:'text' }
+                , { fixed: 'right', title: '操作', toolbar: '#singer_type_opt', width: 140 }
+            ]]
+
+        });
+        // 监听音乐人流派类型表格编辑
+        table.on('edit(singer_type_table)', function (obj) {
+            var temp;
+            var value = obj.value //得到修改后的值
+                , data = obj.data //得到所在行所有键值
+                , field = obj.field; //得到字段
+            var param = { "Id": obj.data.Id, "SingerTypeName": obj.data.SingerTypeName };
+            if (obj.data.StoreTypeName == "") {
+                layer.msg("音乐人流派名称不能为空");
+                return;
+            }
+            Service.ajax(JSON.stringify(param), function (result) {
+                if (result.status) {
+                    layer.msg("保存成功");
+                }
+            }, '@Url.Action("AddOrUpdateSingerType", "SingerManage")',  true);
+
+        });
+        // 增加音乐人类型
+        $("#add_singer_type_btn").click(function () {
+            if ($("#singer_type_text").val() == "") {
+                layer.msg("音乐人流派名称不能为空");
+                return;
+            }
+            var param = { "Id": -1, "SingerTypeName": $("#singer_type_text").val() };
+            Service.ajax(JSON.stringify(param), function (result) {
+                if (result.status) {
+                    layer.msg("添加成功");
+                    $("#singer_type_text").val("");
+                    table.reload('singer_type_table');
+                }
+            }, '@Url.Action("AddOrUpdateSingerType", "SingerManage")', true);
+
+        });
+    //音乐人流派 其他事件监听
+        table.on('tool(singer_type_table)', function (obj) {
+            var data = obj.data //获得当前行数据
+                , layEvent = obj.event; //获得 lay-event 对应的值
+             if (layEvent === 'del') {
+                layer.confirm('删除后，新商家无法选择该类型，确认要删除吗？', function (index) {
+
+                    layer.close(index);
+                    Service.ajax(JSON.stringify({ id: data.Id }), function (result) {
+                        if (result.status) {
+                            layer.msg("删除成功");
+                            obj.del(); //删除对应行（tr）的DOM结构
+                        } else {
+                            layer.alert(result.msg);
+                        }
+                    }, '@Url.Action("DeleteSingerType", "SingerManage")', true);
+                });
+            }
+        });
+
+        $("#add_edit_singer_type_btn").click(function () {
+            layer.open({
+                type: 1,
+                title: '<span style="font-weight:bolder;">设置流派</span>',
+                move: false,
+                btn: ['确定', '取消'],
+                area: ['500px', '350px'],
+                content: $('#singer_type_edit_div'),
+                success: function () {
+                    $('#singer_type_edit_div').attr("display", 'block');
+                },
+                end: function () {
+                    $('#singer_type_edit_div').attr("display", 'none');
+                },
+                yes: function (index, layero) {
+                    layer.close(index);
+                }
+            });
+        });
+    });
+</script>
+
