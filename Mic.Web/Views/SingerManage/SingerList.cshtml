@@ -23,6 +23,11 @@
         height: 50px;
         background-color: rgb(244,244,244);
     }
+
+    .info_item_div {
+        height: 40px;
+        width: 100%;
+    }
 </style>
 
 <div class=" content">
@@ -66,8 +71,40 @@
 </div>
 
 <!--音乐人认证-->
-<div id="singer_auth_div" class="layui-form" style="display:none; margin-top:50px;">
-    音乐人认证
+<div id="singer_auth_div" class="layui-form layui-row" style="display:none; margin-top:30px;">
+    <div class="layui-col-md2">
+        <img src="~/Content/images/tx.png" style="margin-left: 40px;" height="60" width="60" />
+    </div>
+    <div class="layui-col-md10">
+        <div class="layui-row">
+            <div class="layui-col-md6">
+                <div id="head_img" class="info_item_div">
+                    <label>艺名：</label> <span id="singer_ym">果小猪</span>
+                </div>
+                <div class="info_item_div">
+                    <label>音乐流派：</label> <span id="singer_lp" >摇滚</span>
+                </div>
+                <div class="info_item_div">
+                    <label>自我介绍：</label> <span id="singer_zwjs">张三</span>
+                </div>
+                <div class="info_item_div">
+                    <label>身份证号码：</label> <span id="idcard_no">43223349932882987X</span>
+                </div>
+            </div>
+            <div class="layui-col-md6">
+                <img id="auth_img" src="~/Content/images/tx.png" style="margin-top: 20px;margin-left:115px" height="110" width="110" />
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-md6">
+                <img id="id_f_img" src="~/Content/images/idcard_1.png" height="115" width="220" />
+            </div>
+            <div class="layui-col-md6">
+                <img id="id_b_img" src="~/Content/images/idcard_2.png" height="115" width="220" />
+            </div>
+        </div>
+    </div>
+   
 </div>
 
 
@@ -193,7 +230,26 @@
                 }
 
             } else if (layEvent == 'auth') {
-
+                $('#singer_ym').html(data.SingerNameForStore);
+                $('#singer_lp').html(data.SingerTypeName);
+                $('#singer_zwjs').html(data.Introduce);
+                $('#idcard_no').html(data.IdCardNo);
+                $('#head_img').attr("src", data.HeadImgFullPath);
+                $('#id_f_img').attr("src", data.IdCardFrontFullPath);
+                $('#id_b_img').attr("src", data.IdCardBackFullPath);
+                switch (data.Authentication) {
+                    case 1://待审核
+                        $('#auth_img').attr("src", '');
+                        break;
+                    case 2://未通过
+                        $('#auth_img').attr("src", '');
+                        break;
+                    case 3://已通过认证
+                        $('#auth_img').attr("src", '');
+                        break;
+                    default:
+                        $('#auth_img').attr("src", '');
+                }
                 if (data.Authentication == 1) {//待审核
                     layer.open({
                         type: 1,
@@ -201,7 +257,7 @@
                         move: false,
                         btn: ['通过', '未通过'],
                         skin: 'tempSkin',
-                        area: ['800px', '550px'],
+                        area: ['700px', '450px'],
                         content: $('#singer_auth_div'),
                         success: function () {
                             $('#singer_auth_div').attr("display", 'block');
@@ -240,7 +296,7 @@
                         move: false,
                         //btn: ['通过', '未通过'],
                         skin: 'tempSkin',
-                        area: ['800px', '550px'],
+                        area: ['700px', '450px'],
                         content: $('#singer_auth_div'),
                         success: function () {
                             $('#singer_auth_div').attr("display", 'block');
@@ -248,7 +304,7 @@
                         end: function () {
                             $('#singer_auth_div').attr("display", 'none');
                         },
-                        
+
                     });
                 }
 

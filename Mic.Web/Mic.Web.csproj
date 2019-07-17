@@ -141,9 +141,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\css\mycss.css" />
+    <Content Include="Content\images\idcard_1.png" />
+    <Content Include="Content\images\idcard_2.png" />
     <Content Include="Content\images\login_bg.png" />
     <Content Include="Content\images\login_line.jpg" />
     <Content Include="Content\images\logo.jpg" />
+    <Content Include="Content\images\tx.png" />
     <Content Include="Content\js\jquery-3.3.1.js" />
     <Content Include="Content\js\jquery-3.3.1.min.js" />
     <Content Include="Content\js\jquery.validate.js" />

@@ -10,10 +10,26 @@ namespace Mic.Entity
         public string SingerName { get; set; }
         public string SingerNameForStore { get; set; }
         public int SingerTypeId { get; set; }
+        public string SingerTypeName { get; set; }
         public string HeadImg { get; set; }
+        public string HeadImgFullPath { get {
+                return "http://152.136.227.143" + HeadImg;
+            } }
         public string IdCardNo { get; set; }
         public string IdCardFront { get; set; }
+        public string IdCardFrontFullPath
+        {
+            get {
+                return "http://152.136.227.143" + IdCardFront;
+            }
+        }
         public string IdCardBack { get; set; }
+        public string IdCardBackFullPath
+        {
+            get {
+                return "http://152.136.227.143" + IdCardBack;
+            }
+        }
         public string Introduce { get; set; }
         public int Authentication { get; set; }// 0-未申请(未认证)，1-已申请（待审核），2审核不通过，3审核通过（已认证）
         public string AuthenticationStr

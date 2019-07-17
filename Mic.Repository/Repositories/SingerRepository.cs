@@ -28,8 +28,8 @@ namespace Mic.Repository.Repositories
             string likeSql = string.IsNullOrWhiteSpace(pageParam.Keyword) ? string.Empty : $@" and (a.Phone like '%{pageParam.Keyword}%'  or b.SingerName like '%{pageParam.Keyword}%')";
             string sql = string.Format(@"
                 select top {0} * from (select row_number() over(order by  b.CreateTime desc) as rownumber,a.UserName,a.Phone,
-a.UserType,a.Status,a.Password,a.Id as SingerId,b.*
-                    from [User] a  left join SingerDetailInfo b on a.Id= b.UserId 
+a.UserType,a.Status,a.Password,a.Id as SingerId,b.*,c.SingerTypeName
+                    from [User] a  left join SingerDetailInfo b on a.Id= b.UserId left join SingerType c on c.Id=b.SingerTypeId
 where a.Status=1 and a.UserType=1   {2} ) temp_row
                     where temp_row.rownumber>(({1}-1)*{0});", pageParam.PageSize, pageParam.PageIndex, likeSql);
             int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from [User] a  left join SingerDetailInfo b on a.Id= b.UserId 
