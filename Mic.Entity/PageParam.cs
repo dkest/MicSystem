@@ -19,4 +19,9 @@ namespace Mic.Repository
     {
         public int AuditStatus { get; set; } = -1;
     }
+
+    public class SingerSongPageParam : PageParam
+    {
+        public int SingerId { get; set; }
+    }
 }

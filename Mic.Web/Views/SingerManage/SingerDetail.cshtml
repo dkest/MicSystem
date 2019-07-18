@@ -13,5 +13,177 @@
         }
     });
 </script>
-<h2>获取代音乐人Id = @ViewBag.SingerId</h2>
+
+<style>
+    .card_header {
+        font-size: 17px;
+    }
+</style>
+
+<div>
+    <div class="layui-row">
+        <div class="layui-card">
+            <div class="layui-card-header card_header">基本信息</div>
+            <div class="layui-card-body layui-row">
+                <div class=" layui-col-md4 layui-col-lg4">
+                    <label>音乐人名称：</label><span id="singer_name_detail"></span>
+                </div>
+                <div class=" layui-col-md4 layui-col-lg4">
+                    <label>登录手机号：</label><span id="singer_phone_detail"></span>
+                </div>
+                <div class=" layui-col-md4 layui-col-lg4">
+                    <label>商家端显示名称：</label><span id="singer_forstore_detail"></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="layui-row">
+        <div class="layui-card">
+            <div class="layui-card-header card_header">认证信息</div>
+            <div class="layui-card-body layui-row">
+                <div class="layui-col-md1">
+                    <img id="tx" src="~/Content/images/tx.png" width="80" height="80" />
+                </div>
+                <div class="layui-col-md9">
+                    <div class="layui-row">
+                        <div class="layui-col-md4">
+                            <label>艺名：</label><span id="ym"></span>
+                        </div>
+                        <div class="layui-col-md4">
+                            <label>音乐流派：</label><span id="lp"></span>
+                        </div>
+                        <div class="layui-col-md4">
+                            <label>身份证号：</label><span id="sfz"></span>
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div>
+                            <label>自我介绍：</label>
+                            <span id="zwjs">
+                            </span>
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="layui-col-md6">
+                            <img id="sfz_f" src="" width="250" height="150" />
+                        </div>
+                        <div class="layui-col-md6">
+                            <img id="sfz_b" src="" width="250" height="150" />
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="layui-row">
+        <div class="layui-card">
+            <div class="layui-card-header card_header">作品集</div>
+            <div class="layui-card-body">
+                <table class="layui-table" lay-filter="singer_song_list" id="singer_song_list"></table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="songPlay_divs" style="display:none;margin-left:100px;margin-right:20px; margin-top:15px;">
+    <audio id="play_audio" controls="controls">
+        <source src="" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+</div>
+
+<script>
+    var singerId =@ViewBag.SingerId;
+    layui.use('table', function () {
+        var table = layui.table;
+        var form = layui.form;
+
+        Service.ajax(JSON.stringify({ singerId: singerId }), function (result) {
+            if (result.status) {
+                $('#singer_name_detail').html(result.data.SingerName);
+                $('#singer_phone_detail').html(result.data.Phone);
+                $('#singer_forstore_detail').html(result.data.SingerNameForStore);
+                $('#ym').html(result.data.SingerNameForStore);
+                $('#lp').html(result.data.SingerTypeName);
+                $('#sfz').html(result.data.IdCardNo);
+                $('#zwjs').html(result.data.Introduce);
+                $('#tx').attr("src", result.data.HeadImgFullPath);
+                $('#sfz_f').attr("src", result.data.IdCardFrontFullPath);
+                $('#sfz_b').attr("src", result.data.IdCardBackFullPath);
+            }
+        }, '@Url.Action("GetSingerInfo", "SingerManage")', true);
+
+
+        table.render({
+            elem: '#singer_song_list'
+            , height: "280"
+            , url: '@Url.Action("GetSongListBySingerId", "SingerManage")'
+            , limit: 10
+            ,size:'sm'
+            , where: { singerId: singerId }
+            , limits: [10, 20, 30, 40, 50]
+            ,page: true
+            ,autoSort: false
+            , cols: [[
+                { type: "numbers", fixed: "left", width: 50 }
+                , {
+                    field: '', width: 50, title: '', event: 'songListPlay', style: 'cursor: pointer;',
+                    templet: function (d) {
+                        return "<i class='layui-icon' >&#xe652;</i>";
+                    }
+                }
+                , { field: 'SongName', minWidth: 100, title: '歌曲名称' }
+                , { field: 'SongLength', width: 150, title: '时长' }
+                , { field: 'PlayTimes', width: 150, title: '播放次数', sort: true }
+            ]]
+
+        });
+
+        table.on('tool(singer_song_list)', function (obj) {
+            var data = obj.data 
+                , layEvent = obj.event; 
+            if (layEvent === 'songListPlay') {
+                $('#play_audio').attr('src', data.FullSongPath);
+                var fry_audio = $('#play_audio').get('0');
+                 fry_audio.load();
+                layer.open({
+                    type: 1,
+                    title: '<span style="font-weight:bolder;">播放歌曲</span>',
+                    move: false,
+                    btn: ['确定'],
+                    area: ['500px', '200px'],
+                    content: $('#songPlay_divs'),
+                    success: function () {
+                        $('#songPlay_divs').attr("display", 'block');
+                    },
+                    end: function () {
+                        $('#songPlay_divs').attr("display", 'none');
+                    },
+                    yes: function (index, layero) {
+                        layer.close(index);
+                    }
+                });
+            }
+        });
+
+        table.on('sort(singer_song_list)', function (obj) {
+            table.reload('singer_song_list',{
+                initSort: obj
+                , where: {
+                    singerId: singerId
+                    ,field: obj.field
+                    , order: obj.type
+                }
+            });
+        });
+
+        
+
+    });
+</script>
 

@@ -72,5 +72,17 @@ where a.Status=1 and a.UserType=1  {likeSql}"));
             return helper.Execute(sql) > 0 ? true : false;
         }
 
+        /// <summary>
+        /// 获取音乐人详情
+        /// </summary>
+        /// <param name="singerId"></param>
+        /// <returns></returns>
+        public Tuple<bool, SingerDetailInfoEntity> GetSingerInfoById(int singerId)
+        {
+            string sql = $@"select * from  SingerDetailInfo where UserId={singerId}";
+            var result = helper.Query<SingerDetailInfoEntity>(sql).FirstOrDefault();
+            return Tuple.Create(result == null ? false : true, result);
+        }
+
     }
 }

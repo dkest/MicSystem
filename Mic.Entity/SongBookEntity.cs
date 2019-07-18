@@ -29,6 +29,32 @@ namespace Mic.Entity
         public DateTime UploadTime { get; set; } //歌曲上传时间
         public int PublishTimes { get; set; } // 歌曲第几次发布
         public int AuditStatus { get; set; }//审核状态 0-待发布；1-待审核；2-已通过；3-未通过
+        public string AuditStatusStr
+        {
+            get {
+                string result = string.Empty;
+                switch (AuditStatus)
+                {
+                    case 0:
+                        result= "待发布";
+                        break;
+                    case 1:
+                        result = "待审核";
+                        break;
+                    case 2:
+                        result = "已通过";
+                        break;
+                    case 3:
+                        result = "未通过";
+                        break;
+                    default:
+                        result = "未知";
+                        break;
+                }
+                return result;
+            }
+        }
+
 
         //StoreIdList { get; set; }
         public bool Status { get; set; }
@@ -42,7 +68,7 @@ namespace Mic.Entity
                 int hour = Convert.ToInt32(Math.Floor(TotalPlayTime / 3600.0));
                 int min = Convert.ToInt32(Math.Floor((TotalPlayTime - 3600 * hour) / 60.0));
                 int sec = TotalPlayTime - 3600 * hour - 60 * min;
-                return hour+":"+min+":"+sec;
+                return hour + ":" + min + ":" + sec;
             }
         }
         public string SongMarkStr { get; set; }

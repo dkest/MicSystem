@@ -10,11 +10,13 @@ namespace Mic.Web.Controllers
         private ParamRepository paramRepository;
         private SingerRepository singerRepository;
         private SingerTypeRepository singerTypeRepository;
+        private SongBookRepository songBookRepository;
         public SingerManageController()
         {
             paramRepository = ClassInstance<ParamRepository>.Instance;
             singerRepository = ClassInstance<SingerRepository>.Instance;
             singerTypeRepository = ClassInstance<SingerTypeRepository>.Instance;
+            songBookRepository = ClassInstance<SongBookRepository>.Instance;
         }
 
         public ActionResult SingerList()
@@ -117,6 +119,41 @@ namespace Mic.Web.Controllers
         {
             var result = singerRepository.UpdateAuthStatus(singerId, auth);
             return Json(new { status = result }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// 根据歌手Id，分页获取音乐
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult GetSongListBySingerId()
+        {
+            var page = GetIntValFromReq("page");//页码
+            var limit = GetIntValFromReq("limit");//每页数据
+            var singerId = GetIntValFromReq("singerId");
+            var field = GetStrValFromReq("field");
+            var order = GetStrValFromReq("order");
+            var param = new SingerSongPageParam
+            {
+                PageIndex = page,
+                PageSize = limit,
+                SingerId = singerId,
+                OrderField = field,
+                OrderType = order
+            };
+
+            var result = songBookRepository.GetSongListBySingerId(param);
+            return Json(new { code = 0, msg = "", count = result.Item1, data = result.Item2 }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// 获取音乐人详细信息
+        /// </summary>
+        /// <param name="singerId"></param>
+        /// <returns></returns>
+        public ActionResult GetSingerInfo(int singerId)
+        {
+            var result = singerRepository.GetSingerInfoById(singerId);
+            return Json(new { status = result.Item1, data = result.Item2 });
         }
     }
 }

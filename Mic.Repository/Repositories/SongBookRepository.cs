@@ -142,5 +142,16 @@ ExpirationTime,AuditStatus,SongLength,UploadTime,Status)
             return Tuple.Create(result > 0 ? true : false, updateEntity);
         }
 
+        public Tuple<int,List<SongBookEntity>> GetSongListBySingerId(SingerSongPageParam pageParam)
+        {
+            string sql = string.Format(@"
+                select top {0} * from (select row_number() over(order by {3}  UploadTime desc) as rownumber,SongBook.*
+                    from SongBook  where Status=1  and SingerId={2}) temp_row
+                    where temp_row.rownumber>(({1}-1)*{0});", pageParam.PageSize, pageParam.PageIndex,pageParam.SingerId,
+                    string.IsNullOrWhiteSpace(pageParam.OrderField) ? string.Empty : (pageParam.OrderField + " " + pageParam.OrderType + ","));
+            int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from SongBook where Status=1 and SingerId=  {pageParam.SingerId}"));
+            return Tuple.Create(count, helper.Query<SongBookEntity>(sql).ToList());
+        }
+
     }
 }
