@@ -1,0 +1,123 @@
+﻿
+@{
+    ViewBag.Title = "StoreStatistics";
+    Layout = null;
+}
+<style>
+    .item_box {
+    height:100px; margin:0px 10px;border: 1px solid #F1F1F1;
+    }
+    .round {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        position: relative;
+        margin-top:20px;
+        margin-left:10px;
+    }
+        .round img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+        }
+    .item_content {
+        margin-top:10px;
+        padding-left:8px;
+    }
+        .item_content p {
+            color:#86888E;
+            font-size:17px;
+        }
+        .item_content span {
+            font-size:30px;
+            color:#86888E
+        }
+</style>
+
+<div class="">
+    <div class="layui-row">
+
+        <div class="layui-col-md3 layui-col-sm12">
+            <div class="layui-row item_box">
+                <div class="layui-col-md4">
+                    <div class="round" style="background-color: #F3857C;">
+                        <img src="~/Content/images/u2810.png" />
+                    </div>
+
+                </div>
+                <div class="layui-col-md8 item_content">
+                    <p class="name">商家数量</p>
+                    <span class="name">64432</span>
+                    <div>
+                        <img src="~/Content/images/up.png"/>
+                        <span style="font-size:11px;">100</span>
+                        <span style="font-size:11px;margin-left:3px;">昨日新增</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="layui-col-md3 layui-col-sm12">
+            <div class="layui-row item_box">
+                <div class="layui-col-md4">
+                    <div class="round" style="background-color: #98D87D;">
+                        <img src="~/Content/images/u2810.png" />
+                    </div>
+
+                </div>
+                <div class="layui-col-md8 item_content">
+                    <p class="name">昨日活跃商家数</p>
+                    <span class="name">443121</span>
+                    <p class="name">会员数</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="layui-col-md3 layui-col-sm12">
+            <div class="layui-row item_box">
+                <div class="layui-col-md4">
+                    <div class="round" style="background-color: #FFD86E;">
+                        <img src="~/Content/images/u2770.png" />
+                    </div>
+
+                </div>
+                <div class="layui-col-md8 item_content">
+                    <p class="name">昨日播放时长</p>
+                    <span class="name">2341</span>
+                    <p class="name">会员数</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="layui-col-md3 layui-col-sm12">
+            <div class="layui-row item_box" >
+                <div class="layui-col-md4">
+                    <div class="round" style="background-color: #49A9EE;">
+                        <img src="~/Content/images/u2757.png" />
+                    </div>
+
+                </div>
+                <div class="layui-col-md8 item_content">
+                    <p class="name">昨日播放次数</p>
+                    <span class="name">52342</span>
+                    <p class="name">会员数</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    $('#detail').click(function () {
+        $('#statistics_content_div').load( $("#statistics_content_div").load('@Url.Action("StoreStatisticsDetail", "Statistics")?id=5'));
+    });
+</script>
+

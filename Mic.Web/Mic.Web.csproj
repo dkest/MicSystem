@@ -141,12 +141,18 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\css\mycss.css" />
+    <Content Include="Content\images\down.png" />
     <Content Include="Content\images\idcard_1.png" />
     <Content Include="Content\images\idcard_2.png" />
     <Content Include="Content\images\login_bg.png" />
     <Content Include="Content\images\login_line.jpg" />
     <Content Include="Content\images\logo.jpg" />
     <Content Include="Content\images\tx.png" />
+    <Content Include="Content\images\u2757.png" />
+    <Content Include="Content\images\u2770.png" />
+    <Content Include="Content\images\u2792.png" />
+    <Content Include="Content\images\u2810.png" />
+    <Content Include="Content\images\up.png" />
     <Content Include="Content\js\jquery-3.3.1.js" />
     <Content Include="Content\js\jquery-3.3.1.min.js" />
     <Content Include="Content\js\jquery.validate.js" />
@@ -291,7 +297,6 @@
     <Folder Include="Views\Base\" />
     <Folder Include="Views\City\" />
     <Folder Include="Views\File\" />
-    <Folder Include="Views\Statistics\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
@@ -306,6 +311,12 @@
     <Content Include="Views\StoreManage\EditSongPlayList.cshtml" />
     <Content Include="Views\SingerManage\SingerList.cshtml" />
     <Content Include="Views\SingerManage\SingerDetail.cshtml" />
+    <Content Include="Views\Statistics\StatisticsView.cshtml" />
+    <Content Include="Views\Account\AccountManageView.cshtml" />
+    <Content Include="Views\Statistics\SingerStatistics.cshtml" />
+    <Content Include="Views\Statistics\SingerStatisticsDetail.cshtml" />
+    <Content Include="Views\Statistics\StoreStatistics.cshtml" />
+    <Content Include="Views\Statistics\StoreStatisticsDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mic.Entity\Mic.Entity.csproj">

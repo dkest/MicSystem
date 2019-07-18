@@ -19,6 +19,11 @@ namespace Mic.Web.Controllers
         {
             return View();
         }
+        public ActionResult AccountManageView()
+        {
+            return View();
+        }
+
         [HttpPost]
         [AllowAnonymous]
         public ActionResult VerifyLogin(Admin admin)

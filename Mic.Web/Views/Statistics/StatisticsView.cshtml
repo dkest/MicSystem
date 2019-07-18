@@ -1,0 +1,69 @@
+﻿
+@{
+    ViewBag.Title = "StaticsView";
+}
+
+<script>
+    var liList = $(".main-layout-header").find('li');
+    $(".main-layout-header").find('.layui-this').removeClass("layui-this");
+    $.each(liList, function (index, item) {
+        var selectIndex = $(item).attr("data-index");
+        if (selectIndex == "4") {
+            $(item).addClass("layui-this");
+        }
+    });
+</script>
+<style>
+    .r_content {
+        padding-top: 25px;
+        padding-left: 20px;
+    }
+    content, .left_menu {
+        height: 500px;
+    }
+
+    .my_nav .layui-nav-item a {
+        color: rgb(128, 128, 128);
+    }
+
+    .layui-nav-tree .layui-this a, .layui-nav-tree .layui-this > a:hover {
+        background-color: #eee;
+        color: #1E90FF;
+    }
+</style>
+<div class="layui-row content">
+    <div class="layui-col-sm2 layui-col-lg2 layui-col-md2 left_menu">
+        <ul class="my_nav layui-nav layui-nav-tree " style="margin-top:20px; background-color:white;">
+            <li class="my_nav_li layui-nav-item layui-this">
+                <a href="javascript:;" data-name="store">商家统计</a>
+            </li>
+            <li class="my_nav_li layui-nav-item">
+                <a href="javascript:;" data-name="singer">音乐人统计</a>
+            </li>
+        </ul>
+    </div>
+    <div id="statistics_content_div" class="layui-col-sm10 layui-col-lg10 layui-col-md10 r_content">
+
+    </div>
+    
+
+</div>
+
+
+
+
+
+<script>
+    // 左侧菜单切换
+    $(".my_nav_li").delegate("a", "click", function (e) {
+        var data = $(this).attr("data-name");
+        if (data == "store") {
+            $("#statistics_content_div").load('@Url.Action("StoreStatistics", "Statistics")');
+        } else if (data == "singer") {
+           $("#statistics_content_div").load('@Url.Action("SingerStatistics", "Statistics")');
+        }
+    });
+     $("#statistics_content_div").load('@Url.Action("StoreStatistics", "Statistics")');
+
+</script>
+
