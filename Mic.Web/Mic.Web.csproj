@@ -148,6 +148,8 @@
     <Content Include="Content\images\login_line.jpg" />
     <Content Include="Content\images\logo.jpg" />
     <Content Include="Content\images\tx.png" />
+    <Content Include="Content\images\u0001.png" />
+    <Content Include="Content\images\u0002.png" />
     <Content Include="Content\images\u2757.png" />
     <Content Include="Content\images\u2770.png" />
     <Content Include="Content\images\u2792.png" />

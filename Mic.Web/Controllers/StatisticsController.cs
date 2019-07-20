@@ -45,11 +45,15 @@ namespace Mic.Web.Controllers
 
         public ActionResult GetStoreStatisticsList()
         {
+            var page = GetIntValFromReq("page");//页码
+            var limit = GetIntValFromReq("limit");//每页数据
             DateTime begin = GetDateTimeValFromReq("beginDate").Value;
             DateTime end = GetDateTimeValFromReq("endDate").Value.AddDays(1).AddSeconds(-1);
             string field = GetStrValFromReq("field");
             StorePlaySongPageParam param = new StorePlaySongPageParam
             {
+                PageIndex = page,
+                PageSize = limit,
                 OrderField = field,
                 BeginDate = begin,
                 EndDate = end
@@ -66,14 +70,21 @@ namespace Mic.Web.Controllers
 
         public ActionResult GetStorePlaySongList()
         {
+            var page = GetIntValFromReq("page");//页码
+            var limit = GetIntValFromReq("limit");//每页数据
+
             DateTime begin = GetDateTimeValFromReq("beginDate").Value;
             DateTime end = GetDateTimeValFromReq("endDate").Value.AddDays(1).AddSeconds(-1);
             string field = GetStrValFromReq("field");
+            int playUserId = GetIntValFromReq("playUserId");
             StorePlaySongPageParam param = new StorePlaySongPageParam
             {
+                PageIndex = page,
+                PageSize = limit,
                 OrderField = field,
                 BeginDate = begin,
-                EndDate = end
+                EndDate = end,
+                PlayUserId = playUserId
             };
             var result = storeStatisticsRepository.GetStorePlaySongList(param);
             return Json(new { code = 0, msg = string.Empty, count = result.Count, data = result }, JsonRequestBehavior.AllowGet);

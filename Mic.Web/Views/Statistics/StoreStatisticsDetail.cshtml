@@ -47,10 +47,10 @@
     <div class="layui-row">
         <div class="layui-card-header" style="font-size:17px;" id="store_name">基本信息</div>
         <div class="layui-card-body layui-row">
-            <div class="layui-input-inline layui-col-md10">
+            <div class="layui-input-inline layui-col-md10" style="color: #999999;font-size: 13px;">
                 选择时间：
                 <div class="layui-input-inline">
-                    <input type="text" class="layui-input" id="search_date" style="width:200px;" placeholder=" ~ ">
+                    <input type="text" class="layui-input" id="search_date" style="width:200px;height:32px;" placeholder=" ~ ">
                 </div>
             </div>
         </div>
@@ -59,8 +59,8 @@
         <div class="layui-col-md3 layui-col-sm12">
             <div class="layui-row item_box">
                 <div class="layui-col-md4">
-                    <div class="round" style="background-color: #F3857C;">
-                        <img src="~/Content/images/u2810.png" />
+                    <div class="round" style="background-color: #FFD86E;">
+                        <img src="~/Content/images/u0001.png" />
                     </div>
 
                 </div>
@@ -77,8 +77,8 @@
         <div class="layui-col-md3 layui-col-sm12 layui-col-md-offset2">
             <div class="layui-row item_box">
                 <div class="layui-col-md4">
-                    <div class="round" style="background-color: #98D87D;">
-                        <img src="~/Content/images/u2810.png" />
+                    <div class="round" style="background-color: #49A9EE;">
+                        <img src="~/Content/images/u0002.png" />
                     </div>
 
                 </div>
@@ -107,7 +107,7 @@
 
     var storeId = @ViewBag.id;
     $("#store_name").text('@ViewBag.name');
-    
+
     var beginDate;
     var endDate;
     layui.use(['table','laydate'], function () {
@@ -135,7 +135,12 @@
                     endDate = arr[1];
                     loadStoreStatisticsInfo();
                     table.reload('store_song_list', {
-                        where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
+                        page:{ curr:1}
+                        , where: {
+                            beginDate: beginDate, endDate: endDate,
+                            field: $('#order_field_select').val(),
+                            playUserId:storeId
+                        }
                     });
                 }
             }
@@ -143,7 +148,12 @@
 
         form.on('select(order_field_select)', function (data) {
             table.reload('store_song_list', {
-                where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
+                page:{ curr:1}
+                , where: {
+                    beginDate: beginDate, endDate: endDate,
+                    field: $('#order_field_select').val(),
+                    playUserId:storeId
+                }
             });
         });
 
@@ -153,9 +163,13 @@
             , url: '@Url.Action("GetStorePlaySongList", "Statistics")'
             , limit: 10
             , size: 'sm'
-            , where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
+            , where: {
+                beginDate: beginDate, endDate: endDate,
+                field: $('#order_field_select').val(),
+                playUserId:storeId
+            }
             , limits: [10, 20, 30, 40, 50]
-            , page: false
+            , page: true
             ,autoSort: false
             , cols: [[
                 { field: 'SongName', minWidth: 150, title: '歌曲名称' }
@@ -168,16 +182,16 @@
 
     });
 
-    
+
     var loadStoreStatisticsInfo = function () {
          Service.ajax(JSON.stringify({ storeId:storeId,beginDate: beginDate, endDate: endDate }), function (result) {
         if (result.status) {
-            $("#play_times_info").html(result.data.PlayCount); 
+            $("#play_times_info").html(result.data.PlayCount);
             $("#ljsc").html(result.data.PlayTimeStr);
         }
     }, '@Url.Action("GetStoreStaticInfo", "Statistics")', true);
     }
 
     loadStoreStatisticsInfo();
-   
+
 </script>

@@ -106,9 +106,24 @@ where  [BeginPlayTime]>'{yesLastWeek}' and [BeginPlayTime]<'{yesLastWeek.AddDays
         /// <returns></returns>
         public List<StoreSongStatisticsEntity> GetStorePlaySongInfo(StorePlaySongPageParam param)
         {
-            string sql = $@"select b.StoreName, count( distinct a.SongId) as  PlaySongCount, PlayUserId,Sum(BroadcastTime) as PlayTime,count(1) as PlayCount from [dbo].[SongPlayRecord] a  left join StoreDetailInfo b
+            string order = string.Empty;
+            switch (param.OrderField)
+            {
+                case "PlayTime":
+                    order = "Sum(BroadcastTime)";
+                    break;
+                case "PlaySongCount":
+                    order = "count( distinct a.SongId) ";
+                    break;
+                case "PlayCount":
+                    order = "count(1)";
+                    break;
+            }
+            string sql = $@"select top {param.PageSize} * from (select row_number() over(order by {order} desc) as rownumber,
+b.StoreName, count( distinct a.SongId) as  PlaySongCount, PlayUserId,Sum(BroadcastTime) as PlayTime,count(1) as PlayCount from [dbo].[SongPlayRecord] a  left join StoreDetailInfo b
 on a.PlayUserId = b.UserId where a.BeginPlayTime >= '{param.BeginDate}' and a.BeginPlayTime <= '{param.EndDate}'
-group by a.PlayUserId,b.StoreName  order by {param.OrderField} desc;";
+group by a.PlayUserId,b.StoreName ) temp_row
+                    where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize}) ;";
             return helper.Query<StoreSongStatisticsEntity>(sql).ToList();
         }
 
@@ -122,10 +137,21 @@ where BeginPlayTime >= '{beginDate}' and BeginPlayTime <= '{endDate.AddDays(1).A
 
         public List<StorePlaySongEntity> GetStorePlaySongList(StorePlaySongPageParam param)
         {
-            string sql = $@" select a.SongId, b.SongName,Sum(BroadcastTime) as PlayTime,count(1) as PlayCount 
+            string order = string.Empty;
+            switch (param.OrderField)
+            {
+                case "PlayTime":
+                    order = "Sum(BroadcastTime)";
+                    break;
+                case "PlayCount":
+                    order = "count(1)";
+                    break;
+            }
+            string sql = $@" select top {param.PageSize} * from (select row_number() over(order by {order} desc) as rownumber, a.SongId, b.SongName,Sum(BroadcastTime) as PlayTime,count(1) as PlayCount 
  from [dbo].[SongPlayRecord] a  left join SongBook b
-on a.SongId = b.Id where a.BeginPlayTime >= '{param.BeginDate}' and  a.BeginPlayTime <='{param.EndDate}' and PlayUserId=13
- group by a.SongId,b.SongName   order by {param.OrderField} desc;";
+on a.SongId = b.Id where a.BeginPlayTime >= '{param.BeginDate}' and  a.BeginPlayTime <='{param.EndDate}' and PlayUserId={param.PlayUserId}
+ group by a.SongId,b.SongName   ) temp_row
+                    where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize}) ;";
             return helper.Query<StorePlaySongEntity>(sql).ToList();
         }
     }

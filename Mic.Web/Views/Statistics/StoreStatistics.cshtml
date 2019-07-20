@@ -133,14 +133,14 @@
     </div>
     <div class="layui-row layui-form">
         <div class=" layui-form layui-row" style="margin:10px">
-            <div class="layui-input-inline layui-col-md10">
+            <div class="layui-input-inline layui-col-md10" style="color: #999999;font-size: 13px;">
                 选择时间：
                 <div class="layui-input-inline">
-                    <input type="text" class="layui-input" id="search_date" style="width:200px;" placeholder=" ~ ">
+                    <input type="text" class="layui-input" id="search_date" style="style=" width:200px;height:32px;"" placeholder=" ~ ">
                 </div>
             </div>
 
-            <div class="layui-input-inline layui-col-md2 ">
+            <div class="layui-input-inline layui-col-md2 " style="color: #999999;font-size: 13px;">
                 <select id="order_field_select" lay-filter="order_field_select">
                     <option value="PlayTime" selected="">按时长</option>
                     <option value="PlaySongCount">按歌曲数</option>
@@ -178,7 +178,8 @@
                     beginDate = arr[0];
                     endDate = arr[1];
                     table.reload('statistics_store_list', {
-                        where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
+                        page:{ curr:1}
+                        ,where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
                     });
                 }
             }
@@ -186,19 +187,20 @@
 
         form.on('select(order_field_select)', function (data) {
             table.reload('statistics_store_list', {
-                where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
+                page:{ curr:1}
+                ,where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
             });
         });
 
         table.render({
             elem: '#statistics_store_list'
-            , height: "380"
+            , height: "400"
             , url: '@Url.Action("GetStoreStatisticsList", "Statistics")'
             , limit: 10
-            //, size: 'sm'
+            , size: 'sm'
             , where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
             , limits: [10, 20, 30, 40, 50]
-            , page: false
+            , page: true
             ,autoSort: false
             , cols: [[
                 {
