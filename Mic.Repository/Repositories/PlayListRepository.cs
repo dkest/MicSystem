@@ -59,13 +59,20 @@ namespace Mic.Repository.Repositories
                         {
                             sb.Append(item).Append(",");
                         }
-                        
+
                     }
                     string resultSql = sb.ToString();
                     int length = resultSql.Length;
                     resultSql = resultSql.Substring(0, length - 1);
                     resultSql += ");";
-                    list = helper.Query<SongBookEntity>(resultSql).ToList();
+                    try
+                    {
+                        list = helper.Query<SongBookEntity>(resultSql).ToList();
+                    }
+                    catch (Exception)
+                    {
+
+                    }
                 }
                 else
                 { //该商家没有后台歌单
@@ -93,7 +100,7 @@ namespace Mic.Repository.Repositories
                 {
                     sb.Append(item).Append(",");
                 }
-                
+
             }
             string resultSql = sb.ToString();
             int length = resultSql.Length;
@@ -173,10 +180,20 @@ values ('{playList.ListName}','{playList.ListContent}','{playList.StoreCode}','{
 
         public bool AppendSongList(PlayListEntity playList)
         {
-            var t = helper.QueryScalar($@"select ListContent from PlayList where Id={playList.Id}; ");
-            string sql = $@"update PlayList set [ListContent]='{playList.ListContent+ t.ToString()}',
+            if (playList.Id > 0) //更新歌单
+            {
+                var t = helper.QueryScalar($@"select ListContent from PlayList where Id={playList.Id}; ");
+                string sql = $@"update PlayList set [ListContent]='{playList.ListContent + t.ToString()}',
 [UpdateTime]='{DateTime.Now}' where Id = {playList.Id} ;";
-            return helper.Execute(sql) > 0 ? true : false;
+                return helper.Execute(sql) > 0 ? true : false;
+            }
+            else
+            { // 添加新歌单
+                string sql = $@"insert into PlayList(ListName,ListContent,StoreCode,IsPublish,UpdateTime,Status)
+values ('{string.Empty}','{playList.ListContent}','{playList.StoreCode}',{0},'{DateTime.Now}',{1})";
+                return helper.Execute(sql) > 0 ? true : false;
+            }
+
         }
 
     }

@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mic.Entity", "Mic.Entity\Mi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mic.Repository", "Mic.Repository\Mic.Repository.csproj", "{888B800C-8D6A-4732-91FD-7AAF9E34797D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{E18E4536-5FEC-42B8-809D-143582445A3D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mic.Logger", "Mic.Logger\Mic.Logger.csproj", "{4A4C4A68-A85D-403F-9996-5B2FE27B9664}"
 EndProject
 Global
@@ -37,10 +35,6 @@ Global
 		{888B800C-8D6A-4732-91FD-7AAF9E34797D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{888B800C-8D6A-4732-91FD-7AAF9E34797D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{888B800C-8D6A-4732-91FD-7AAF9E34797D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E18E4536-5FEC-42B8-809D-143582445A3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E18E4536-5FEC-42B8-809D-143582445A3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E18E4536-5FEC-42B8-809D-143582445A3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E18E4536-5FEC-42B8-809D-143582445A3D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4A4C4A68-A85D-403F-9996-5B2FE27B9664}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4A4C4A68-A85D-403F-9996-5B2FE27B9664}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A4C4A68-A85D-403F-9996-5B2FE27B9664}.Release|Any CPU.ActiveCfg = Release|Any CPU

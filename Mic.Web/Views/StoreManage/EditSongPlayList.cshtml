@@ -186,7 +186,7 @@
                     selectedIds += (item.Id+",");
                 });
 
-                Service.ajax(JSON.stringify({ id: songListId, listContent: selectedIds }), function (result) {
+                Service.ajax(JSON.stringify({ id: songListId, listContent: selectedIds,storeCode:'@ViewBag.storeCode' }), function (result) {
                     if (result) {
                         layer.msg('导入歌单成功');
                         table.reload('edit_song_list', { where: { keyword: "", storeId: @ViewBag.storeId } });
@@ -255,7 +255,7 @@
     $("#add_song_search_reset_btn").click(function () {
         var tempIdListStr = "";
         $.each(songIds, function (index, item) {
-            tempIdListStr += (item+",");
+            tempIdListStr += (item + ",");
         });
         $("#song_search_text").val('');
         $("#song_mark_select").val('-1');
@@ -271,7 +271,7 @@
     $("#add_song_search_btn").click(function () {
         var tempIdListStr = "";
         $.each(songIds, function (index, item) {
-            tempIdListStr += (item+",");
+            tempIdListStr += (item + ",");
         });
         table.reload('song_select_list', { where: { keyword: $('#song_search_text').val(), ids: tempIdListStr, searchMarkId: $('#song_mark_select').val() } });
 

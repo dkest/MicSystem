@@ -62,7 +62,8 @@
             <label class="label_title">授权合同：</label>
         </div>
         <div class="layui-col-lg5 layui-col-md5">
-            <img id="sqht_img" width="200" height="150" />
+            <img id="sqht_img" style="display:none;" width="200" height="150" />
+            <a id="sqht_pdf" style="display:none;"></a>
         </div>
     </div>
     <div class="layui-row" style="padding-top:15px;">
@@ -159,8 +160,19 @@
                 $("#store_name").html(result.data.StoreName);
                 $("#store_type").html(result.data.StoreTypeName);
                 $("#store_phone").html(result.data.Phone);
-                var imgPath = currentInfo.FullDelegatingContractPath;
-                $("#sqht_img").attr("src", imgPath);
+                var sqhtPath = currentInfo.FullDelegatingContractPath;
+                var arr = sqhtPath.split('.');
+                var temp = arr[arr.length - 1].toLowerCase();;
+                if (temp == 'jpg' || temp == 'png' || temp == 'jpeg' || temp == 'bmp') {
+                    $("#sqht_img").show();
+                   $("#sqht_img").attr("src", sqhtPath);
+
+                } else {
+
+                     $("#sqht_pdf").show();
+                    $("#sqht_pdf").attr('href', sqhtPath);
+                   $("#sqht_pdf").text(sqhtPath);
+                }
                 // 编辑框信息
                 $("#store_type_edit").val(result.data.StoreTypeId);
                 $("#store_name_edit").val(currentInfo.StoreName);
@@ -257,7 +269,7 @@
                         area:['auto','auto'],
                         skin: 'layui-layer-nobg', //没有背景色
                         shadeClose: true,
-                        content: "<img src='"+imgPath+"'/>"
+                        content: "<img src='"+sqhtPath+"'/>"
                     });
                 });
                 var detailAddress = result.data.DetailAddress;
@@ -381,7 +393,7 @@
                 title: ['歌单编辑', 'font-size:16px;'],
                 fixed: false, //不固定
                 maxmin: true,
-                content: '@Url.Action("EditSongPlayList", "StoreManage")?storeId=' + currentId + "&id=" + listItem.Id,
+                content: '@Url.Action("EditSongPlayList", "StoreManage")?storeId=' + currentId + "&id=" + listItem.Id + "&storeCode=" + currentInfo.StoreCode,
                 end: function () {
                     storeSongListTable.reload({});
 
@@ -432,6 +444,16 @@
             layer.msg("必须先选择授权和同文件");
             return;
         }
+        if (!checkPhone($("#store_phone_edit").val())) {
+            layer.msg("手机号格式不正确");
+            return;
+        }
+
+        var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}$/;
+        if (!reg.test($("#store_password_edit").val())) {
+            layer.msg("密码不得少于6位，且需包含数字和字母");
+            return;
+        }
         var param = {
             Id: currentId, StoreId: currentId,
             UserName: $("#store_name_edit").val(),StoreName:$("#store_name_edit").val(), StoreTypeId: currentInfo.StoreTypeId,
@@ -446,8 +468,24 @@
                 $("#store_name").html($("#store_name_edit").val());
                 $("#store_type").html(storeTypeName);
                 $("#store_phone").html($("#store_phone_edit").val());
-               var imgPath = "http://152.136.227.143" +currentInfo.DelegatingContract;//currentInfo.FullDelegatingContractPath;
-               $("#sqht_img").attr("src", imgPath);
+               var sqhtPath = "http://152.136.227.143" +currentInfo.DelegatingContract;//currentInfo.FullDelegatingContractPath;
+               //$("#sqht_img").attr("src", imgPath);
+
+               var sqhtPath = currentInfo.FullDelegatingContractPath;
+                var arr = sqhtPath.split('.');
+                var temp = arr[arr.length - 1].toLowerCase();
+                if (temp == 'jpg' || temp == 'png' || temp == 'jpeg' || temp == 'bmp') {
+                    $("#sqht_img").show();
+                    $("#sqht_pdf").hide();
+                   $("#sqht_img").attr("src", sqhtPath);
+
+                } else {
+
+                    $("#sqht_pdf").show();
+                     $("#sqht_img").hide();
+                    $("#sqht_pdf").attr('href', sqhtPath);
+                   $("#sqht_pdf").text(sqhtPath);
+                }
                $("#store_address").html(province + " " + city + " " + county+" " +  $("#detail_address_edit").val());
                layer.msg('保存成功');
                layer.close(layerIndex);

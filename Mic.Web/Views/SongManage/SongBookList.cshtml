@@ -274,6 +274,8 @@
                     },
                     end: function () {
                         $('#songPlay_divs').attr("display", 'none');
+                        fry_audio.pause();
+                        fry_audio.load();
                     },
                     yes: function (index, layero) {
                         layer.close(index);
@@ -464,6 +466,8 @@
                     },
                     end: function () {
                         $('#songPlay_divs').attr("display", 'none');
+                        fry_audio.pause();
+                        fry_audio.load();
                     },
                     yes: function (index, layero) {
                         layer.close(index);

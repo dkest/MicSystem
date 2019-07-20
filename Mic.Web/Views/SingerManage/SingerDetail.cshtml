@@ -145,8 +145,8 @@
         });
 
         table.on('tool(singer_song_list)', function (obj) {
-            var data = obj.data 
-                , layEvent = obj.event; 
+            var data = obj.data
+                , layEvent = obj.event;
             if (layEvent === 'songListPlay') {
                 $('#play_audio').attr('src', data.FullSongPath);
                 var fry_audio = $('#play_audio').get('0');
@@ -163,6 +163,9 @@
                     },
                     end: function () {
                         $('#songPlay_divs').attr("display", 'none');
+
+                        fry_audio.pause();
+                        fry_audio.load();
                     },
                     yes: function (index, layero) {
                         layer.close(index);
@@ -182,7 +185,7 @@
             });
         });
 
-        
+
 
     });
 </script>

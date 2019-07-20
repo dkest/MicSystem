@@ -46,6 +46,7 @@
     <Compile Include="Admin.cs" />
     <Compile Include="CityEntity.cs" />
     <Compile Include="IEntity.cs" />
+    <Compile Include="Model\StoreStatisticsEntity.cs" />
     <Compile Include="PagedResult.cs" />
     <Compile Include="PageParam.cs" />
     <Compile Include="ParamEntity.cs" />

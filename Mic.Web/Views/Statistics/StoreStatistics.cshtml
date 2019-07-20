@@ -5,16 +5,20 @@
 }
 <style>
     .item_box {
-    height:100px; margin:0px 10px;border: 1px solid #F1F1F1;
+        height: 100px;
+        margin: 0px 10px;
+        border: 1px solid #F1F1F1;
     }
+
     .round {
         width: 50px;
         height: 50px;
         border-radius: 50%;
         position: relative;
-        margin-top:20px;
-        margin-left:10px;
+        margin-top: 20px;
+        margin-left: 10px;
     }
+
         .round img {
             position: absolute;
             top: 0;
@@ -23,17 +27,20 @@
             bottom: 0;
             margin: auto;
         }
+
     .item_content {
-        margin-top:10px;
-        padding-left:8px;
+        margin-top: 10px;
+        padding-left: 8px;
     }
+
         .item_content p {
-            color:#86888E;
-            font-size:17px;
+            color: #86888E;
+            font-size: 17px;
         }
+
         .item_content span {
-            font-size:30px;
-            color:#86888E
+            font-size: 30px;
+            color: #86888E
         }
 </style>
 
@@ -52,7 +59,7 @@
                     <p class="name">商家数量</p>
                     <span class="name">64432</span>
                     <div>
-                        <img src="~/Content/images/up.png"/>
+                        <img src="~/Content/images/up.png" />
                         <span style="font-size:11px;">100</span>
                         <span style="font-size:11px;margin-left:3px;">昨日新增</span>
                     </div>
@@ -72,7 +79,11 @@
                 <div class="layui-col-md8 item_content">
                     <p class="name">昨日活跃商家数</p>
                     <span class="name">443121</span>
-                    <p class="name">会员数</p>
+                    <div>
+                        <img src="~/Content/images/down.png" />
+                        <span style="font-size:11px;">10%</span>
+                        <span style="font-size:11px;margin-left:3px;">同比上周</span>
+                    </div>
                 </div>
             </div>
 
@@ -89,14 +100,18 @@
                 <div class="layui-col-md8 item_content">
                     <p class="name">昨日播放时长</p>
                     <span class="name">2341</span>
-                    <p class="name">会员数</p>
+                    <div>
+                        <img src="~/Content/images/up.png" />
+                        <span style="font-size:11px;">12%</span>
+                        <span style="font-size:11px;margin-left:3px;">同比上周</span>
+                    </div>
                 </div>
             </div>
 
         </div>
 
         <div class="layui-col-md3 layui-col-sm12">
-            <div class="layui-row item_box" >
+            <div class="layui-row item_box">
                 <div class="layui-col-md4">
                     <div class="round" style="background-color: #49A9EE;">
                         <img src="~/Content/images/u2757.png" />
@@ -106,16 +121,51 @@
                 <div class="layui-col-md8 item_content">
                     <p class="name">昨日播放次数</p>
                     <span class="name">52342</span>
-                    <p class="name">会员数</p>
+                    <div>
+                        <img src="~/Content/images/up.png" />
+                        <span style="font-size:11px;">12%</span>
+                        <span style="font-size:11px;margin-left:3px;">同比上周</span>
+                    </div>
                 </div>
             </div>
 
         </div>
     </div>
+    <div class="layui-row">
+        <div class=" layui-form layui-row" style="margin:10px">
+            <div class="layui-input-inline layui-col-md10">
+                选择时间：
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" id="search_date" style="width:200px;" placeholder=" - ">
+                </div>
+            </div>
 
+            <div class="layui-input-inline layui-col-md2 ">
+                <select id="order_field_select" lay-filter="aihao">
+                    <option value="1" selected="">按时长</option>
+                    <option value="2">按歌曲数</option>
+                    <option value="3">按次数</option>
+                </select>
+            </div>
+        </div>
+
+
+
+    </div>
+    <table class="layui-table" lay-filter="statistics_store_list" id="statistics_store_list"></table>
 </div>
-
 <script>
+    layui.use(['table','laydate'], function () {
+        var table = layui.table;
+         var laydate = layui.laydate;
+        var form = layui.form;
+
+        //日期范围
+        laydate.render({
+            elem: '#search_date'
+            , range: true
+        });
+    });
     $('#detail').click(function () {
         $('#statistics_content_div').load( $("#statistics_content_div").load('@Url.Action("StoreStatisticsDetail", "Statistics")?id=5'));
     });

@@ -79,7 +79,8 @@ where a.Status=1 and a.UserType=1  {likeSql}"));
         /// <returns></returns>
         public Tuple<bool, SingerDetailInfoEntity> GetSingerInfoById(int singerId)
         {
-            string sql = $@"select * from  SingerDetailInfo where UserId={singerId}";
+            string sql = $@"select * from [User] a left join  SingerDetailInfo b 
+on a.Id=b.UserId where b.UserId={singerId}";
             var result = helper.Query<SingerDetailInfoEntity>(sql).FirstOrDefault();
             return Tuple.Create(result == null ? false : true, result);
         }

@@ -44,6 +44,7 @@ namespace Mic.Web.Controllers
             ViewBag.id = GetStrValFromReq("id");
             //ViewBag.listContent = GetStrValFromReq("listContent");
             ViewBag.storeId = GetIntValFromReq("storeId");
+            ViewBag.storeCode = GetStrValFromReq("storeCode");
             return View();
         }
 
@@ -212,12 +213,13 @@ namespace Mic.Web.Controllers
             return Json(new { status = result }, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult AppendSongList(int id, string listContent)
+        public ActionResult AppendSongList(int id, string listContent,string storeCode)
         {
             PlayListEntity playListEntity = new PlayListEntity
             {
                 Id = id,
-                ListContent = listContent
+                ListContent = listContent,
+                StoreCode = storeCode
             };
             var result = playListRepository.AppendSongList(playListEntity);
             return Json(new { status = result }, JsonRequestBehavior.AllowGet);
