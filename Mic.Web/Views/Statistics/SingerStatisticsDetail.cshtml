@@ -4,6 +4,67 @@
     Layout = null;
 }
 
+<div>
+    <div class="layui-row">
+        <div class="layui-card-header" style="font-size:17px;" id="singer_name">基本信息</div>
 
-<h2>SingerStatisticsDetail</h2>
+    </div>
 
+    <div class="layui-row" style="padding-top:15px;">
+        <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+            <ul class="layui-tab-title">
+                <li class="layui-this">上传作品</li>
+                <li>发布作品</li>
+                <li>播放作品</li>
+            </ul>
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+                    <table class="layui-table" lay-filter="singer_upload_list" id="singer_upload_list"></table>
+                </div>
+                <div class="layui-tab-item">
+                    <table class="layui-table" lay-filter="singer_upload_list" id="singer_publish_list"></table>
+                </div>
+                <div class="layui-tab-item">
+                    <table class="layui-table" lay-filter="singer_play_list" id="singer_play_list"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var singerId = @ViewBag.singerId;
+    $("#singer_name").text('@ViewBag.singerName');
+
+    var beginDate;
+    var endDate;
+    layui.use('table', function () {
+        var table = layui.table;
+        var form = layui.form;
+
+        table.render({
+            elem: '#singer_upload_list'
+            , height: "400"
+            , url: '@Url.Action("GetSingerStatisticsList", "Statistics")'
+            , limit: 10
+            , size: 'sm'
+            , where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
+            , limits: [10, 20, 30, 40, 50]
+            , page: true
+            ,autoSort: false
+            , cols: [[
+                {
+                    field: 'SingerName', minWidth: 300, title: '音乐人名称', event: 'singer_detail', style: 'cursor: pointer;',
+                    templet: function (d) {
+                        return '<span style="color:blue;">'+d.SingerName+'</span>';
+                    }
+                }
+                , { field: 'UploadCount', minWidth: 150, title: '上传作品数' }
+                , { field: 'PublishCount', minWidth: 150, title: '发布作品数' }
+                , { field: 'PlaySongCount', width: 150, title: '播放作品数' }
+                , { field: 'PlayStoreCount', width: 150, title: '播放商家数' }
+            ]]
+        });
+    });
+</script>

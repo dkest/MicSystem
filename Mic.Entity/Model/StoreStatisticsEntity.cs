@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Mic.Entity.Model
 {
@@ -169,4 +165,57 @@ namespace Mic.Entity.Model
         public int PlayCount { get; set; }
     }
 
+
+
+    public class SingerStatisticsEntity
+    {
+        public int SingerCount { get; set; }
+        
+        public int SingerIncreaseYes { get; set; }
+        
+        public int ActiveSingerYes { get; set; }
+        
+        public int ActiveSingerYesLastWeek { get; set; }
+      
+        public int ActiveSingerComparedLastWeek
+        {
+            get {
+                var result = 0;
+                if (ActiveSingerYesLastWeek == 0)
+                {
+                    result = 101;
+                }
+                else
+                {
+                    result = Convert.ToInt32((ActiveSingerYes - ActiveSingerYesLastWeek) / ActiveSingerYesLastWeek * 100);
+                }
+                return result;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 用来统计各个音乐人的作品情况
+    /// </summary>
+    public class SingerListStatisticsEntity
+    {
+        public int SingerId { get; set; }
+        public string SingerName { get; set; }
+        /// <summary>
+        /// 上传作品数量
+        /// </summary>
+        public int UploadCount { get; set; }
+        /// <summary>
+        /// 发布作品数量
+        /// </summary>
+        public int PublishCount { get; set; }
+        /// <summary>
+        /// 播放商家数
+        /// </summary>
+        public int PlayStoreCount { get; set; }
+        /// <summary>
+        /// 播放作品数
+        /// </summary>
+        public int PlaySongCount { get; set; }
+    }
 }

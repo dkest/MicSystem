@@ -1,10 +1,212 @@
 ﻿
 @{
-    ViewBag.Title = "SingerStatistics";
+    ViewBag.Title = "音乐人统计";
     Layout = null;
 }
+<style>
+    .item_box {
+        height: 100px;
+        margin: 0px 10px;
+        border: 1px solid #F1F1F1;
+    }
+
+    .round {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        position: relative;
+        margin-top: 20px;
+        margin-left: 10px;
+    }
+
+        .round img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+        }
+
+    .item_content {
+        margin-top: 10px;
+        padding-left: 8px;
+    }
+
+        .item_content p {
+            color: #86888E;
+            font-size: 17px;
+        }
+
+        .item_content span {
+            font-size: 30px;
+            color: #86888E
+        }
+</style>
+
+<div class="">
+    <div class="layui-row">
+
+        <div class="layui-col-md3 layui-col-sm12">
+            <div class="layui-row item_box">
+                <div class="layui-col-md4">
+                    <div class="round" style="background-color: #F3857C;">
+                        <img src="~/Content/images/u2810.png" />
+                    </div>
+
+                </div>
+                <div class="layui-col-md8 item_content">
+                    <p class="name">音乐人数量</p>
+                    <span id="yyrsl" class="name"></span>
+                    <div>
+                        <img src="~/Content/images/up.png" />
+                        <span id="zrxz" style="font-size:11px;">100</span>
+                        <span style="font-size:11px;margin-left:3px;">昨日新增</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="layui-col-md3 layui-col-sm12">
+            <div class="layui-row item_box">
+                <div class="layui-col-md4">
+                    <div class="round" style="background-color: #98D87D;">
+                        <img src="~/Content/images/u2770.png" />
+                    </div>
+
+                </div>
+                <div class="layui-col-md8 item_content">
+                    <p class="name">昨日活音乐人数</p>
+                    <span id="active_singer_yes" class="name"></span>
+                    <div>
+                        <img id="active_singer_bh_img" src="~/Content/images/down.png" />
+                        <span id="active_singer_bh" style="font-size:11px;">%</span>
+                        <span style="font-size:11px;margin-left:3px;">同比上周</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        
+    </div>
+    <div class="layui-row layui-form">
+        <div class=" layui-form layui-row" style="margin:10px">
+            <div class="layui-input-inline layui-col-md10" style="color: #999999;font-size: 13px;">
+                选择时间：
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" id="search_date" style="style=" width:200px;height:32px;"" placeholder=" ~ ">
+                </div>
+            </div>
+
+            <div class="layui-input-inline layui-col-md2 " style="color: #999999;font-size: 13px;">
+                <select id="order_field_select" lay-filter="order_field_select">
+                    <option value="PlaySongCount" selected="">播放作品数</option>
+                    <option value="PlayStoreCount">按播放商家数</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <table class="layui-table" lay-filter="statistics_singer_list" id="statistics_singer_list"></table>
+</div>
+<script>
+    var beginDate;
+    var endDate;
+    layui.use(['table','laydate'], function () {
+        var table = layui.table;
+         var laydate = layui.laydate;
+        var form = layui.form;
+        form.render();
 
 
+        var yes = new Date();
+        yes.setTime(yes.getTime() - 24 * 60 * 60 * 1000);
+        endDate = yes.getFullYear() + "-" + (yes.getMonth() + 1) + "-" + yes.getDate();
+        var yesLastWeek=new Date();
+        yesLastWeek.setTime(new Date().getTime() - 8 * 24 * 60 * 60 * 1000);
+        beginDate = yesLastWeek.getFullYear() + "-" + (yesLastWeek.getMonth() + 1) + "-" + yesLastWeek.getDate();
+        $('#search_date').val(beginDate+' - ' + endDate);
+        //日期范围
+        laydate.render({
+            elem: '#search_date'
+            , range: true
+            , change: function (value, date) {
+                var arr = value.split(' - ');
+                if (arr !=null && arr != undefined && arr.length==2) {
+                    beginDate = arr[0];
+                    endDate = arr[1];
+                    table.reload('statistics_singer_list', {
+                        page:{ curr:1}
+                        ,where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
+                    });
+                }
+            }
+        });
+
+        form.on('select(order_field_select)', function (data) {
+            table.reload('statistics_singer_list', {
+                page:{ curr:1}
+                ,where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
+            });
+        });
+
+        table.render({
+            elem: '#statistics_singer_list'
+            , height: "400"
+            , url: '@Url.Action("GetSingerStatisticsList", "Statistics")'
+            , limit: 10
+            , size: 'sm'
+            , where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
+            , limits: [10, 20, 30, 40, 50]
+            , page: true
+            ,autoSort: false
+            , cols: [[
+                {
+                    field: 'SingerName', minWidth: 300, title: '音乐人名称', event: 'singer_detail', style: 'cursor: pointer;',
+                    templet: function (d) {
+                        return '<span style="color:blue;">'+d.SingerName+'</span>';
+                    }
+                }
+                , { field: 'UploadCount', minWidth: 150, title: '上传作品数' }
+                , { field: 'PublishCount', minWidth: 150, title: '发布作品数' }
+                , { field: 'PlaySongCount', width: 150, title: '播放作品数' }
+                , { field: 'PlayStoreCount', width: 150, title: '播放商家数' }
+            ]]
+        });
+
+        table.on('tool(statistics_singer_list)', function (obj) {
+            var data = obj.data
+                , layEvent = obj.event;
+            if (layEvent === 'singer_detail') {
+
+               $("#statistics_content_div").load('@Url.Action("SingerStatisticsDetail", "Statistics")?singerId=' + data.SingerId + '&singerName=' + data.SingerName);
+            }
+        });
 
 
-音乐人统计
+    });
+
+    Service.ajax(JSON.stringify({}), function (result) {
+        if (result.status) {
+            $("#yyrsl").html(result.data.SingerCount);
+            $("#zrxz").html(result.data.SingerIncreaseYes);
+            $("#active_singer_yes").html(result.data.ActiveSingerYes);
+
+            if (result.data.ActiveSingerComparedLastWeek > 0) {
+                if (result.data.ActiveSingerComparedLastWeek == 101) {
+                    $("#active_singer_bh").html('上周无数据');
+                }
+                else {
+                    $("#active_singer_bh").html(result.data.ActiveSingerComparedLastWeek+"%");
+                }
+                $('#active_singer_bh_img').attr('src', 'http://152.136.227.143/Content/images/up.png');
+            } else {
+                $("#active_singer_bh").html(result.data.ActiveSingerComparedLastWeek + "%");
+                $('#active_singer_bh_img').attr('src','http://152.136.227.143/Content/images/down.png');
+            }
+        }
+    }, '@Url.Action("GetSingerStatistics", "Statistics")', true);
+
+</script>
+

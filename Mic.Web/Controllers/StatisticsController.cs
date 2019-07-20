@@ -8,9 +8,11 @@ namespace Mic.Web.Controllers
     public class StatisticsController : BaseController
     {
         private StoreStatisticsRepository storeStatisticsRepository;
+        private SingerStatisticsRepository singerStatisticsRepository;
         public StatisticsController()
         {
             storeStatisticsRepository = ClassInstance<StoreStatisticsRepository>.Instance;
+            singerStatisticsRepository = ClassInstance<SingerStatisticsRepository>.Instance;
         }
         public ActionResult StatisticsView()
         {
@@ -23,6 +25,8 @@ namespace Mic.Web.Controllers
         }
         public ActionResult SingerStatisticsDetail()
         {
+            ViewBag.singerId = GetStrValFromReq("singerId");
+            ViewBag.singerName = GetStrValFromReq("singerName");
             return View();
         }
 
@@ -36,7 +40,7 @@ namespace Mic.Web.Controllers
             ViewBag.name = GetStrValFromReq("storeName");
             return View();
         }
-
+        #region 商家统计
         public ActionResult GetStoreStatistics()
         {
             var result = storeStatisticsRepository.GetStoreStatistics();
@@ -89,6 +93,34 @@ namespace Mic.Web.Controllers
             var result = storeStatisticsRepository.GetStorePlaySongList(param);
             return Json(new { code = 0, msg = string.Empty, count = result.Count, data = result }, JsonRequestBehavior.AllowGet);
         }
+        #endregion
+
+        #region 音乐人统计
+        public ActionResult GetSingerStatistics()
+        {
+            var result = singerStatisticsRepository.GetSingerStatistics();
+            return Json(new { status = true, data = result }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetSingerStatisticsList()
+        {
+            var page = GetIntValFromReq("page");
+            var limit = GetIntValFromReq("limit");
+            DateTime begin = GetDateTimeValFromReq("beginDate").Value;
+            DateTime end = GetDateTimeValFromReq("endDate").Value.AddDays(1).AddSeconds(-1);
+            string field = GetStrValFromReq("field");
+            StorePlaySongPageParam param = new StorePlaySongPageParam
+            {
+                PageIndex = page,
+                PageSize = limit,
+                OrderField = field,
+                BeginDate = begin,
+                EndDate = end
+            };
+            var result = singerStatisticsRepository.GetSingerStatisticsList(param);
+            return Json(new { code = 0, msg = string.Empty, count = result.Count, data = result }, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
 
     }
 }

@@ -1,13 +1,7 @@
-﻿using Dapper;
-using Mic.Entity;
-using Mic.Entity.Model;
+﻿using Mic.Entity.Model;
 using Mic.Repository.Dapper;
-using Mic.Repository.IRepositories;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 
