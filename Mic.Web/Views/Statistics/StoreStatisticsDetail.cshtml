@@ -1,13 +1,183 @@
 ﻿
 @{
     ViewBag.Title = "StoreStatisticsDetail";
+    Layout = null;
 }
+<style>
+    .item_box {
+        height: 80px;
+        margin: 0px 10px;
+        border: 1px solid #F1F1F1;
+    }
+
+    .round {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        position: relative;
+        margin-top: 20px;
+        margin-left: 10px;
+    }
+
+        .round img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+        }
+
+    .item_content {
+        margin-top: 10px;
+        padding-left: 8px;
+    }
+
+        .item_content p {
+            color: #86888E;
+            font-size: 12px;
+        }
+
+        .item_content span {
+            font-size: 30px;
+            color: #86888E
+        }
+</style>
+<div>
+    <div class="layui-row">
+        <div class="layui-card-header" style="font-size:17px;" id="store_name">基本信息</div>
+        <div class="layui-card-body layui-row">
+            <div class="layui-input-inline layui-col-md10">
+                选择时间：
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" id="search_date" style="width:200px;" placeholder=" ~ ">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-row">
+        <div class="layui-col-md3 layui-col-sm12">
+            <div class="layui-row item_box">
+                <div class="layui-col-md4">
+                    <div class="round" style="background-color: #F3857C;">
+                        <img src="~/Content/images/u2810.png" />
+                    </div>
+
+                </div>
+                <div class="layui-col-md8 item_content">
+                    <p class="name">
+                        累计播放时长
+                    </p>
+                    <span id="ljsc" class="name"></span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="layui-col-md3 layui-col-sm12 layui-col-md-offset2">
+            <div class="layui-row item_box">
+                <div class="layui-col-md4">
+                    <div class="round" style="background-color: #98D87D;">
+                        <img src="~/Content/images/u2810.png" />
+                    </div>
+
+                </div>
+                <div class="layui-col-md8 item_content">
+                    <p class="name">
+                        累计播放次数
+                    </p>
+                    <span id="play_times_info" class="name"></span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="layui-row layui-form" style="margin-top:15px;">
+        <div class="layui-input-inline layui-col-md2 ">
+            <select id="order_field_select" lay-filter="order_field_select">
+                <option value="PlayTime" selected="">按时长</option>
+                <option value="PlayCount">按次数</option>
+            </select>
+        </div>
+    </div>
+    <table class="layui-table" lay-filter="store_song_list" id="store_song_list"></table>
+</div>
+
+<script>
+
+    var storeId = @ViewBag.id;
+    $("#store_name").text('@ViewBag.name');
+    
+    var beginDate;
+    var endDate;
+    layui.use(['table','laydate'], function () {
+        var table = layui.table;
+         var laydate = layui.laydate;
+        var form = layui.form;
+        form.render();
+
+
+        var yes = new Date();
+        yes.setTime(yes.getTime() - 24 * 60 * 60 * 1000);
+        endDate = yes.getFullYear() + "-" + (yes.getMonth() + 1) + "-" + yes.getDate();
+        var yesLastWeek=new Date();
+        yesLastWeek.setTime(new Date().getTime() - 8 * 24 * 60 * 60 * 1000);
+        beginDate = yesLastWeek.getFullYear() + "-" + (yesLastWeek.getMonth() + 1) + "-" + yesLastWeek.getDate();
+        $('#search_date').val(beginDate+' - ' + endDate);
+        //日期范围
+        laydate.render({
+            elem: '#search_date'
+            , range: true
+            , change: function (value, date) {
+                var arr = value.split(' - ');
+                if (arr !=null && arr != undefined && arr.length==2) {
+                    beginDate = arr[0];
+                    endDate = arr[1];
+                    loadStoreStatisticsInfo();
+                    table.reload('store_song_list', {
+                        where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
+                    });
+                }
+            }
+        });
+
+        form.on('select(order_field_select)', function (data) {
+            table.reload('store_song_list', {
+                where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
+            });
+        });
+
+        table.render({
+            elem: '#store_song_list'
+            , height: "340"
+            , url: '@Url.Action("GetStorePlaySongList", "Statistics")'
+            , limit: 10
+            , size: 'sm'
+            , where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
+            , limits: [10, 20, 30, 40, 50]
+            , page: false
+            ,autoSort: false
+            , cols: [[
+                { field: 'SongName', minWidth: 150, title: '歌曲名称' }
+                , { field: 'PlayTimeStr', width: 200, title: '累计播放时长' }
+                , { field: 'PlayCount', width: 200, title: '累计播放次数' }
+            ]]
+        });
 
 
 
+    });
 
-<h2>StoreStatisticsDetail</h2>
+    
+    var loadStoreStatisticsInfo = function () {
+         Service.ajax(JSON.stringify({ storeId:storeId,beginDate: beginDate, endDate: endDate }), function (result) {
+        if (result.status) {
+            $("#play_times_info").html(result.data.PlayCount); 
+            $("#ljsc").html(result.data.PlayTimeStr);
+        }
+    }, '@Url.Action("GetStoreStaticInfo", "Statistics")', true);
+    }
 
-@ViewBag.id
-
-
+    loadStoreStatisticsInfo();
+   
+</script>

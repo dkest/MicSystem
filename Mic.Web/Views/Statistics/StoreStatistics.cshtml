@@ -57,10 +57,10 @@
                 </div>
                 <div class="layui-col-md8 item_content">
                     <p class="name">商家数量</p>
-                    <span class="name">64432</span>
+                    <span id="sjsl" class="name"></span>
                     <div>
                         <img src="~/Content/images/up.png" />
-                        <span style="font-size:11px;">100</span>
+                        <span id="zrxz" style="font-size:11px;">100</span>
                         <span style="font-size:11px;margin-left:3px;">昨日新增</span>
                     </div>
                 </div>
@@ -78,10 +78,10 @@
                 </div>
                 <div class="layui-col-md8 item_content">
                     <p class="name">昨日活跃商家数</p>
-                    <span class="name">443121</span>
+                    <span id="active_store_yes" class="name"></span>
                     <div>
-                        <img src="~/Content/images/down.png" />
-                        <span style="font-size:11px;">10%</span>
+                        <img id="active_store_bh_img" src="~/Content/images/down.png" />
+                        <span id="active_store_bh" style="font-size:11px;">%</span>
                         <span style="font-size:11px;margin-left:3px;">同比上周</span>
                     </div>
                 </div>
@@ -99,10 +99,10 @@
                 </div>
                 <div class="layui-col-md8 item_content">
                     <p class="name">昨日播放时长</p>
-                    <span class="name">2341</span>
+                    <span id="store_plat_time" class="name"></span>
                     <div>
-                        <img src="~/Content/images/up.png" />
-                        <span style="font-size:11px;">12%</span>
+                        <img id="play_time_bh_img" src="~/Content/images/up.png" />
+                        <span id="play_time_bh" style="font-size:11px;">12%</span>
                         <span style="font-size:11px;margin-left:3px;">同比上周</span>
                     </div>
                 </div>
@@ -120,10 +120,10 @@
                 </div>
                 <div class="layui-col-md8 item_content">
                     <p class="name">昨日播放次数</p>
-                    <span class="name">52342</span>
+                    <span id="play_time" class="name"></span>
                     <div>
-                        <img src="~/Content/images/up.png" />
-                        <span style="font-size:11px;">12%</span>
+                        <img id="play_times_bh_img" src="~/Content/images/up.png" />
+                        <span id="play_times_bh" style="font-size:11px;">%</span>
                         <span style="font-size:11px;margin-left:3px;">同比上周</span>
                     </div>
                 </div>
@@ -131,43 +131,148 @@
 
         </div>
     </div>
-    <div class="layui-row">
+    <div class="layui-row layui-form">
         <div class=" layui-form layui-row" style="margin:10px">
             <div class="layui-input-inline layui-col-md10">
                 选择时间：
                 <div class="layui-input-inline">
-                    <input type="text" class="layui-input" id="search_date" style="width:200px;" placeholder=" - ">
+                    <input type="text" class="layui-input" id="search_date" style="width:200px;" placeholder=" ~ ">
                 </div>
             </div>
 
             <div class="layui-input-inline layui-col-md2 ">
-                <select id="order_field_select" lay-filter="aihao">
-                    <option value="1" selected="">按时长</option>
-                    <option value="2">按歌曲数</option>
-                    <option value="3">按次数</option>
+                <select id="order_field_select" lay-filter="order_field_select">
+                    <option value="PlayTime" selected="">按时长</option>
+                    <option value="PlaySongCount">按歌曲数</option>
+                    <option value="PlayCount">按次数</option>
                 </select>
             </div>
         </div>
-
-
-
     </div>
     <table class="layui-table" lay-filter="statistics_store_list" id="statistics_store_list"></table>
 </div>
 <script>
+    var beginDate;
+    var endDate;
     layui.use(['table','laydate'], function () {
         var table = layui.table;
          var laydate = layui.laydate;
         var form = layui.form;
+        form.render();
 
+
+        var yes = new Date();
+        yes.setTime(yes.getTime() - 24 * 60 * 60 * 1000);
+        endDate = yes.getFullYear() + "-" + (yes.getMonth() + 1) + "-" + yes.getDate();
+        var yesLastWeek=new Date();
+        yesLastWeek.setTime(new Date().getTime() - 8 * 24 * 60 * 60 * 1000);
+        beginDate = yesLastWeek.getFullYear() + "-" + (yesLastWeek.getMonth() + 1) + "-" + yesLastWeek.getDate();
+        $('#search_date').val(beginDate+' - ' + endDate);
         //日期范围
         laydate.render({
             elem: '#search_date'
             , range: true
+            , change: function (value, date) {
+                var arr = value.split(' - ');
+                if (arr !=null && arr != undefined && arr.length==2) {
+                    beginDate = arr[0];
+                    endDate = arr[1];
+                    table.reload('statistics_store_list', {
+                        where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
+                    });
+                }
+            }
         });
+
+        form.on('select(order_field_select)', function (data) {
+            table.reload('statistics_store_list', {
+                where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
+            });
+        });
+
+        table.render({
+            elem: '#statistics_store_list'
+            , height: "380"
+            , url: '@Url.Action("GetStoreStatisticsList", "Statistics")'
+            , limit: 10
+            //, size: 'sm'
+            , where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
+            , limits: [10, 20, 30, 40, 50]
+            , page: false
+            ,autoSort: false
+            , cols: [[
+                {
+                    field: 'StoreName', minWidth: 300, title: '商家名称', event: 'store_detail', style: 'cursor: pointer;',
+                    templet: function (d) {
+                        return '<span style="color:blue;">'+d.StoreName+'</span>';
+                    }
+                }
+                , { field: 'PlayTimeStr', minWidth: 150, title: '累计播放时长' }
+                , { field: 'PlaySongCount', width: 150, title: '累计播放歌曲数' }
+                , { field: 'PlayCount', width: 150, title: '歌曲累计播放次数' }
+            ]]
+        });
+
+        table.on('tool(statistics_store_list)', function (obj) {
+            var data = obj.data
+                , layEvent = obj.event;
+            if (layEvent === 'store_detail') {
+
+               $("#statistics_content_div").load('@Url.Action("StoreStatisticsDetail", "Statistics")?id=' + data.PlayUserId + '&storeName=' + data.StoreName);
+            }
+        });
+
+
     });
-    $('#detail').click(function () {
-        $('#statistics_content_div').load( $("#statistics_content_div").load('@Url.Action("StoreStatisticsDetail", "Statistics")?id=5'));
-    });
+
+    Service.ajax(JSON.stringify({}), function (result) {
+        if (result.status) {
+            $("#sjsl").html(result.data.StoreCount);
+            $("#zrxz").html(result.data.StoreIncreaseYes);
+            $("#active_store_yes").html(result.data.ActiveStoreYes);
+
+            if (result.data.ActiveStoreComparedLastWeek > 0) {
+                if (result.data.ActiveStoreComparedLastWeek == 101) {
+                    $("#active_store_bh").html('上周无数据');
+                }
+                else {
+                    $("#active_store_bh").html(result.data.ActiveStoreComparedLastWeek+"%");
+                }
+                $('#active_store_bh_img').attr('src', 'http://152.136.227.143/Content/images/up.png');
+            } else {
+                $("#active_store_bh").html(result.data.ActiveStoreComparedLastWeek + "%");
+                $('#active_store_bh_img').attr('src','http://152.136.227.143/Content/images/down.png');
+            }
+            $("#store_plat_time").html(result.data.PlayTimeYesLastWeekStr);
+            if (result.data.PlayTimeComparedLastWeek > 0) {
+                if (result.data.PlayTimeComparedLastWeek == 101) {
+                    $("#play_time_bh").html('上周无数据');
+                }
+                else {
+                    $("#play_time_bh").html(result.data.PlayTimeComparedLastWeek+"%");
+                }
+                $('#play_time_bh_img').attr('src', 'http://152.136.227.143/Content/images/up.png');
+            } else {
+                $("#play_time_bh").html(result.data.PlayTimeComparedLastWeek + "%");
+                $('#play_time_bh_img').attr('src','http://152.136.227.143/Content/images/down.png');
+            }
+            $("#play_time").html(result.data.PlayTimesYes);
+             if (result.data.PlayTimesComparedLastWeek > 0) {
+                if (result.data.PlayTimesComparedLastWeek == 101) {
+                    $("#play_times_bh").html('上周无数据');
+                }
+                else {
+                    $("#play_times_bh").html(result.data.PlayTimesComparedLastWeek+"%");
+                }
+                $('#play_times_bh_img').attr('src', 'http://152.136.227.143/Content/images/up.png');
+            } else {
+                $("#play_times_bh").html(result.data.PlayTimesComparedLastWeek + "%");
+                $('#play_times_bh_img').attr('src','http://152.136.227.143/Content/images/down.png');
+            }
+
+
+        }
+    }, '@Url.Action("GetStoreStatistics", "Statistics")', true);
+
 </script>
 

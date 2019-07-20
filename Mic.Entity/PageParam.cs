@@ -24,4 +24,11 @@ namespace Mic.Repository
     {
         public int SingerId { get; set; }
     }
+
+    public class StorePlaySongPageParam : PageParam
+    {
+        public DateTime BeginDate { get; set; }
+        public DateTime EndDate { get; set; }
+
+    }
 }
