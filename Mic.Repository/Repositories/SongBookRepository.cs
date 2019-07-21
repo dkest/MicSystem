@@ -26,12 +26,14 @@ namespace Mic.Repository.Repositories
         /// <returns></returns>
         public Tuple<int, List<SongBookEntity>> GetApprovedSongList(PageParam pageParam)
         {
-            string likeSql = string.IsNullOrWhiteSpace(pageParam.Keyword) ? string.Empty : $@" and (SingerName like '%{pageParam.Keyword}%'  or SongName like '%{pageParam.Keyword}%')";
+            string likeSql = string.IsNullOrWhiteSpace(pageParam.Keyword) ? string.Empty : $@" and (d.SingerName like '%{pageParam.Keyword}%'  or d.SongName like '%{pageParam.Keyword}%')";
             string sql = string.Format(@"
-                select top {0} * from (select row_number() over(order by {3} Id desc) as rownumber,SongBook.*
-                    from SongBook  where Status=1 and AuditStatus=2   {2}) temp_row
+                select top {0} * from (select row_number() over(order by {3} d.UploadTime desc) as rownumber, 
+* from SongBook d left join (select COUNT(a.Id) as PlayTimes , Sum(b.BroadcastTime) as TotalPlayTime ,a.Id as tempId
+from SongPlayRecord b left join  SongBook a  on a.Id = b.SongId    where a.Status=1 and a.AuditStatus=2 
+group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {2}) temp_row
                     where temp_row.rownumber>(({1}-1)*{0});", pageParam.PageSize, pageParam.PageIndex, likeSql,
-                    string.IsNullOrWhiteSpace(pageParam.OrderField) ? string.Empty : (pageParam.OrderField + " " + pageParam.OrderType + ","));
+                    string.IsNullOrWhiteSpace(pageParam.OrderField) ? string.Empty : ("c."+pageParam.OrderField + " " + pageParam.OrderType + ","));
             int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from SongBook where Status=1 and AuditStatus=2  {likeSql}"));
             return Tuple.Create(count, helper.Query<SongBookEntity>(sql).ToList());
         }
@@ -90,8 +92,7 @@ order by
     when 3 then 2     
     when 2 then 3     
     end  
-asc     
-;", pageParam.PageSize, pageParam.PageIndex, auditSql, likeSql);
+asc;", pageParam.PageSize, pageParam.PageIndex, auditSql, likeSql);
             int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from SongBook where Status=1 and  {auditSql} {likeSql}"));
             return Tuple.Create(count, helper.Query<SongBookEntity>(sql).ToList());
 
@@ -145,10 +146,12 @@ ExpirationTime,AuditStatus,SongLength,UploadTime,Status)
         public Tuple<int,List<SongBookEntity>> GetSongListBySingerId(SingerSongPageParam pageParam)
         {
             string sql = string.Format(@"
-                select top {0} * from (select row_number() over(order by {3}  UploadTime desc) as rownumber,SongBook.*
-                    from SongBook  where Status=1  and SingerId={2}) temp_row
+                select top {0} * from (select row_number() over(order by {3}  d.UploadTime desc) as rownumber,
+* from SongBook d left join (select COUNT(a.Id) as PlayTimes , Sum(b.BroadcastTime) as TotalPlayTime ,a.Id as tempId
+from SongPlayRecord b left join  SongBook a  on a.Id = b.SongId    where a.Status=1 and a.AuditStatus=2 
+group by a.Id) c on c.tempId = d.Id where d.Status=1  and d.SingerId={2}) temp_row
                     where temp_row.rownumber>(({1}-1)*{0});", pageParam.PageSize, pageParam.PageIndex,pageParam.SingerId,
-                    string.IsNullOrWhiteSpace(pageParam.OrderField) ? string.Empty : (pageParam.OrderField + " " + pageParam.OrderType + ","));
+                    string.IsNullOrWhiteSpace(pageParam.OrderField) ? string.Empty : ("c."+pageParam.OrderField + " " + pageParam.OrderType + ","));
             int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from SongBook where Status=1 and SingerId=  {pageParam.SingerId}"));
             return Tuple.Create(count, helper.Query<SongBookEntity>(sql).ToList());
         }
