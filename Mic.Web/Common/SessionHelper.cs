@@ -45,5 +45,6 @@ namespace Mic.Web.Common
             }
             return Tuple.Create(isSuccess, retMsg);
         }
+
     }
 }

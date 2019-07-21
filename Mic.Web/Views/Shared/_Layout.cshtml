@@ -59,7 +59,7 @@
                         <a href="/SingerManage/SingerList">独立音乐人管理</a>
                     </li>
                     <li data-index="4" class="layui-nav-item">
-                        <a  href="/Statistics/StatisticsView">统计分析</a>
+                        <a href="/Statistics/StatisticsView">统计分析</a>
 
                     </li>
                     <li data-index="5" class="layui-nav-item">
@@ -94,6 +94,10 @@
         });
 
         $("#logout").click(function () {
+             Service.ajax(JSON.stringify({ }), function (result) {
+            if (result.status) {
+            }
+        }, '@Url.Action("Logout", "Account")', true);
            window.location.assign('@Url.Action("Login", "Account")');
         });
 

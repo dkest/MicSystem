@@ -38,11 +38,17 @@ namespace Mic.Repository.Repositories
             }
             else
             {
-                admin = helper.Query<Admin>($@"select * from [Admin] where UserName='{username}' and password='{password}'").FirstOrDefault();
+                admin = helper.Query<Admin>($@"select * from [Admin] where UserName='{username}' and 
+password='{password}' and Status=1").FirstOrDefault();
                 if (admin == null)
                 {
                     isSuccess = false;
                     retMsg = "密码不正确。";
+                }
+                if (!admin.Enabled)
+                {
+                    isSuccess = false;
+                    retMsg = "当前账号已经被禁用，请联系管理员启用该账号。";
                 }
             }
             return Tuple.Create(isSuccess, retMsg, admin);

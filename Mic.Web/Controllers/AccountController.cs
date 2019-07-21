@@ -51,6 +51,11 @@ namespace Mic.Web.Controllers
 
         }
 
+        public ActionResult Logout()
+        {
+            Session.Remove(CommonConst.UserSession);
+            return Json(new { status = true });
+        }
         public ActionResult GetAdminList()
         {
             var page = GetIntValFromReq("page");
