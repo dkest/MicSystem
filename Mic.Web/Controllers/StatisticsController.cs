@@ -109,6 +109,7 @@ namespace Mic.Web.Controllers
             DateTime begin = GetDateTimeValFromReq("beginDate").Value;
             DateTime end = GetDateTimeValFromReq("endDate").Value.AddDays(1).AddSeconds(-1);
             string field = GetStrValFromReq("field");
+
             StorePlaySongPageParam param = new StorePlaySongPageParam
             {
                 PageIndex = page,
@@ -119,6 +120,58 @@ namespace Mic.Web.Controllers
             };
             var result = singerStatisticsRepository.GetSingerStatisticsList(param);
             return Json(new { code = 0, msg = string.Empty, count = result.Count, data = result }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetUploadSongListBySingerId()
+        {
+            var page = GetIntValFromReq("page");
+            var limit = GetIntValFromReq("limit");
+            int singerId = GetIntValFromReq("singerId");
+            SingerSongPageParam param = new SingerSongPageParam
+            {
+                PageIndex = page,
+                PageSize = limit,
+                SingerId = singerId
+            };
+            var result = singerStatisticsRepository.GetUploadSongListBySingerId(param);
+            return Json(new { code = 0, msg = string.Empty, count = result.Item1, data = result.Item2 }, JsonRequestBehavior.AllowGet);
+
+        }
+
+        public ActionResult GetPublishSongListBySingerId()
+        {
+            var page = GetIntValFromReq("page");
+            var limit = GetIntValFromReq("limit");
+            int singerId = GetIntValFromReq("singerId");
+            var order = GetStrValFromReq("order");
+            string field = GetStrValFromReq("field");
+            SingerSongPageParam param = new SingerSongPageParam
+            {
+                PageIndex = page,
+                PageSize = limit,
+                SingerId = singerId,
+                OrderType = order,
+                OrderField = field
+            };
+            var result = singerStatisticsRepository.GetPublishSongListBySingerId(param);
+            return Json(new { code = 0, msg = string.Empty, count = result.Item1, data = result.Item2 }, JsonRequestBehavior.AllowGet);
+
+        }
+
+        public ActionResult GetSongRecordBySingerId()
+        {
+            var page = GetIntValFromReq("page");
+            var limit = GetIntValFromReq("limit");
+            int singerId = GetIntValFromReq("singerId");
+            SingerSongPageParam param = new SingerSongPageParam
+            {
+                PageIndex = page,
+                PageSize = limit,
+                SingerId = singerId,
+            };
+            var result = singerStatisticsRepository.GetSongRecordBySingerId(param);
+            return Json(new { code = 0, msg = string.Empty, count = result.Item1, data = result.Item2 }, JsonRequestBehavior.AllowGet);
+
         }
         #endregion
 

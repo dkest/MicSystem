@@ -19,10 +19,12 @@
             </ul>
             <div class="layui-tab-content">
                 <div class="layui-tab-item layui-show">
+                    <span>共上传作品：</span><span id="upload_count"></span>
                     <table class="layui-table" lay-filter="singer_upload_list" id="singer_upload_list"></table>
                 </div>
                 <div class="layui-tab-item">
-                    <table class="layui-table" lay-filter="singer_upload_list" id="singer_publish_list"></table>
+                    <span>共发布作品：</span><span id="publish_count"></span>
+                    <table class="layui-table" lay-filter="singer_publish_list" id="singer_publish_list"></table>
                 </div>
                 <div class="layui-tab-item">
                     <table class="layui-table" lay-filter="singer_play_list" id="singer_play_list"></table>
@@ -46,25 +48,71 @@
         table.render({
             elem: '#singer_upload_list'
             , height: "400"
-            , url: '@Url.Action("GetSingerStatisticsList", "Statistics")'
+            , url: '@Url.Action("GetUploadSongListBySingerId", "Statistics")'
             , limit: 10
-            , size: 'sm'
-            , where: { beginDate: beginDate, endDate: endDate, field: $('#order_field_select').val() }
+            , where: { singerId: singerId }
             , limits: [10, 20, 30, 40, 50]
             , page: true
             ,autoSort: false
             , cols: [[
-                {
-                    field: 'SingerName', minWidth: 300, title: '音乐人名称', event: 'singer_detail', style: 'cursor: pointer;',
-                    templet: function (d) {
-                        return '<span style="color:blue;">'+d.SingerName+'</span>';
-                    }
+                 { field: 'UploadTimeStr', minWidth: 150, title: '上传时间' }
+                , { field: 'SongName', minWidth: 150, title: '歌曲名称' }
+                , { field: 'SongLength', width: 150, title: '时长' }
+                , { field: 'AuditStatusStr', width: 150, title: '审核状态' }
+            ]]
+            , done: function (res, curr, count) {
+                 $('#upload_count').html(count);
+            }
+        });
+        table.render({
+            elem: '#singer_publish_list'
+            , height: "400"
+            , url: '@Url.Action("GetPublishSongListBySingerId", "Statistics")'
+            , limit: 10
+            , where: { singerId: singerId }
+            , limits: [10, 20, 30, 40, 50]
+            , page: true
+            ,autoSort: false
+            , cols: [[
+                 { field: 'UploadTimeStr', minWidth: 150, title: '上传时间' }
+                , { field: 'SongName', minWidth: 150, title: '歌曲名称' }
+                , { field: 'SongLength', width: 150, title: '时长' }
+                , { field: 'PlayTimes', width: 150, title: '播放次数',sort: true }
+            ]]
+            , done: function (res, curr, count) {
+                 $('#publish_count').html(count);
+            }
+         });
+
+        table.on('sort(singer_publish_list)', function (obj) {
+            table.reload('singer_publish_list',{
+                initSort: obj
+                , where: {
+                    field: obj.field
+                    , order: obj.type
+                    ,singerId: singerId
                 }
-                , { field: 'UploadCount', minWidth: 150, title: '上传作品数' }
-                , { field: 'PublishCount', minWidth: 150, title: '发布作品数' }
-                , { field: 'PlaySongCount', width: 150, title: '播放作品数' }
-                , { field: 'PlayStoreCount', width: 150, title: '播放商家数' }
+            });
+        });
+
+        table.render({
+            elem: '#singer_play_list'
+            , height: "400"
+            , url: '@Url.Action("GetSongRecordBySingerId", "Statistics")'
+            , limit: 10
+            , where: { singerId: singerId }
+            , limits: [10, 20, 30, 40, 50]
+            , page: true
+            ,autoSort: false
+            , cols: [[
+                 { field: 'BeginPlayTimeStr', minWidth: 150, title: '播放时间' }
+                , { field: 'SongName', minWidth: 150, title: '歌曲名称' }
+                , { field: 'SongLength', width: 150, title: '时长' }
+                , { field: 'StoreName', width: 150, title: '播放商家' }
+                , { field: 'StoreTypeName', width: 150, title: '商家类型' }
             ]]
         });
+
+
     });
 </script>

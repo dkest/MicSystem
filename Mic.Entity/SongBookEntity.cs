@@ -27,6 +27,12 @@ namespace Mic.Entity
         public string SongBPM { get; set; } //歌曲BPM
 
         public DateTime UploadTime { get; set; } //歌曲上传时间
+        public string UploadTimeStr
+        {
+            get {
+                return UploadTime.ToString("yyyy-MM-dd HH:mm:ss");
+            }
+        }
         public int PublishTimes { get; set; } // 歌曲第几次发布
         public int AuditStatus { get; set; }//审核状态 0-待发布；1-待审核；2-已通过；3-未通过
         public string AuditStatusStr
@@ -36,7 +42,7 @@ namespace Mic.Entity
                 switch (AuditStatus)
                 {
                     case 0:
-                        result= "待发布";
+                        result = "待发布";
                         break;
                     case 1:
                         result = "待审核";

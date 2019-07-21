@@ -140,7 +140,6 @@
 
     layui.use('table', function () {
 
-
         var table = layui.table;
         // 曲库列表
         songListTable = table.render({
@@ -235,7 +234,7 @@
                         formSelects.render('songmark');
                         formSelects.value('songmark', t);
                     }
-                }, '@Url.Action("GetSongMakList", "SongManage")', true, true);
+                }, '@Url.Action("GetSongMakList", "SongManage")', true);
 
 
                 layer.open({

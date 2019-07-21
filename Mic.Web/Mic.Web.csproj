@@ -155,6 +155,9 @@
     <Content Include="Content\images\u2792.png" />
     <Content Include="Content\images\u2810.png" />
     <Content Include="Content\images\up.png" />
+    <Content Include="Content\images\已通过.jpg" />
+    <Content Include="Content\images\待处理.png" />
+    <Content Include="Content\images\未通过.jpg" />
     <Content Include="Content\js\jquery-3.3.1.js" />
     <Content Include="Content\js\jquery-3.3.1.min.js" />
     <Content Include="Content\js\jquery.validate.js" />

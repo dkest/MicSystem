@@ -1,13 +1,8 @@
-﻿using Dapper;
-using Mic.Entity;
+﻿using Mic.Entity;
 using Mic.Entity.Model;
 using Mic.Repository.Dapper;
-using Mic.Repository.IRepositories;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 
@@ -51,7 +46,7 @@ where UserType=1 and LastLoginTime>'{yesLastWeek}' and LastLoginTime<'{yesLastWe
             sqlList.Add(activeSingerYesLastWeekSql);
 
 
-            
+
 
             var result = helper.QueryMultiple(sqlList).ToList();
 
@@ -98,32 +93,44 @@ COUNT(distinct b.SongId) PlaySongCount
             return helper.Query<SingerListStatisticsEntity>(sql).ToList();
         }
 
+        public Tuple<int, List<SongBookEntity>> GetUploadSongListBySingerId(SingerSongPageParam param)
+        {
+            string sql = string.Format(@"
+                select top {0} * from (select row_number() over(order by UploadTime desc) as rownumber, 
+* from SongBook where SingerId={2} and Status=1 and (AuditStatus=0 or AuditStatus=1 or AuditStatus=3)
+) temp_row
+                    where temp_row.rownumber>(({1}-1)*{0});", param.PageSize, param.PageIndex, param.SingerId);
+            int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from SongBook where SingerId={param.SingerId} and Status=1 and (AuditStatus=0 or AuditStatus=1 or AuditStatus=3)"));
+            return Tuple.Create(count, helper.Query<SongBookEntity>(sql).ToList());
+        }
 
-//        public StoreStatisticsInfoEntity GetStoreStatisticsInfo(int storeId,DateTime beginDate,DateTime endDate)
-//        {
-//            string sql = $@" select Sum(BroadcastTime) as PlayTime,count(1) as PlayCount from [dbo].[SongPlayRecord] 
-//where BeginPlayTime >= '{beginDate}' and BeginPlayTime <= '{endDate.AddDays(1).AddSeconds(-1)}' and PlayUserId= {storeId}";
-//            return helper.Query<StoreStatisticsInfoEntity>(sql).FirstOrDefault();
-//        }
+        public Tuple<int, List<SongBookEntity>> GetPublishSongListBySingerId(SingerSongPageParam param)
+        {
+            string sql = string.Format(@"
+                select top {0} * from (select row_number() over(order by {2} d.UploadTime desc) as rownumber, 
+* from SongBook d left join (select COUNT(a.Id) as PlayTimes , Sum(b.BroadcastTime) as TotalPlayTime ,a.Id as tempId
+from SongPlayRecord b left join  SongBook a  on a.Id = b.SongId    where a.Status=1 and a.AuditStatus=2  and a.SingerId={3}
+group by a.Id) c on c.tempId = d.Id where d.SingerId={3} and d.Status=1 and d.AuditStatus=2) temp_row
+                    where temp_row.rownumber>(({1}-1)*{0});", param.PageSize, param.PageIndex, 
+                     string.IsNullOrWhiteSpace(param.OrderField) ? string.Empty : ("c." + param.OrderField + " " + param.OrderType + ",")
+                     ,param.SingerId);
+            int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from SongBook where Status=1 and AuditStatus=2 and SingerId={param.SingerId};"));
+            return Tuple.Create(count, helper.Query<SongBookEntity>(sql).ToList());
+        }
 
-//        public List<StorePlaySongEntity> GetStorePlaySongList(StorePlaySongPageParam param)
-//        {
-//            string order = string.Empty;
-//            switch (param.OrderField)
-//            {
-//                case "PlayTime":
-//                    order = "Sum(BroadcastTime)";
-//                    break;
-//                case "PlayCount":
-//                    order = "count(1)";
-//                    break;
-//            }
-//            string sql = $@" select top {param.PageSize} * from (select row_number() over(order by {order} desc) as rownumber, a.SongId, b.SongName,Sum(BroadcastTime) as PlayTime,count(1) as PlayCount 
-// from [dbo].[SongPlayRecord] a  left join SongBook b
-//on a.SongId = b.Id where a.BeginPlayTime >= '{param.BeginDate}' and  a.BeginPlayTime <='{param.EndDate}' and PlayUserId={param.PlayUserId}
-// group by a.SongId,b.SongName   ) temp_row
-//                    where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize}) ;";
-//            return helper.Query<StorePlaySongEntity>(sql).ToList();
-//        }
+        public Tuple<int, List<SongPlayRecordEntity>> GetSongRecordBySingerId(SingerSongPageParam param)
+        {
+            string sql = string.Format(@"
+                select top {0} * from (select row_number() over(order by  a.BeginPlayTime desc) as rownumber, 
+a.BeginPlayTime,c.StoreName,d.StoreTypeName,b.* from SongPlayRecord a left join SongBook b on a.SongId = b.Id 
+left join StoreDetailInfo c
+on c.UserId=a.PlayUserId left join StoreType d on d.Id=c.StoreTypeId
+where b.SingerId = {2} 
+) temp_row
+                    where temp_row.rownumber>(({1}-1)*{0});", param.PageSize, param.PageIndex, param.SingerId);
+            int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from SongBook where Status=1 and AuditStatus=2 and SingerId={param.SingerId};"));
+            return Tuple.Create(count, helper.Query<SongPlayRecordEntity>(sql).ToList());
+
+        }
     }
 }

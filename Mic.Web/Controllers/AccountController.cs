@@ -8,10 +8,10 @@ namespace Mic.Web.Controllers
 {
     public class AccountController : BaseController
     {
-        private AdminRepository adminrRepository;
+        private AdminRepository adminRepository;
         public AccountController()
         {
-            adminrRepository = ClassInstance<AdminRepository>.Instance;
+            adminRepository = ClassInstance<AdminRepository>.Instance;
         }
 
         [AllowAnonymous]
@@ -37,10 +37,9 @@ namespace Mic.Web.Controllers
                 return Json(new { status = false, msg = "密码不能为空" });
             }
 
-            var result = adminrRepository.VerifyLogin(admin.UserName, admin.Password);
+            var result = adminRepository.VerifyLogin(admin.UserName, admin.Password);
             if (result.Item1)
             {
-
                 //写入Session
                 SessionHelper.SetUser(Session, result.Item3);
                 return Json(new { status = true });
@@ -51,5 +50,31 @@ namespace Mic.Web.Controllers
             }
 
         }
+
+        public ActionResult GetAdminList()
+        {
+            var page = GetIntValFromReq("page");
+            var limit = GetIntValFromReq("limit");
+            var param = new PageParam
+            {
+                PageIndex = page,
+                PageSize = limit
+            };
+
+            var result = adminRepository.GetAdminList(param);
+            return Json(new { code = 0, msg = string.Empty, count = result.Item1, data = result.Item2 }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult UpdateAdminStatus(int id, bool status)
+        {
+            var result = adminRepository.UpdateAdminStatus(id, status);
+            return Json(new { status = result }, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult AddOrUpdateAdmin(Admin admin)
+        {
+            var result = adminRepository.AddOrUpdateAdmin(admin);
+            return Json(new { status = result.Item1, data = result.Item2 }, JsonRequestBehavior.AllowGet);
+        }
+
     }
 }

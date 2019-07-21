@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Mic.Entity
 {
@@ -13,6 +9,7 @@ namespace Mic.Entity
         public string Password { get; set; }
         public DateTime CreateTime { get; set; }
         public DateTime UpdateTime { get; set; }
+        public bool Enabled { get; set; }
         public bool Status { get; set; }
     }
 }

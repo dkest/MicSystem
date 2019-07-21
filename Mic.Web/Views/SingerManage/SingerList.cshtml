@@ -79,16 +79,16 @@
         <div class="layui-row">
             <div class="layui-col-md6">
                 <div id="head_img" class="info_item_div">
-                    <label>艺名：</label> <span id="singer_ym">果小猪</span>
+                    <label>艺名：</label> <span id="singer_ym"></span>
                 </div>
                 <div class="info_item_div">
-                    <label>音乐流派：</label> <span id="singer_lp" >摇滚</span>
+                    <label>音乐流派：</label> <span id="singer_lp" ></span>
                 </div>
                 <div class="info_item_div">
-                    <label>自我介绍：</label> <span id="singer_zwjs">张三</span>
+                    <label>自我介绍：</label> <span id="singer_zwjs"></span>
                 </div>
                 <div class="info_item_div">
-                    <label>身份证号码：</label> <span id="idcard_no">43223349932882987X</span>
+                    <label>身份证号码：</label> <span id="idcard_no"></span>
                 </div>
             </div>
             <div class="layui-col-md6">
@@ -237,15 +237,16 @@
                 $('#head_img').attr("src", data.HeadImgFullPath);
                 $('#id_f_img').attr("src", data.IdCardFrontFullPath);
                 $('#id_b_img').attr("src", data.IdCardBackFullPath);
+                var root = "http://152.136.227.143";
                 switch (data.Authentication) {
                     case 1://待审核
-                        $('#auth_img').attr("src", '');
+                        $('#auth_img').attr("src", root+'/Content/images/待处理.png');
                         break;
                     case 2://未通过
-                        $('#auth_img').attr("src", '');
+                        $('#auth_img').attr("src", root+'/Content/images/未通过.jpg');
                         break;
                     case 3://已通过认证
-                        $('#auth_img').attr("src", '');
+                         $('#auth_img').attr("src", root+'/Content/images/已通过.jpg');
                         break;
                     default:
                         $('#auth_img').attr("src", '');

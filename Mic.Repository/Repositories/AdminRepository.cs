@@ -25,7 +25,7 @@ namespace Mic.Repository.Repositories
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public Tuple<bool,string,Admin> VerifyLogin(string username, string password)
+        public Tuple<bool, string, Admin> VerifyLogin(string username, string password)
         {
             bool isSuccess = true;
             string retMsg = string.Empty;
@@ -36,7 +36,8 @@ namespace Mic.Repository.Repositories
                 isSuccess = false;
                 retMsg = "不存在该用户,请重新输入。";
             }
-            else {
+            else
+            {
                 admin = helper.Query<Admin>($@"select * from [Admin] where UserName='{username}' and password='{password}'").FirstOrDefault();
                 if (admin == null)
                 {
@@ -44,43 +45,46 @@ namespace Mic.Repository.Repositories
                     retMsg = "密码不正确。";
                 }
             }
-            return Tuple.Create(isSuccess, retMsg,admin);
-        }
-       
-
-            public IEnumerable<User> GetAll()
-        {
-            return helper.Query<User>("select * from [User]");
+            return Tuple.Create(isSuccess, retMsg, admin);
         }
 
-        public User GetByEmail(string email)
+        public Tuple<int, List<Admin>> GetAdminList(PageParam pageParam)
         {
-            throw new NotImplementedException();
+            string sql = string.Format(@"
+                select top {0} * from (select row_number() over(order by   Id desc) as rownumber,
+ * from Admin where Status=1) temp_row
+                    where temp_row.rownumber>(({1}-1)*{0});", pageParam.PageSize, pageParam.PageIndex);
+            int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from [Admin] where Status=1 "));
+            return Tuple.Create(count, helper.Query<Admin>(sql).ToList());
         }
 
-        public User GetById(int id)
+        public bool UpdateAdminStatus(int id, bool status)
         {
-            return helper.Query<User>($@"select * from [User] where Id={id}").FirstOrDefault();
+            return helper.Execute($@"update [Admin] set Enabled='{status}' where Id={id}") > 0 ? true : false;
         }
 
-        public PageEnumerable<User> GetPage(int page, int pageSize)
+        public Tuple<bool,string> AddOrUpdateAdmin(Admin admin)
         {
-            throw new NotImplementedException();
+            string sql = string.Empty;
+            if (admin.Id > 0)
+            {
+                sql = $@"update [Admin] set [UserName]='{admin.UserName}',
+[Password]='{admin.Password}',UpdateTime='{DateTime.Now}' where Id={admin.Id}";
+            }
+            else
+            {
+                var a = helper.QueryScalar($@"select Count(1) from [Admin] where UserName='{admin.UserName}'");
+                if (Convert.ToInt32(a) > 0)
+                {
+                    return Tuple.Create(false, "已经存在该用户名的用户了，无法重复添加");
+
+                }
+                sql = $@"insert into [Admin] ([UserName],[Password],[Enabled],CreateTime,Status)
+values ('{admin.UserName}','{admin.Password}','{1}','{DateTime.Now}','{1}')";
+            }
+            return Tuple.Create(helper.Execute(sql) > 0 ? true : false,string.Empty);
         }
 
-        public void Remove(User item)
-        {
-            helper.Execute($@"delete from [User] where Id = {item.Id}");
-        }
-
-        public void Save(User item)
-        {
-            //helper.Execute(
-            //    "UPDATE Cat SET BreedId = @BreedId, Name = @Name, Age = @Age WHERE CatId = @CatId",
-            //    //param: new { CatId = entity.CatId, BreedId = entity.BreedId, Name = entity.Name, Age = entity.Age },
-               
-            //);
-        }
 
     }
 }
