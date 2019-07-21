@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="AccessToken.cs" />
     <Compile Include="Admin.cs" />
+    <Compile Include="Api\Param\RegisterParam.cs" />
     <Compile Include="CityEntity.cs" />
     <Compile Include="IEntity.cs" />
     <Compile Include="Model\StoreStatisticsEntity.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="ResponseResult.cs" />
     <Compile Include="SingerDetailInfoEntity.cs" />
     <Compile Include="SingerTypeEntity.cs" />
+    <Compile Include="SmsRecord.cs" />
     <Compile Include="SongOptDetail.cs" />
     <Compile Include="SongBookEntity.cs" />
     <Compile Include="SongMarkEntity.cs" />

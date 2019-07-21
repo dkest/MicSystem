@@ -1,10 +1,10 @@
-﻿using Mic.Entity;
+﻿using Mic.Api.Common;
+using Mic.Api.Models;
+using Mic.Entity;
 using Mic.Logger;
 using Mic.Repository;
 using Mic.Repository.Repositories;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web;
@@ -20,10 +20,109 @@ namespace Mic.Api.Controllers
     public class UserController : ApiController
     {
         private TokenRepository tokeRepository;
+        private UserRepository userRepository;
         public UserController()
         {
             tokeRepository = ClassInstance<TokenRepository>.Instance;
+            userRepository = ClassInstance<UserRepository>.Instance;
         }
+
+        /// <summary>
+        /// 注册账号时，获取手机验证码
+        /// </summary>
+        /// <param name="phone">手机号</param>
+        /// <returns></returns>
+        [HttpGet, Route("registerSms")]
+        public ResponseResultDto<string> GetRegisterSmsCode(string phone)
+        {
+            bool isSussess = false;
+            string errorMessage = string.Empty;
+            string smsCode = string.Empty;
+            if (Util.ValidateMobilePhone(phone))//手机号格式是否正确
+            {
+                if (userRepository.PhoneIsExist(phone))
+                {
+                    isSussess = false;
+                    errorMessage = "手机号已经存在，无法注册";
+                }
+                else
+                {
+                    //是正确的手机号格式，获取验证码，同时将手机号等注册信息存储到数据库
+                    smsCode = "2123";
+                    isSussess = true;
+                    SmsRecord sms = new SmsRecord
+                    {
+                        UserId = -1,
+                        Phone = phone,
+                        Code = smsCode,
+                    };
+                    userRepository.SaveSmsCode(sms);
+                }
+
+            }
+            else
+            {
+                errorMessage = "手机号格式不正确";
+            }
+            return new ResponseResultDto<string>
+            {
+                IsSuccess = isSussess,
+                Result = smsCode,
+                ErrorMessage = errorMessage
+            };
+        }
+        /// <summary>
+        /// 注册校验 验证码（只需要传入手机号和验证码）
+        /// </summary>
+        /// <param name="registerParam"></param>
+        /// <returns></returns>
+        [HttpPost, Route("validateSms")]
+        public ResponseResultDto<bool> ValidateSmsCode([FromBody]RegisterParam registerParam)
+        {
+            bool isSussess = true;
+            string errorMessage = string.Empty;
+            bool result = false;
+
+            var res = userRepository.ValidateSmsCode(registerParam);
+            if (!res.Item1)
+            {
+                isSussess = false;
+                errorMessage = "验证码不正确";
+            }
+            return new ResponseResultDto<bool>
+            {
+                IsSuccess = isSussess,
+                Result = result,
+                ErrorMessage = errorMessage
+            };
+
+        }
+        /// <summary>
+        /// 账号注册
+        /// </summary>
+        /// <param name="registerParam">注册参数</param>
+        /// <returns></returns>
+        [HttpPost, Route("register")]
+        public ResponseResultDto<bool> Register([FromBody]RegisterParam registerParam)
+        {
+            bool isSussess = false;
+            string errorMessage = string.Empty;
+            bool result = false;
+
+            if (userRepository.Register(registerParam))
+            {
+                isSussess = true;
+                result = true;
+            }
+            
+            return new ResponseResultDto<bool>
+            {
+                IsSuccess = isSussess,
+                Result = result,
+                ErrorMessage = errorMessage
+            };
+        }
+
         /// <summary>
         /// 根据登录信息，对用户进行验证，通过则创建并返回一个访问令牌
         /// </summary>
