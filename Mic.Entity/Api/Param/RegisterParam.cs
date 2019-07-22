@@ -12,20 +12,23 @@ namespace Mic.Entity
     public class RegisterParam
     {
         /// <summary>
-        /// 手机号
+        /// 注册手机号
         /// </summary>
         public string Phone { get; set; }
-        /// <summary>
-        /// 验证码
-        /// </summary>
-        public string SmsCode { get; set; }
         /// <summary>
         /// 密码
         /// </summary>
         public string Password { get; set; }
         /// <summary>
-        /// 用户类型 1-音乐人；2-商家
+        /// 用户类型。1-音乐人 2-商家
         /// </summary>
         public int UserType { get; set; }
+        public string StoreName { get; set; }
+        public int Province { get; set; }
+        public int City { get; set; }
+        public int County { get; set; }
+        public string DetailAddress { get; set; }
+        public int StoreTypeId { get; set; }
+
     }
 }

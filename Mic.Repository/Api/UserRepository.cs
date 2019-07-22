@@ -58,7 +58,7 @@ and Code='{smsCode}' and Status={1} and UpdateTime>'{DateTime.Now.AddMinutes(-10
             string sql = $@"update SmsRecord set Status=0 where Phone='{phone}' and Code='{code}'";
         }
 
-        public bool Register(StoreDetailInfoEntity storeInfo)
+        public bool Register(RegisterParam storeInfo)
         {
             bool status = false;
             if (storeInfo.UserType == 1)//音乐人
@@ -85,9 +85,9 @@ values ({userId},'{DateTime.Now}',{1},'{storeInfo.StoreName}',{storeInfo.Provinc
             return status;
         }
 
-        public bool UpdateUserPassword(UserEntity user)
+        public bool UpdateUserPassword(UserParam user)
         {
-            string sql = $@"update [User] set Password='{user.Password}' where Phone='{user.Phone}'";
+            string sql = $@"update [User] set Password='{Util.MD5Encrypt(user.Password)}' where Phone='{user.Phone}'";
             return helper.Execute(sql) > 0 ? true : false;
         }
         /// <summary>
@@ -95,7 +95,7 @@ values ({userId},'{DateTime.Now}',{1},'{storeInfo.StoreName}',{storeInfo.Provinc
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Tuple<bool, string, UserEntity> VerifyLogin(UserEntity user)
+        public Tuple<bool, string, UserEntity> VerifyLogin(UserParam user)
         {
             bool isSuccess = true;
             string retMsg = string.Empty;

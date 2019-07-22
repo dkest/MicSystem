@@ -110,13 +110,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Provider\MultipartFormDataMemoryStreamProvider.cs" />
     <Compile Include="Common\SmsSingleSenderHelper.cs" />
     <Compile Include="Common\Util.cs" />
     <Compile Include="Controllers\CityController.cs" />
     <Compile Include="Controllers\FileController.cs" />
-    <Compile Include="Controllers\TestController.cs" />
+    <Compile Include="Controllers\StoreController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Filter\AccessTokenAuthorizeAttribute.cs" />
+    <Compile Include="Filter\HiddenApiFilter.cs" />
     <Compile Include="Filter\SwaggerOperatorFilter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -127,6 +129,7 @@
   <ItemGroup>
     <None Include="NLog.config" />
     <None Include="packages.config" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

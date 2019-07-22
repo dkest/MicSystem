@@ -44,6 +44,8 @@
   <ItemGroup>
     <Compile Include="AccessToken.cs" />
     <Compile Include="Admin.cs" />
+    <Compile Include="Api\Param\FileInfo.cs" />
+    <Compile Include="Api\Param\UserParam.cs" />
     <Compile Include="Api\Param\RegisterParam.cs" />
     <Compile Include="CityEntity.cs" />
     <Compile Include="IEntity.cs" />

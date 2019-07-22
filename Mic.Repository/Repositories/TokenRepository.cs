@@ -1,27 +1,32 @@
 ﻿using Mic.Entity;
 using Mic.Repository.Dapper;
-using Mic.Repository.IRepositories;
 using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Mic.Repository.Repositories
 {
-    public class TokenRepository 
+    public class TokenRepository
     {
         private DapperHelper<SqlConnection> helper;
         public TokenRepository()
         {
             helper = new DapperHelper<SqlConnection>(WebConfig.SqlConnection);
         }
-        public AccessToken AddAccessToken(AccessToken accessToken)
+        public AccessToken UpdateAccessToken(AccessToken accessToken)
         {
-            
-            helper.Execute($@"insert into UserAccessToken (TokenId,UserId,CreateTime,ExpireTime) 
+            var result = helper.Query<AccessToken>($@"select * from UserAccessToken where UserId={accessToken.UserId}").FirstOrDefault();
+            if (result != null)
+            {
+                accessToken.TokenId = result.TokenId;
+                helper.Execute($@"update UserAccessToken set CreateTime='{accessToken.CreateTime}',
+ExpireTime='{accessToken.ExpireTime}' where UserId={accessToken.UserId}");
+            }
+            else
+            {
+                helper.Execute($@"insert into UserAccessToken (TokenId,UserId,CreateTime,ExpireTime) 
 values ('{accessToken.TokenId}',{accessToken.UserId},'{accessToken.CreateTime}','{accessToken.ExpireTime}')");
+            }
             return accessToken;
         }
 

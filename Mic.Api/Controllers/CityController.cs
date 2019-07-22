@@ -2,11 +2,7 @@
 using Mic.Entity;
 using Mic.Repository;
 using Mic.Repository.Repositories;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 
 namespace Mic.Api.Controllers
@@ -38,11 +34,11 @@ namespace Mic.Api.Controllers
             };
         }
         /// <summary>
-        /// 根据省份编码获取市列表
+        /// 根据省份Id 获取市列表
         /// </summary>
-        /// <param name="provinceId">省份编码</param>
+        /// <param name="provinceId">省份Id</param>
         /// <returns></returns>
-        [HttpGet, Route("getCityList")]
+        [HttpGet, Route("getCityList/{provinceId:int}")]
         public ResponseResultDto<List<CityEntity>> GetCityList(int provinceId)
         {
             var result = cityRepository.GetCityList(provinceId);
@@ -54,11 +50,11 @@ namespace Mic.Api.Controllers
             };
         }
         /// <summary>
-        /// 根据市编码获取县区列表
+        /// 根据市Id 获取县区列表
         /// </summary>
-        /// <param name="cityId"></param>
+        /// <param name="cityId">市Id</param>
         /// <returns></returns>
-        [HttpGet, Route("getCountyList")]
+        [HttpGet, Route("getCountyList/{cityId:int}")]
         public ResponseResultDto<List<CityEntity>> GetCountyList(int cityId)
         {
             var result = cityRepository.GetCountyList(cityId);

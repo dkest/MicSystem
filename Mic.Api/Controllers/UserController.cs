@@ -32,7 +32,7 @@ namespace Mic.Api.Controllers
         /// </summary>
         /// <param name="phone">手机号</param>
         /// <returns></returns>
-        [HttpGet, Route("registerSms")]
+        [HttpGet, Route("registerSms/{phone}")]
         public ResponseResultDto<string> GetRegisterSmsCode(string phone)
         {
             bool isSussess = false;
@@ -78,7 +78,7 @@ namespace Mic.Api.Controllers
         /// </summary>
         /// <param name="phone">手机号</param>
         /// <returns></returns>
-        [HttpGet, Route("forgetSms")]
+        [HttpGet, Route("forgetSms/{phone}")]
         public ResponseResultDto<string> GetForgetSmsCode(string phone)
         {
             bool isSussess = false;
@@ -120,12 +120,12 @@ namespace Mic.Api.Controllers
         }
 
         /// <summary>
-        ///  验证码校验
+        ///  验证短信验证码
         /// </summary>
         /// <param name="phone">手机号</param>
         /// <param name="smsCode">短信验证码</param>
         /// <returns></returns>
-        [HttpGet, Route("validateSms")]
+        [HttpGet, Route("validateSms/{phone}/{smsCode}")]
         public ResponseResultDto<bool> ValidateSmsCode(string phone, string smsCode)
         {
             var res = userRepository.ValidateSmsCode(phone, smsCode);
@@ -149,13 +149,11 @@ namespace Mic.Api.Controllers
         }
         /// <summary>
         /// 用户账号注册
-        /// 输入参数：Phone,Password,UserType,
-        /// StoreName,Province,City,County,DetailAddress,StoreTypeId
         /// </summary>
         /// <param name="userInfo">用户注册参数</param>
         /// <returns></returns>
         [HttpPost, Route("register")]
-        public ResponseResultDto<bool> Register(StoreDetailInfoEntity userInfo)
+        public ResponseResultDto<bool> Register(RegisterParam userInfo)
         {
             bool isSussess = false;
             string errorMessage = string.Empty;
@@ -189,14 +187,13 @@ namespace Mic.Api.Controllers
 
         /// <summary>
         /// 更新用户密码
-        /// 输入参数：Phone，Password
         /// </summary>
-        /// <param name="userEntity"></param>
+        /// <param name="userParam"></param>
         /// <returns></returns>
         [HttpPost, Route("updatePassword")]
-        public ResponseResultDto<bool> UpdateUserPassword(UserEntity userEntity)
+        public ResponseResultDto<bool> UpdateUserPassword(UserParam userParam)
         {
-            if (userEntity == null || string.IsNullOrWhiteSpace(userEntity.Phone) || string.IsNullOrWhiteSpace(userEntity.Password))
+            if (userParam == null || string.IsNullOrWhiteSpace(userParam.Phone) || string.IsNullOrWhiteSpace(userParam.Password))
             {
                 return new ResponseResultDto<bool>
                 {
@@ -205,7 +202,7 @@ namespace Mic.Api.Controllers
                     Result = false
                 };
             }
-            var result = userRepository.UpdateUserPassword(userEntity);
+            var result = userRepository.UpdateUserPassword(userParam);
             return new ResponseResultDto<bool>
             {
                 IsSuccess = result,
@@ -215,60 +212,65 @@ namespace Mic.Api.Controllers
         }
 
         /// <summary>
-        /// 根据登录信息，对用户进行验证，通过则创建并返回一个访问令牌[AUTH]
+        /// 根据登录信息，对用户进行验证，通过则创建并返回一个访问令牌
         /// </summary>
         [HttpPost, Route("login")]
-        public ResponseResultDto<UserEntity> CreateAccessToken(UserEntity user)
+        public ResponseResultDto<UserEntity> CreateAccessToken(UserParam user)
         {
             // 验证账号密码
+            bool isSuccess = false;
+            string message = string.Empty;
+            var resultUser = userRepository.VerifyLogin(user);
 
-            var result = userRepository.VerifyLogin(user);
-            //if (user.UserType == UserType.Admin)
-            //    user = Admin.GetAdmin(user.UserId, user.Password);
-            //else if (user.UserType == UserType.Customer)
-            //    user = Customer.GetCustomer(user.UserId, user.Password);
+            if (resultUser == null) throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "用户名或密码错误"));
 
-            if (user == null) throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "用户名或密码错误"));
-            LoggerProvider.Logger.Error("ceshi 222");
-            AccessToken accessToken = new AccessToken
+            if (resultUser.Item1)
             {
-                TokenId = Guid.NewGuid(),
-                UserId = user.Id,
-                CreateTime = DateTime.Now,
-                ExpireTime = DateTime.Now.AddDays(14)
-            };
-            tokeRepository.AddAccessToken(accessToken);
+                AccessToken accessToken = new AccessToken
+                {
+                    TokenId = Guid.NewGuid().ToString(),
+                    UserId = resultUser.Item3.Id,
+                    CreateTime = DateTime.Now,
+                    ExpireTime = DateTime.Now.AddDays(14)
+                };
+                tokeRepository.UpdateAccessToken(accessToken);
+                resultUser.Item3.AccessToken = accessToken.TokenId;
+            }
+            else {
+                isSuccess = false;
+                message = resultUser.Item2;
+            }
             return new ResponseResultDto<UserEntity>
             {
-                IsSuccess = true,
-                ErrorMessage = string.Empty,
-                Result = result.Item3
+                IsSuccess = isSuccess,
+                ErrorMessage = message,
+                Result = resultUser.Item3
             };
         }
 
-        /// <summary>
-        /// 根据令牌Id，对令牌进行验证，通过则返回完整的访问令牌信息
-        /// </summary>
-        [HttpGet, Route("{tokenId:guid}")]
-        public AccessToken GetAccessToken(Guid tokenId)
-        {
-            AccessToken accessToken = null;
-            string key = tokenId.ToString();
-            object value = HttpRuntime.Cache.Get(key);
-            if (value != null) accessToken = value as AccessToken;
-            if (accessToken == null)
-            {
-                accessToken = tokeRepository.GetAccessToken(tokenId);
-                if (accessToken != null)
-                    HttpRuntime.Cache.Add(key, accessToken, null, Cache.NoAbsoluteExpiration, new TimeSpan(0, 20, 0), CacheItemPriority.Normal,
-                        (k, v, r) => tokeRepository.RemoveExpired());
-            }
+        ///// <summary>
+        ///// 根据令牌Id，对令牌进行验证，通过则返回完整的访问令牌信息
+        ///// </summary>
+        //[HttpGet, Route("accesstoken/{tokenId:guid}")]
+        //public AccessToken GetAccessToken(Guid tokenId)
+        //{
+        //    AccessToken accessToken = null;
+        //    string key = tokenId.ToString();
+        //    object value = HttpRuntime.Cache.Get(key);
+        //    if (value != null) accessToken = value as AccessToken;
+        //    if (accessToken == null)
+        //    {
+        //        accessToken = tokeRepository.GetAccessToken(tokenId);
+        //        if (accessToken != null)
+        //            HttpRuntime.Cache.Add(key, accessToken, null, Cache.NoAbsoluteExpiration, new TimeSpan(0, 20, 0), CacheItemPriority.Normal,
+        //                (k, v, r) => tokeRepository.RemoveExpired());
+        //    }
 
-            if (accessToken == null)
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "访问令牌不合法"));
+        //    if (accessToken == null)
+        //        throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "访问令牌不合法"));
 
-            return accessToken;
-        }
+        //    return accessToken;
+        //}
 
 
     }

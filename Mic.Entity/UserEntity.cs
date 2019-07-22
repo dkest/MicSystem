@@ -17,5 +17,7 @@ namespace Mic.Entity
         public bool UserManage { get; set; }
         public DateTime LastLoginTime { get; set; }
         public bool Status { get; set; }
+
+        public string AccessToken { get; set; } = string.Empty;
     }
 }

@@ -42,12 +42,14 @@ namespace Mic.Api.Filter
             }
 
             bool passed = (accessToken != null);
-            if (passed && !string.IsNullOrWhiteSpace(this.Roles)) passed &= this.Roles.Contains(accessToken.RoleName.ToString());
-            if (passed && !string.IsNullOrWhiteSpace(this.Users)) passed &= this.Roles.Contains(accessToken.UserId.ToString());
+            //if (passed && !string.IsNullOrWhiteSpace(this.Roles))
+            //    passed &= this.Roles.Contains(accessToken.RoleName.ToString());
+            if (passed && !string.IsNullOrWhiteSpace(this.Users))
+                passed &= this.Roles.Contains(accessToken.UserId.ToString());
 
             if (passed)
             {
-                var principal = new GenericPrincipal(new GenericIdentity(accessToken.UserId.ToString()), new string[] { accessToken.RoleName.ToString() });
+                var principal = new GenericPrincipal(new GenericIdentity(accessToken.UserId.ToString()), new string[] { string.Empty });
                 Thread.CurrentPrincipal = principal;
                 HttpContext.Current.User = principal;
             }
