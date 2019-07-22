@@ -33,7 +33,7 @@
     <input type="checkbox" name="account_status" value="{{d.Enabled}}" lay-skin="switch" lay-text="启用|禁用" lay-filter="account_status" {{ d.Enabled == true ? 'checked' : '' }}>
 </script>
 
-<div id="admin_edit_div" class="layui-form" style="margin-right:30px;margin-top:35px;">
+<div id="admin_edit_div" class="layui-form" style="margin-right:30px;margin-top:35px;display:none;">
     <div class="layui-form-item">
         <label class="layui-form-label">用户名：</label>
         <div class="layui-input-block">
@@ -48,7 +48,7 @@
     </div>
 </div>
 
-<div id="reset_password_div" class="layui-form" style="margin-right:30px;margin-top:35px;">
+<div id="reset_password_div" class="layui-form" style="margin-right:30px;margin-top:35px;display:none;">
     <div class="layui-form-item">
         <label class="layui-form-label">新密码：</label>
         <div class="layui-input-block">

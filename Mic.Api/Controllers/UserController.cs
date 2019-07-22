@@ -16,7 +16,7 @@ namespace Mic.Api.Controllers
     /// <summary>
     /// 用户接口
     /// </summary>
-    [RoutePrefix("tokens")]
+    [RoutePrefix("user")]
     public class UserController : ApiController
     {
         private TokenRepository tokeRepository;
