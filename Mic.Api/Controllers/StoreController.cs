@@ -47,7 +47,7 @@ namespace Mic.Api.Controllers
         }
 
         /// <summary>
-        /// 获取商家Id，获取商家企业资料[AUTH]
+        /// 根据商家Id，获取商家企业资料[AUTH]
         /// </summary>
         /// <param name="storeId"></param>
         /// <returns></returns>
