@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Mic.Entity;
 using Mic.Repository.Dapper;
+using Mic.Repository.Utils;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -48,8 +49,18 @@ where a.Status=1 and a.UserType=2  and a.IsMain=1  {likeSql}"));
             var id = -1;
             if (storeInfo.Id > 0)
             {
+                string password = string.Empty;
+                var temp = helper.QueryScalar($@"select [Password] from [User] where Id={storeInfo.Id}");
+                if (temp.ToString() == storeInfo.Password)
+                {
+                    password = temp.ToString();
+                }
+                else
+                {
+                    password = Util.MD5Encrypt(storeInfo.Password);
+                }
                 result = helper.Execute($@"update [User] set UserName='{storeInfo.UserName}',
- Phone='{storeInfo.Phone}',Password='{storeInfo.Password}' where Id={storeInfo.StoreId};
+ Phone='{storeInfo.Phone}',Password='{password}' where Id={storeInfo.StoreId};
 update StoreDetailInfo set StoreName='{storeInfo.StoreName}',StoreTypeId={storeInfo.StoreTypeId},MaximumStore={storeInfo.MaximumStore},
 DelegatingContract='{storeInfo.DelegatingContract}',Province='{storeInfo.Province}',City='{storeInfo.City}',
 County='{storeInfo.County}',DetailAddress='{storeInfo.DetailAddress}' where UserId={storeInfo.StoreId};");
@@ -60,7 +71,7 @@ County='{storeInfo.County}',DetailAddress='{storeInfo.DetailAddress}' where User
                 var p = new DynamicParameters();
                 p.Add("@Id", dbType: DbType.Int32, direction: ParameterDirection.Output);
                 string sql = $@"insert into [User] (UserName,Password,Phone,UserType,IsMain,
-StoreCode,StoreManage,SongManage,UserManage,Status) values ('{storeInfo.UserName}','{storeInfo.Password}',
+StoreCode,StoreManage,SongManage,UserManage,Status) values ('{storeInfo.UserName}','{Util.MD5Encrypt(storeInfo.Password)}',
 '{storeInfo.Phone}',{2},{1},'{Guid.NewGuid().ToString()}',{1},{1},{1},{1});SELECT @Id=SCOPE_IDENTITY()";
                 result = helper.Execute(sql, p);
 

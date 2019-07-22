@@ -48,7 +48,8 @@ namespace Mic.Api.Controllers
                 else
                 {
                     //是正确的手机号格式，获取验证码，同时将手机号等注册信息存储到数据库
-                    smsCode = "2123";
+                    smsCode = SmsSingleSenderHelper.SendSms(phone);
+
                     isSussess = true;
                     SmsRecord sms = new SmsRecord
                     {
@@ -67,87 +68,182 @@ namespace Mic.Api.Controllers
             return new ResponseResultDto<string>
             {
                 IsSuccess = isSussess,
-                Result = smsCode,
-                ErrorMessage = errorMessage
+                ErrorMessage = errorMessage,
+                Result = smsCode
             };
         }
-        /// <summary>
-        /// 注册校验 验证码（只需要传入手机号和验证码）
-        /// </summary>
-        /// <param name="registerParam"></param>
-        /// <returns></returns>
-        [HttpPost, Route("validateSms")]
-        public ResponseResultDto<bool> ValidateSmsCode([FromBody]RegisterParam registerParam)
-        {
-            bool isSussess = true;
-            string errorMessage = string.Empty;
-            bool result = false;
 
-            var res = userRepository.ValidateSmsCode(registerParam);
-            if (!res.Item1)
+        /// <summary>
+        /// 忘记密码时，获取手机验证码
+        /// </summary>
+        /// <param name="phone">手机号</param>
+        /// <returns></returns>
+        [HttpGet, Route("forgetSms")]
+        public ResponseResultDto<string> GetForgetSmsCode(string phone)
+        {
+            bool isSussess = false;
+            string errorMessage = string.Empty;
+            string smsCode = string.Empty;
+            if (Util.ValidateMobilePhone(phone))//手机号格式是否正确
             {
-                isSussess = false;
-                errorMessage = "验证码不正确";
+                if (!userRepository.PhoneIsExist(phone))
+                {
+                    isSussess = false;
+                    errorMessage = "该手机号还没有注册账号";
+                }
+                else
+                {
+                    //是正确的手机号格式，获取验证码，同时将手机号等注册信息存储到数据库
+                    smsCode = SmsSingleSenderHelper.SendSms(phone);
+
+                    isSussess = true;
+                    SmsRecord sms = new SmsRecord
+                    {
+                        UserId = -1,
+                        Phone = phone,
+                        Code = smsCode,
+                    };
+                    userRepository.SaveSmsCode(sms);
+                }
+
             }
-            return new ResponseResultDto<bool>
+            else
+            {
+                errorMessage = "手机号格式不正确";
+            }
+            return new ResponseResultDto<string>
             {
                 IsSuccess = isSussess,
-                Result = result,
-                ErrorMessage = errorMessage
+                ErrorMessage = errorMessage,
+                Result = smsCode
+            };
+        }
+
+        /// <summary>
+        ///  验证码校验
+        /// </summary>
+        /// <param name="phone">手机号</param>
+        /// <param name="smsCode">短信验证码</param>
+        /// <returns></returns>
+        [HttpGet, Route("validateSms")]
+        public ResponseResultDto<bool> ValidateSmsCode(string phone, string smsCode)
+        {
+            var res = userRepository.ValidateSmsCode(phone, smsCode);
+            if (!res.Item1)
+            {
+                return new ResponseResultDto<bool>
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "验证码不正确",
+                    Result = false
+                };
+            }
+            userRepository.DeleteSmsCode(phone, smsCode);
+            return new ResponseResultDto<bool>
+            {
+                IsSuccess = true,
+                ErrorMessage = string.Empty,
+                Result = true
             };
 
         }
         /// <summary>
-        /// 账号注册
+        /// 用户账号注册
+        /// 输入参数：Phone,Password,UserType,
+        /// StoreName,Province,City,County,DetailAddress,StoreTypeId
         /// </summary>
-        /// <param name="registerParam">注册参数</param>
+        /// <param name="userInfo">用户注册参数</param>
         /// <returns></returns>
         [HttpPost, Route("register")]
-        public ResponseResultDto<bool> Register([FromBody]RegisterParam registerParam)
+        public ResponseResultDto<bool> Register(StoreDetailInfoEntity userInfo)
         {
             bool isSussess = false;
             string errorMessage = string.Empty;
             bool result = false;
 
-            if (userRepository.Register(registerParam))
+            if (userInfo == null || string.IsNullOrWhiteSpace(userInfo.Phone) ||
+                string.IsNullOrWhiteSpace(userInfo.Password) || userInfo.UserType < 1)
+            {
+                return new ResponseResultDto<bool>
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "参数异常",
+                    Result = result
+                };
+            }
+
+
+            if (userRepository.Register(userInfo))
             {
                 isSussess = true;
                 result = true;
             }
-            
+
             return new ResponseResultDto<bool>
             {
                 IsSuccess = isSussess,
-                Result = result,
-                ErrorMessage = errorMessage
+                ErrorMessage = errorMessage,
+                Result = result
             };
         }
 
         /// <summary>
-        /// 根据登录信息，对用户进行验证，通过则创建并返回一个访问令牌
+        /// 更新用户密码
+        /// 输入参数：Phone，Password
+        /// </summary>
+        /// <param name="userEntity"></param>
+        /// <returns></returns>
+        [HttpPost, Route("updatePassword")]
+        public ResponseResultDto<bool> UpdateUserPassword(UserEntity userEntity)
+        {
+            if (userEntity == null || string.IsNullOrWhiteSpace(userEntity.Phone) || string.IsNullOrWhiteSpace(userEntity.Password))
+            {
+                return new ResponseResultDto<bool>
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "参数异常",
+                    Result = false
+                };
+            }
+            var result = userRepository.UpdateUserPassword(userEntity);
+            return new ResponseResultDto<bool>
+            {
+                IsSuccess = result,
+                ErrorMessage = string.Empty,
+                Result = result
+            };
+        }
+
+        /// <summary>
+        /// 根据登录信息，对用户进行验证，通过则创建并返回一个访问令牌[AUTH]
         /// </summary>
         [HttpPost, Route("login")]
-        public AccessToken CreateAccessToken(User login)
+        public ResponseResultDto<UserEntity> CreateAccessToken(UserEntity user)
         {
             // 验证账号密码
-            //object user = null;
-            //if (login.UserType == UserType.Admin)
-            //    user = Admin.GetAdmin(login.UserId, login.Password);
-            //else if (login.UserType == UserType.Customer)
-            //    user = Customer.GetCustomer(login.UserId, login.Password);
 
-            //if (user == null) throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "用户名或密码错误"));
+            var result = userRepository.VerifyLogin(user);
+            //if (user.UserType == UserType.Admin)
+            //    user = Admin.GetAdmin(user.UserId, user.Password);
+            //else if (user.UserType == UserType.Customer)
+            //    user = Customer.GetCustomer(user.UserId, user.Password);
+
+            if (user == null) throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "用户名或密码错误"));
             LoggerProvider.Logger.Error("ceshi 222");
             AccessToken accessToken = new AccessToken
             {
                 TokenId = Guid.NewGuid(),
-                RoleId = login.RoleId,
-                UserId = login.Id,
+                UserId = user.Id,
                 CreateTime = DateTime.Now,
                 ExpireTime = DateTime.Now.AddDays(14)
             };
             tokeRepository.AddAccessToken(accessToken);
-            return accessToken;
+            return new ResponseResultDto<UserEntity>
+            {
+                IsSuccess = true,
+                ErrorMessage = string.Empty,
+                Result = result.Item3
+            };
         }
 
         /// <summary>

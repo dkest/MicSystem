@@ -10,8 +10,6 @@ using System.Linq;
 
 namespace Mic.Repository.Repositories
 {
-    //ZNJSToolUtil.MD5Encrypt(password)
-
     public class AdminRepository
     {
         DapperHelper<SqlConnection> helper;

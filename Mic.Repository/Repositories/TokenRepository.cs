@@ -20,14 +20,14 @@ namespace Mic.Repository.Repositories
         public AccessToken AddAccessToken(AccessToken accessToken)
         {
             
-            helper.Execute($@"insert into AccessToken (TokenId,Role,UserId,CreateTime,ExpireTime) 
-values ('{accessToken.TokenId}',{accessToken.RoleId})");
+            helper.Execute($@"insert into UserAccessToken (TokenId,UserId,CreateTime,ExpireTime) 
+values ('{accessToken.TokenId}',{accessToken.UserId},'{accessToken.CreateTime}','{accessToken.ExpireTime}')");
             return accessToken;
         }
 
         public AccessToken GetAccessToken(Guid tokenId)
         {
-            throw new NotImplementedException();
+            return helper.Query<AccessToken>($@"select * from UserAccessToken where TokenId='{tokenId}'").FirstOrDefault();
         }
 
         public void RemoveExpired()

@@ -10,6 +10,25 @@ namespace Mic.Repository.Utils
 {
     public class Util
     {
+        
+        /// <summary>
+        /// MD5加密算法
+        /// </summary>
+        public static string MD5Encrypt(string key)
+        {
+            string retStr = string.Empty;
+            try
+            {
+                MD5 md5 = MD5.Create();
+                byte[] s = md5.ComputeHash(Encoding.UTF8.GetBytes(key));
+                retStr = Convert.ToBase64String(s);
+            }
+            catch (Exception ex)
+            {
+                retStr = key;
+            }
+            return retStr;
+        }
 
         #region DES加密解密
         /// <summary>
