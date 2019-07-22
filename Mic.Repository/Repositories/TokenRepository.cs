@@ -37,12 +37,8 @@ values ('{accessToken.TokenId}',{accessToken.UserId},'{accessToken.CreateTime}',
 
         public void RemoveExpired()
         {
-            //WebConfig.DatabaseInstance.Delete<AccessToken>("WHERE ExpireTime < @0", DateTime.Now);
+             helper.Query<AccessToken>($@"Delete  from UserAccessToken where ExpireTime<'{DateTime.Now}'").FirstOrDefault();
         }
 
-        //public AccessToken GetAccessToken(Guid tokenId)
-        //{
-        //    //return WebConfig.DatabaseInstance.FirstOrDefault<AccessToken>("WHERE TokenId = @0 AND ExpireTime > @1", tokenId, DateTime.Now);
-        //}
     }
 }
