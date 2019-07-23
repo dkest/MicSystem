@@ -1,4 +1,5 @@
-﻿using Mic.Api.Filter;
+﻿using Mic.Api.Common;
+using Mic.Api.Filter;
 using Mic.Api.Models;
 using Mic.Entity;
 using Mic.Repository;
@@ -92,6 +93,131 @@ namespace Mic.Api.Controllers
                 Result = result.Item1
             };
         }
+
+        #region 分店管理
+        /// <summary>
+        /// 添加分店[AUTH]
+        /// </summary>
+        /// <param name="sonStore">分店信息</param>
+        /// <returns></returns>
+        [HttpPost, Route("addSonStore")]
+        [AccessTokenAuthorize]
+        public ResponseResultDto<bool> AddSonStore(SonStoreInfoParam sonStore)
+        {
+            if (!Util.ValidateMobilePhone(sonStore.Phone))
+            {
+                return new ResponseResultDto<bool>
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "手机号格式不正确",
+                    Result = false
+                };
+            }
+            HttpRequest request = HttpContext.Current.Request;
+            string token = request.Headers.GetValues("Access-Token").FirstOrDefault();
+            var result = storeApiRepository.AddSonStore(token, sonStore);
+            return new ResponseResultDto<bool>
+            {
+                IsSuccess = result.Item1,
+                ErrorMessage = result.Item2,
+                Result = result.Item1
+            };
+        }
+
+        /// <summary>
+        /// 更新分店信息[AUTH]
+        /// </summary>
+        /// <param name="sonStore">分店信息</param>
+        /// <returns></returns>
+        [HttpPost, Route("updateSonStore")]
+        [AccessTokenAuthorize]
+        public ResponseResultDto<bool> UpdateSonStore(SonStoreInfoParam sonStore)
+        {
+            if (!Util.ValidateMobilePhone(sonStore.Phone))
+            {
+                return new ResponseResultDto<bool>
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "手机号格式不正确",
+                    Result = false
+                };
+            }
+            var result = storeApiRepository.UpdateSonStore(sonStore);
+            return new ResponseResultDto<bool>
+            {
+                IsSuccess = result.Item1,
+                ErrorMessage = result.Item2,
+                Result = result.Item1
+            };
+        }
+
+
+        /// <summary>
+        /// 更新分店启用禁用状态[AUTH]
+        /// </summary>
+        /// <param name="id">分店Id</param>
+        /// <param name="enable">可用状态</param>
+        /// <returns></returns>
+        [HttpPost, Route("updateSonStoreStatus")]
+        [AccessTokenAuthorize]
+        public ResponseResultDto<bool> UpdateSonStoreStatus(int id, bool enable)
+        {
+            var result = storeApiRepository.UpdateSonStoreStatus(id, enable);
+            return new ResponseResultDto<bool>
+            {
+                IsSuccess = result,
+                ErrorMessage = string.Empty,
+                Result = result
+            };
+        }
+
+        /// <summary>
+        /// 分页获取分店列表信息[AUTH]
+        /// </summary>
+        /// <param name="pageParam">分页参数</param>
+        [HttpPost, Route("getSonStoreList")]
+        [AccessTokenAuthorize]
+        public ResponseResultDto<PagedResult<SonStoreInfoParam>> GetStaffList(PageParam pageParam)
+        {
+            HttpRequest request = HttpContext.Current.Request;
+            string token = request.Headers.GetValues("Access-Token").FirstOrDefault();
+            var result = storeApiRepository.GetSonStoreList(token, pageParam);
+            return new ResponseResultDto<PagedResult<SonStoreInfoParam>>
+            {
+                IsSuccess = true,
+                ErrorMessage = result.Item2,
+                Result = new PagedResult<SonStoreInfoParam>
+                {
+                    Results = result.Item4,
+                    Page = pageParam.PageIndex,
+                    PageSize = pageParam.PageSize,
+                    Total = result.Item3
+                }
+            };
+        }
+        /// <summary>
+        /// 获取商家分店总数和一起用分店数量[AUTH]
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost, Route("getSonStoreStatistics")]
+        [AccessTokenAuthorize]
+        public ResponseResultDto<StoreStatistic> GetStoreStatistics()
+        {
+            HttpRequest request = HttpContext.Current.Request;
+            string token = request.Headers.GetValues("Access-Token").FirstOrDefault();
+            var result = storeApiRepository.GetSonStoreStatistic(token);
+            return new ResponseResultDto<StoreStatistic>
+            {
+                IsSuccess = result.Item1,
+                ErrorMessage = result.Item2,
+                Result = new StoreStatistic()
+                {
+                    MaxCount = result.Item3,
+                    ValidCount = result.Item4
+                }
+            };
+        }
+        #endregion
 
     }
 }

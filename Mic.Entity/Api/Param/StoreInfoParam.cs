@@ -52,4 +52,16 @@ namespace Mic.Entity
 
         
     }
+
+    public class StoreStatistic
+    {
+        /// <summary>
+        /// 最大分店数量
+        /// </summary>
+        public int MaxCount { get; set; }
+        /// <summary>
+        /// 已启用分店数量
+        /// </summary>
+        public int ValidCount { get; set; }
+    }
 }
