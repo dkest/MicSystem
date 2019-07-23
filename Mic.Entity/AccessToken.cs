@@ -8,6 +8,7 @@ namespace Mic.Entity
 {
     public class AccessToken
     {
+        public int Id { get; set; }
         public string TokenId { get; set; }
         public int UserId { get; set; }
         public DateTime CreateTime { get; set; }

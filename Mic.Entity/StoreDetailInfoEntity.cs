@@ -35,6 +35,8 @@ namespace Mic.Entity
         }
         public DateTime CreateTime { get; set; }
         public bool Enabled { get; set; }
+        public string Contacts { get; set; } //联系人
+        public string ContactsPhone { get; set; } //联系人电话
         //public bool Status { get; set; }
     }
 }

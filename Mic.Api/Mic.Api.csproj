@@ -110,6 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\StoreSatffController.cs" />
     <Compile Include="Provider\MultipartFormDataMemoryStreamProvider.cs" />
     <Compile Include="Common\SmsSingleSenderHelper.cs" />
     <Compile Include="Common\Util.cs" />

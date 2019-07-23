@@ -1,8 +1,11 @@
-﻿using Mic.Api.Models;
+﻿using Mic.Api.Filter;
+using Mic.Api.Models;
 using Mic.Entity;
 using Mic.Repository;
 using Mic.Repository.Repositories;
 using System.Collections.Generic;
+using System.Linq;
+using System.Web;
 using System.Web.Http;
 
 namespace Mic.Api.Controllers
@@ -14,11 +17,11 @@ namespace Mic.Api.Controllers
     public class StoreController : ApiController
     {
         private StoreTypeRepository storeTypeRepository;
-        private StoreRepository storeRepository;
+        private StoreApiRepository storeApiRepository;
         public StoreController()
         {
             storeTypeRepository = ClassInstance<StoreTypeRepository>.Instance;
-            storeRepository = ClassInstance<StoreRepository>.Instance;
+            storeApiRepository = ClassInstance<StoreApiRepository>.Instance;
         }
 
         /// <summary>
@@ -47,19 +50,46 @@ namespace Mic.Api.Controllers
         }
 
         /// <summary>
-        /// 根据商家Id，获取商家企业资料[AUTH]
+        /// 根据商家编码，获取商家企业资料[AUTH]
         /// </summary>
-        /// <param name="storeId"></param>
+        /// <param name="storeCode">商家编码</param>
         /// <returns></returns>
-        [HttpGet, Route("getStoreInfo/{storeId:int}")]
-        public ResponseResultDto<StoreDetailInfoEntity> GetStoreInfoById(int storeId)
+        [HttpGet, Route("getStoreInfo/{storeCode:guid}")]
+        [AccessTokenAuthorize]
+        public ResponseResultDto<StoreInfoParam> GetStoreDetailByStoreCode(string storeCode)
         {
-            var result = storeRepository.GetStoreDetailById(storeId);
-            return new ResponseResultDto<StoreDetailInfoEntity>
+            var result = storeApiRepository.GetStoreDetailByStoreCode(storeCode);
+            return new ResponseResultDto<StoreInfoParam>
             {
                 IsSuccess = result.Item1,
                 ErrorMessage = string.Empty,
                 Result = result.Item2
+            };
+        }
+        /// <summary>
+        /// 更新商家信息[AUTH]
+        /// </summary>
+        /// <param name="storeInfo">商家信息</param>
+        /// <returns></returns>
+        [HttpPost, Route("updateStoreInfo")]
+        [AccessTokenAuthorize]
+        public ResponseResultDto<bool> UpdateStoreInfo(StoreInfoParam storeInfo)
+        {
+            if (storeInfo == null || storeInfo.Id < 0)
+            {
+                return new ResponseResultDto<bool>
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "参数异常",
+                    Result = false
+                };
+            }
+            var result = storeApiRepository.UpdateStoreInfo(storeInfo);
+            return new ResponseResultDto<bool>
+            {
+                IsSuccess = result.Item1,
+                ErrorMessage = string.Empty,
+                Result = result.Item1
             };
         }
 

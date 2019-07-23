@@ -75,7 +75,7 @@ and Code='{smsCode}' and Status={1} and UpdateTime>'{DateTime.Now.AddMinutes(-10
                 Guid storeCode = Guid.NewGuid();
                 var p = new DynamicParameters();
                 p.Add("@Id", dbType: DbType.Int32, direction: ParameterDirection.Output);
-                helper.Execute($@"insert into [User] (Phone,[Password],UserType,Status,IsMain,StoreCode) values ('{storeInfo.Phone}','{Util.MD5Encrypt(storeInfo.Password)}',{2},{1},{1},'{storeCode}');SELECT @Id=SCOPE_IDENTITY()", p);
+                helper.Execute($@"insert into [User] (Phone,[Password],UserType,Status,IsMain,StoreCode,StoreManage,SongManage,UserManage) values ('{storeInfo.Phone}','{Util.MD5Encrypt(storeInfo.Password)}',{2},{1},{1},'{storeCode}',{1},{1},{1});SELECT @Id=SCOPE_IDENTITY()", p);
                 int userId = p.Get<int>("@Id");
                 var result = helper.Execute($@"insert into StoreDetailInfo (UserId,CreateTime,Enabled,StoreName,Province,City,County,DetailAddress,StoreTypeId) 
 values ({userId},'{DateTime.Now}',{1},'{storeInfo.StoreName}',{storeInfo.Province},{storeInfo.City},{storeInfo.County},'{storeInfo.DetailAddress}',{storeInfo.StoreTypeId})");
@@ -109,11 +109,11 @@ values ({userId},'{DateTime.Now}',{1},'{storeInfo.StoreName}',{storeInfo.Provinc
             else
             {
                 userEntity = helper.Query<UserEntity>($@"select * from [User] where Phone='{user.Phone}' and 
-password='{Util.MD5Encrypt(user.Password)}' and Status=1").FirstOrDefault();
+password='{Util.MD5Encrypt(user.Password)}' and Status=1 and Enable=1").FirstOrDefault();
                 if (userEntity == null)
                 {
                     isSuccess = false;
-                    retMsg = "密码不正确。";
+                    retMsg = "密码不正确或该账号不可用";
                 }
                 else
                 {
@@ -126,6 +126,9 @@ password='{Util.MD5Encrypt(user.Password)}' and Status=1").FirstOrDefault();
                             isSuccess = false;
                             retMsg = "当前账号已经被禁用，请联系管理员启用该账号。";
                         }
+                        else {//登陆成功
+                            helper.Execute($@"update [User] set LastLoginTime='{DateTime.Now}' where Phone='{userEntity.Phone}'");
+                        }
                     }
                     else //商家或者分店
                     {
@@ -135,6 +138,9 @@ password='{Util.MD5Encrypt(user.Password)}' and Status=1").FirstOrDefault();
                             userEntity = null;
                             isSuccess = false;
                             retMsg = "当前账号已经被禁用，请联系管理员启用该账号。";
+                        }
+                        else {
+                            helper.Execute($@"update [User] set LastLoginTime='{DateTime.Now}' where Phone='{userEntity.Phone}'");
                         }
                     }
                 }

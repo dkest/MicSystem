@@ -58,6 +58,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\StoreStaffApiRepository.cs" />
+    <Compile Include="Api\StoreApiRepository.cs" />
     <Compile Include="Api\UserRepository.cs" />
     <Compile Include="ClassInstance.cs" />
     <Compile Include="Dapper\DapperHelper.cs" />
