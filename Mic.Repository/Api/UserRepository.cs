@@ -1,10 +1,8 @@
 ﻿using Dapper;
 using Mic.Entity;
 using Mic.Repository.Dapper;
-using Mic.Repository.IRepositories;
 using Mic.Repository.Utils;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
