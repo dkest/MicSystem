@@ -24,6 +24,11 @@ namespace Mic.Repository.Repositories
         /// <returns></returns>
         public Tuple<bool, string> AddStoreStaff(string token, StoreStaffParam staff)
         {
+            var temp = helper.QueryScalar($@"select Count(1) from [User] where Phone='{staff.Phone}'");
+            if (Convert.ToInt32(temp) >0 )
+            {
+                return Tuple.Create(false, "该手机号已经存在，无法添加");
+            }
             // 先根据token，Id,再获取，获取 StoreCode，然后再添加Staff
             string storeCode = helper.QueryScalar($@"select StoreCode from UserAccessToken a left join [User] b on a.UserId=b.Id where TokenId='{token}'").ToString();
             if (string.IsNullOrWhiteSpace(storeCode))
@@ -44,6 +49,12 @@ values ('{storeCode}','{staff.StaffName}','{staff.Phone}','{Util.MD5Encrypt(staf
         /// <returns></returns>
         public Tuple<bool, string> UpdateStoreStaff(StoreStaffParam staff)
         {
+            var count = helper.QueryScalar($@"select Count(1) from [User] where Phone='{staff.Phone}' and Id not in ({staff.Id})");
+            if (Convert.ToInt32(count) > 0)
+            {
+                return Tuple.Create(false, "该手机号已经存在");
+            }
+
             var temp = helper.QueryScalar($@"select [Password] from [User] where Id={staff.Id}");
             if (temp == null)
             {

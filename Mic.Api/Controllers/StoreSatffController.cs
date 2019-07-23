@@ -1,4 +1,5 @@
-﻿using Mic.Api.Filter;
+﻿using Mic.Api.Common;
+using Mic.Api.Filter;
 using Mic.Api.Models;
 using Mic.Entity;
 using Mic.Repository;
@@ -33,6 +34,15 @@ namespace Mic.Api.Controllers
         [AccessTokenAuthorize]
         public ResponseResultDto<bool> AddStaff(StoreStaffParam storeStaffParam)
         {
+            if (!Util.ValidateMobilePhone(storeStaffParam.Phone))
+            {
+                return new ResponseResultDto<bool>
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "手机号格式不正确",
+                    Result = false
+                };
+            }
             HttpRequest request = HttpContext.Current.Request;
             string token = request.Headers.GetValues("Access-Token").FirstOrDefault();
             var result = storeStaffApiRepository.AddStoreStaff(token, storeStaffParam);
@@ -53,6 +63,15 @@ namespace Mic.Api.Controllers
         [AccessTokenAuthorize]
         public ResponseResultDto<bool> UpdateStaff(StoreStaffParam storeStaffParam)
         {
+            if (!Util.ValidateMobilePhone(storeStaffParam.Phone))
+            {
+                return new ResponseResultDto<bool>
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "手机号格式不正确",
+                    Result = false
+                };
+            }
             var result = storeStaffApiRepository.UpdateStoreStaff(storeStaffParam);
             return new ResponseResultDto<bool>
             {

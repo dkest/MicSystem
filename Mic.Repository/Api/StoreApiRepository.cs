@@ -41,6 +41,12 @@ left join StoreType c on c.Id=b.StoreTypeId  where a.Id = {Convert.ToInt32(store
         /// <returns></returns>
         public Tuple<bool, string> UpdateStoreInfo(StoreInfoParam storeInfo)
         {
+            var count = helper.QueryScalar($@"select Count(1) from [User] where Phone='{storeInfo.Phone}' and Id not in ({storeInfo.Id})");
+            if (Convert.ToInt32(count) > 0)
+            {
+                return Tuple.Create(false, "该手机号已经存在");
+            }
+
             int result = 0;
             if (storeInfo.Id > 0)
             {
