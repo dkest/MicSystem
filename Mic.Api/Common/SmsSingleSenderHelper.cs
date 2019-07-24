@@ -1,5 +1,4 @@
-﻿using Mic.Logger;
-using qcloudsms_csharp;
+﻿using qcloudsms_csharp;
 using System;
 using System.Configuration;
 
@@ -7,7 +6,7 @@ namespace Mic.Api.Common
 {
     public class SmsSingleSenderHelper
     {
-        public static string SendSms(string phone)
+        public static Tuple<string,string,int> SendSms(string phone)
         {
             Random rad = new Random();
             int value = rad.Next(1000, 10000);
@@ -19,8 +18,7 @@ namespace Mic.Api.Common
             string smsTimeOut = ConfigurationManager.AppSettings["smsTimeOut"].ToString();
             SmsSingleSender ssender = new SmsSingleSender(appId, appKey);
             var result = ssender.sendWithParam("86", phone, templateId, new[] { code, smsTimeOut }, "", "", "");
-            FileLoggerHelper.WriteInfoLog(DateTime.Now + ": 发送短信验证码-" + result.result + "---" + result.errMsg);
-            return code;
+            return Tuple.Create(code, result.errMsg, result.result);
         }
     }
 }

@@ -68,7 +68,7 @@ namespace Mic.Api.Controllers
             }
             catch (Exception ex)
             {
-                Logger.FileLoggerHelper.WriteErrorLog(DateTime.Now + "：上传音频文件错误-" + ex.Message);
+                //Logger.FileLoggerHelper.WriteErrorLog(DateTime.Now + "：上传音频文件错误-" + ex.Message);
             }
             return new ResponseResultDto<UploadFileInfo>
             {
@@ -124,7 +124,7 @@ namespace Mic.Api.Controllers
             }
             catch (Exception ex)
             {
-                Logger.FileLoggerHelper.WriteErrorLog(DateTime.Now + "：上传一般文件错误-" + ex.Message);
+                //Logger.FileLoggerHelper.WriteErrorLog(DateTime.Now + "：上传一般文件错误-" + ex.Message);
             }
             return new ResponseResultDto<UploadFileInfo>
             {

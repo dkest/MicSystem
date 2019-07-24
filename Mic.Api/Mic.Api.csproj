@@ -146,10 +146,6 @@
       <Project>{25C98E19-8828-48DC-9CB0-79BDDE4D28C8}</Project>
       <Name>Mic.Entity</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Mic.Logger\Mic.Logger.csproj">
-      <Project>{4A4C4A68-A85D-403F-9996-5B2FE27B9664}</Project>
-      <Name>Mic.Logger</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Mic.Repository\Mic.Repository.csproj">
       <Project>{888B800C-8D6A-4732-91FD-7AAF9E34797D}</Project>
       <Name>Mic.Repository</Name>

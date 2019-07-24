@@ -1,14 +1,11 @@
 ﻿using Mic.Api.Common;
 using Mic.Api.Models;
 using Mic.Entity;
-using Mic.Logger;
 using Mic.Repository;
 using Mic.Repository.Repositories;
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Web;
-using System.Web.Caching;
 using System.Web.Http;
 
 namespace Mic.Api.Controllers
@@ -48,8 +45,18 @@ namespace Mic.Api.Controllers
                 else
                 {
                     //是正确的手机号格式，获取验证码，同时将手机号等注册信息存储到数据库
-                    smsCode = SmsSingleSenderHelper.SendSms(phone);
-
+                    var temp = SmsSingleSenderHelper.SendSms(phone);
+                    if (temp.Item3 != 0)
+                    {
+                        return new ResponseResultDto<string>
+                        {
+                            IsSuccess = false,
+                            ErrorMessage = temp.Item2,
+                            Result = string.Empty
+                        };
+                    }
+                    smsCode = temp.Item1;
+                    //errorMessage = temp.Item2;
                     isSussess = true;
                     SmsRecord sms = new SmsRecord
                     {
@@ -94,7 +101,9 @@ namespace Mic.Api.Controllers
                 else
                 {
                     //是正确的手机号格式，获取验证码，同时将手机号等注册信息存储到数据库
-                    smsCode = SmsSingleSenderHelper.SendSms(phone);
+                    var temp = SmsSingleSenderHelper.SendSms(phone);
+                    smsCode = temp.Item1;
+                    errorMessage = temp.Item2;
 
                     isSussess = true;
                     SmsRecord sms = new SmsRecord
@@ -236,7 +245,8 @@ namespace Mic.Api.Controllers
                 tokeRepository.UpdateAccessToken(accessToken);
                 resultUser.Item3.AccessToken = accessToken.TokenId;
             }
-            else {
+            else
+            {
                 isSuccess = false;
                 message = resultUser.Item2;
             }
