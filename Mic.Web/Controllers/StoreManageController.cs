@@ -213,13 +213,14 @@ namespace Mic.Web.Controllers
             return Json(new { status = result }, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult AppendSongList(int id, string listContent,string storeCode)
+        public ActionResult AppendSongList(int id, string listContent,string storeCode,int storeId)
         {
             PlayListEntity playListEntity = new PlayListEntity
             {
                 Id = id,
                 ListContent = listContent,
-                StoreCode = storeCode
+                StoreCode = storeCode,
+                StoreId = storeId
             };
             var result = playListRepository.AppendSongList(playListEntity);
             return Json(new { status = result }, JsonRequestBehavior.AllowGet);

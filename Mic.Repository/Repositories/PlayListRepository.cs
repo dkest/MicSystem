@@ -31,8 +31,8 @@ namespace Mic.Repository.Repositories
             string updateTimeStr = string.Empty;
             PlayListEntity listItem = new PlayListEntity();
             List<SongBookEntity> list = new List<SongBookEntity>();
-            string storeCode = helper.QueryScalar($@"select StoreCode from [User] where Id={storeId}").ToString();
-            string sql = $@"select * from PlayList where StoreCode='{storeCode}' and Status=1";
+            //string storeCode = helper.QueryScalar($@"select StoreCode from [User] where Id={storeId}").ToString();
+            string sql = $@"select * from PlayList where StoreId='{storeId}' and Status=1";
             var result = helper.Query<PlayListEntity>(sql).ToList();
             if (result.Count > 0)
             {
@@ -123,7 +123,7 @@ namespace Mic.Repository.Repositories
         }
 
         /// <summary>
-        ///
+        /// 根据 歌曲Id 集合，获取歌曲列表
         /// </summary>
         /// <param name="listContent"></param>
         /// <returns></returns>
@@ -159,8 +159,8 @@ namespace Mic.Repository.Repositories
         /// <returns></returns>
         public bool AddSongList(PlayListEntity playList)
         {
-            string sql = $@"insert into PlayList ([ListName],[ListContent],[StoreCode],[IsPublish],[UpdateTime],[Status]) 
-values ('{playList.ListName}','{playList.ListContent}','{playList.StoreCode}','{playList.IsPublish}','{DateTime.Now}','{1}')";
+            string sql = $@"insert into PlayList ([ListName],[ListContent],StoreId,[StoreCode],[IsPublish],[UpdateTime],[Status]) 
+values ('{playList.ListName}','{playList.ListContent}',{playList.StoreId},'{playList.StoreCode}','{playList.IsPublish}','{DateTime.Now}','{1}')";
             return helper.Execute(sql) > 0 ? true : false;
         }
 
@@ -189,8 +189,8 @@ values ('{playList.ListName}','{playList.ListContent}','{playList.StoreCode}','{
             }
             else
             { // 添加新歌单
-                string sql = $@"insert into PlayList(ListName,ListContent,StoreCode,IsPublish,UpdateTime,Status)
-values ('{string.Empty}','{playList.ListContent}','{playList.StoreCode}',{0},'{DateTime.Now}',{1})";
+                string sql = $@"insert into PlayList(ListName,ListContent,StoreId,StoreCode,IsPublish,UpdateTime,Status)
+values ('{string.Empty}','{playList.ListContent}',{playList.StoreId},'{playList.StoreCode}',{0},'{DateTime.Now}',{1})";
                 return helper.Execute(sql) > 0 ? true : false;
             }
 

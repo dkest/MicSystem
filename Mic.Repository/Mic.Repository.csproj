@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\StoreSongManageApiRepository.cs" />
     <Compile Include="Api\StoreStaffApiRepository.cs" />
     <Compile Include="Api\StoreApiRepository.cs" />
     <Compile Include="Api\UserRepository.cs" />

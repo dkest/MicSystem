@@ -18,7 +18,7 @@ namespace Mic.Entity
 
         public string StoreName { get; set; }
         public string StoreTypeName { get; set; }
-
+        public string StoreCode { get; set; } //商家编码，用来后台统计商家播放
 
     }
 }

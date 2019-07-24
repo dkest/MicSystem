@@ -1,8 +1,10 @@
-﻿using Mic.Entity;
+﻿using Dapper;
+using Mic.Entity;
 using Mic.Repository.Dapper;
 using Mic.Repository.Utils;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 
@@ -35,9 +37,22 @@ namespace Mic.Repository.Repositories
             {
                 return Tuple.Create(false, "该账号无法添加员工");
             }
-            string sql = $@"insert into [User] (StoreCode,StaffName,Phone,Password,StoreManage,SongManage,UserManage,Enable,Status,UserType,IsMain)
+//            string sql = $@"insert into [User] (StoreCode,StaffName,Phone,Password,StoreManage,SongManage,UserManage,Enable,Status,UserType,IsMain)
+//values ('{storeCode}','{staff.StaffName}','{staff.Phone}','{Util.MD5Encrypt(staff.Password)}',
+//'{staff.StoreManage}','{staff.SongManage}','{staff.UserManage}',{1},{1},{2},{0})";
+
+            //同时向StoreDeatilInfo表添加数据，为了管理员工播放列表
+
+
+            var p = new DynamicParameters();
+            p.Add("@Id", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            var result = helper.Execute($@"insert into [User] (StoreCode,StaffName,Phone,Password,StoreManage,SongManage,UserManage,Enable,Status,UserType,IsMain)
 values ('{storeCode}','{staff.StaffName}','{staff.Phone}','{Util.MD5Encrypt(staff.Password)}',
-'{staff.StoreManage}','{staff.SongManage}','{staff.UserManage}',{1},{1},{2},{0})";
+'{staff.StoreManage}','{staff.SongManage}','{staff.UserManage}',{1},{1},{2},{0}); SELECT @Id=SCOPE_IDENTITY()", p);
+            var id = p.Get<int>("@Id");
+            string sql = $@"insert into StoreDetailInfo (UserId,Enabled,CreateTime) 
+values ({id},{1},'{DateTime.Now}')";
+
 
             return Tuple.Create(helper.Execute(sql) > 0 ? true : false, string.Empty);
         }

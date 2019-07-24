@@ -114,9 +114,10 @@ where  [BeginPlayTime]>'{yesLastWeek}' and [BeginPlayTime]<'{yesLastWeek.AddDays
                     break;
             }
             string sql = $@"select top {param.PageSize} * from (select row_number() over(order by {order} desc) as rownumber,
-b.StoreName, count( distinct a.SongId) as  PlaySongCount, PlayUserId,Sum(BroadcastTime) as PlayTime,count(1) as PlayCount from [dbo].[SongPlayRecord] a  left join StoreDetailInfo b
-on a.PlayUserId = b.UserId where a.BeginPlayTime >= '{param.BeginDate}' and a.BeginPlayTime <= '{param.EndDate}'
-group by a.PlayUserId,b.StoreName ) temp_row
+b.StoreName, count( distinct a.SongId) as  PlaySongCount, StoreCode,Sum(BroadcastTime) as PlayTime,count(1) as PlayCount from [dbo].[SongPlayRecord] a  
+left join [User] c on c.Id=a.PlayUserId left join StoreDetailInfo b
+on c.Id = b.UserId where c.UserType=2 and c.IsMain=1 and a.BeginPlayTime >= '{param.BeginDate}' and a.BeginPlayTime <= '{param.EndDate}'
+group by a.StoreCode,b.StoreName ) temp_row
                     where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize}) ;";
             return helper.Query<StoreSongStatisticsEntity>(sql).ToList();
         }
