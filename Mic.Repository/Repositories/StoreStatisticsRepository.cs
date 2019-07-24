@@ -114,8 +114,8 @@ where  [BeginPlayTime]>'{yesLastWeek}' and [BeginPlayTime]<'{yesLastWeek.AddDays
                     break;
             }
             string sql = $@"select top {param.PageSize} * from (select row_number() over(order by {order} desc) as rownumber,
-b.StoreName, count( distinct a.SongId) as  PlaySongCount, StoreCode,Sum(BroadcastTime) as PlayTime,count(1) as PlayCount from [dbo].[SongPlayRecord] a  
-left join [User] c on c.Id=a.PlayUserId left join StoreDetailInfo b
+b.StoreName, count( distinct a.SongId) as  PlaySongCount, a.StoreCode,Sum(BroadcastTime) as PlayTime,count(1) as PlayCount from [dbo].[SongPlayRecord] a  
+left join [User] c on c.StoreCode=a.StoreCode left join StoreDetailInfo b
 on c.Id = b.UserId where c.UserType=2 and c.IsMain=1 and a.BeginPlayTime >= '{param.BeginDate}' and a.BeginPlayTime <= '{param.EndDate}'
 group by a.StoreCode,b.StoreName ) temp_row
                     where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize}) ;";
@@ -130,6 +130,11 @@ where BeginPlayTime >= '{beginDate}' and BeginPlayTime <= '{endDate.AddDays(1).A
             return helper.Query<StoreStatisticsInfoEntity>(sql).FirstOrDefault();
         }
 
+        /// <summary>
+        /// 获取指定商家的播放记录
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
         public List<StorePlaySongEntity> GetStorePlaySongList(StorePlaySongPageParam param)
         {
             string order = string.Empty;
@@ -144,7 +149,7 @@ where BeginPlayTime >= '{beginDate}' and BeginPlayTime <= '{endDate.AddDays(1).A
             }
             string sql = $@" select top {param.PageSize} * from (select row_number() over(order by {order} desc) as rownumber, a.SongId, b.SongName,Sum(BroadcastTime) as PlayTime,count(1) as PlayCount 
  from [dbo].[SongPlayRecord] a  left join SongBook b
-on a.SongId = b.Id where a.BeginPlayTime >= '{param.BeginDate}' and  a.BeginPlayTime <='{param.EndDate}' and PlayUserId={param.PlayUserId}
+on a.SongId = b.Id where a.BeginPlayTime >= '{param.BeginDate}' and  a.BeginPlayTime <='{param.EndDate}' and StoreCode='{param.StoreCode}'
  group by a.SongId,b.SongName   ) temp_row
                     where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize}) ;";
             return helper.Query<StorePlaySongEntity>(sql).ToList();

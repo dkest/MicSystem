@@ -216,11 +216,12 @@
         });
 
         table.on('tool(statistics_store_list)', function (obj) {
+            
             var data = obj.data
                 , layEvent = obj.event;
             if (layEvent === 'store_detail') {
-
-               $("#statistics_content_div").load('@Url.Action("StoreStatisticsDetail", "Statistics")?id=' + data.PlayUserId + '&storeName=' + data.StoreName);
+                console.log(data);
+                $("#statistics_content_div").load('@Url.Action("StoreStatisticsDetail", "Statistics")?id=' + data.PlayUserId + '&storeName=' + data.StoreName + '&storeCode=' + data.StoreCode);
             }
         });
 

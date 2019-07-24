@@ -114,6 +114,7 @@ namespace Mic.Entity.Model
     /// </summary>
     public class StoreSongStatisticsEntity
     {
+        public string StoreCode { get; set; }
         public string StoreName { get; set; }
         public int PlaySongCount { get; set; }
         public int PlayUserId { get; set; }
@@ -170,13 +171,13 @@ namespace Mic.Entity.Model
     public class SingerStatisticsEntity
     {
         public int SingerCount { get; set; }
-        
+
         public int SingerIncreaseYes { get; set; }
-        
+
         public int ActiveSingerYes { get; set; }
-        
+
         public int ActiveSingerYesLastWeek { get; set; }
-      
+
         public int ActiveSingerComparedLastWeek
         {
             get {

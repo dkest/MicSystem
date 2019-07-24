@@ -38,6 +38,7 @@ namespace Mic.Web.Controllers
         {
             ViewBag.id = GetStrValFromReq("id");
             ViewBag.name = GetStrValFromReq("storeName");
+            ViewBag.storeCode = GetStrValFromReq("storeCode");
             return View();
         }
         #region 商家统计
@@ -72,6 +73,10 @@ namespace Mic.Web.Controllers
             return Json(new { status = true, data = result }, JsonRequestBehavior.AllowGet);
         }
 
+        /// <summary>
+        /// 获取商家播放记录
+        /// </summary>
+        /// <returns></returns>
         public ActionResult GetStorePlaySongList()
         {
             var page = GetIntValFromReq("page");//页码
@@ -81,6 +86,7 @@ namespace Mic.Web.Controllers
             DateTime end = GetDateTimeValFromReq("endDate").Value.AddDays(1).AddSeconds(-1);
             string field = GetStrValFromReq("field");
             int playUserId = GetIntValFromReq("playUserId");
+            string storeCode = GetStrValFromReq("storeCode");
             StorePlaySongPageParam param = new StorePlaySongPageParam
             {
                 PageIndex = page,
@@ -88,7 +94,8 @@ namespace Mic.Web.Controllers
                 OrderField = field,
                 BeginDate = begin,
                 EndDate = end,
-                PlayUserId = playUserId
+                PlayUserId = playUserId,
+                StoreCode = storeCode
             };
             var result = storeStatisticsRepository.GetStorePlaySongList(param);
             return Json(new { code = 0, msg = string.Empty, count = result.Count, data = result }, JsonRequestBehavior.AllowGet);

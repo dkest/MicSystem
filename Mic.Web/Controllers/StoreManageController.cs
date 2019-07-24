@@ -44,7 +44,7 @@ namespace Mic.Web.Controllers
             ViewBag.id = GetStrValFromReq("id");
             //ViewBag.listContent = GetStrValFromReq("listContent");
             ViewBag.storeId = GetIntValFromReq("storeId");
-            ViewBag.storeCode = GetStrValFromReq("storeCode");
+            
             return View();
         }
 

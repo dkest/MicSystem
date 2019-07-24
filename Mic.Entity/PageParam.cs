@@ -28,6 +28,7 @@ namespace Mic.Repository
     public class StorePlaySongPageParam : PageParam
     {
         public int PlayUserId { get; set; }
+        public string StoreCode { get; set; }
         public DateTime BeginDate { get; set; }
         public DateTime EndDate { get; set; }
 
