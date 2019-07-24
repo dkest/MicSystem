@@ -108,7 +108,7 @@
     var storeTypeName;
 
     var currentId  = @ViewBag.storeId;
-
+    
     var fileName = "";
 
     var listItem = null;
@@ -383,7 +383,7 @@
         });
 
         $("#song_list_his_btn").click(function () {
-            location.href = '@Url.Action("HisSongList", "StoreManage")?storeId=' + currentId;
+            location.href = '@Url.Action("HisSongList", "StoreManage")?storeId=' + currentId + '&storeCode=' + currentInfo.StoreCode;
         });
 
         $("#edit_song_list_btn").click(function () {

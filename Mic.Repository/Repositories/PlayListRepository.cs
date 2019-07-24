@@ -123,23 +123,31 @@ namespace Mic.Repository.Repositories
         }
 
         /// <summary>
-        /// 根据 歌曲Id 集合，获取歌曲列表
+        /// 获取历史歌单中详细歌曲列表
         /// </summary>
         /// <param name="listContent"></param>
         /// <returns></returns>
-        public List<SongBookEntity> GetSongListByPlayListStr(string listContent)
+        public List<SongBookEntity> GetSongListByPlayListStr(string listContent, string storeCode)
         {
             string[] arr = listContent.Split(',');
-            StringBuilder sb = new StringBuilder("select * from SongBook where Id in (");
+            StringBuilder sb = new StringBuilder("(");
             foreach (var item in arr)
             {
-                sb.Append(item).Append(",");
+                if (!string.IsNullOrWhiteSpace(item))
+                {
+                    sb.Append(item).Append(",");
+                }
             }
-            string resultSql = sb.ToString();
-            int length = resultSql.Length;
-            resultSql = resultSql.Substring(0, length - 1);
-            resultSql += ");";
-            return helper.Query<SongBookEntity>(resultSql).ToList();
+            string whereIn = sb.ToString();
+            int length = whereIn.Length;
+            whereIn = whereIn.Substring(0, length - 1);
+            whereIn += ")";
+
+            string sql = $@"select d.*,e.SingerName,e.SongLength,e.SongMark from (select a.SongId, b.SongName, Sum(BroadcastTime) as TotalPlayTime,count(1) as PlayTimes 
+ from [dbo].[SongPlayRecord] a  left join SongBook b
+on a.SongId = b.Id where  a.SongId in {whereIn}
+ group by a.SongId,b.SongName) as d  left join SongBook e on d.SongId=e.Id";
+            return helper.Query<SongBookEntity>(sql).ToList();
 
         }
 

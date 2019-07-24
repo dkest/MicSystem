@@ -36,6 +36,7 @@ namespace Mic.Web.Controllers
         public ActionResult HisSongList()
         {
             ViewBag.storeId = GetIntValFromReq("storeId");
+            ViewBag.storeCode = GetStrValFromReq("storeCode");
             return View();
         }
 
@@ -44,7 +45,7 @@ namespace Mic.Web.Controllers
             ViewBag.id = GetStrValFromReq("id");
             //ViewBag.listContent = GetStrValFromReq("listContent");
             ViewBag.storeId = GetIntValFromReq("storeId");
-            
+            ViewBag.storeCode = GetStrValFromReq("storeCode");
             return View();
         }
 
@@ -160,11 +161,16 @@ namespace Mic.Web.Controllers
 
         }
 
+        /// <summary>
+        /// 获取历史歌单中的歌曲列表
+        /// </summary>
+        /// <returns></returns>
         public ActionResult GetHisSongList()
         {
             List<SongBookEntity> list = new List<SongBookEntity>();
             string listContent = GetStrValFromReq("listContent");
-            var result = playListRepository.GetSongListByPlayListStr(listContent);
+            string storeCode = GetStrValFromReq("storeCode");
+            var result = playListRepository.GetSongListByPlayListStr(listContent, storeCode);
 
             List<SongMarkEntity> songMarkList = songMarkRepository.GetSongMakList();
             foreach (var item in result)
@@ -213,7 +219,7 @@ namespace Mic.Web.Controllers
             return Json(new { status = result }, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult AppendSongList(int id, string listContent,string storeCode,int storeId)
+        public ActionResult AppendSongList(int id, string listContent, string storeCode, int storeId)
         {
             PlayListEntity playListEntity = new PlayListEntity
             {
@@ -238,7 +244,7 @@ namespace Mic.Web.Controllers
                 string keyword = GetStrValFromReq("keyword");
                 string searchMarkId = GetStrValFromReq("searchMarkId");
                 string idStr = GetStrValFromReq("ids");
-                var songIds =  idStr.Split(',');
+                var songIds = idStr.Split(',');
                 List<int> temp = new List<int>();
                 foreach (var songId in songIds)
                 {

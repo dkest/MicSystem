@@ -69,7 +69,7 @@
     $('#his_song_time_line').delegate('ul li div h5 span#show_table_btn', 'click', function () {
         var listContent = $(this).attr("data-list");
         var show = $(this).attr("data-show");
-        
+
         var id = $(this).attr("data-id");
         var temp = "his_song_list" + id;
         if (show == '0') {
@@ -83,7 +83,7 @@
             $("#" + temp).next().hide();
             return;
         }
-        
+
 
         table.render({
             elem: '#' + temp
@@ -91,7 +91,7 @@
             , url: '@Url.Action("GetHisSongList", "StoreManage")'
             , limit: 10
             , size: 'sm'
-            , where: { keyword: "", listContent: listContent }
+            , where: { keyword: "", listContent: listContent, storeCode: '@ViewBag.storeCode' }
             ,autoSort: false
             , cols: [[
                 {type: "numbers", fixed:"left", width:50}
@@ -101,7 +101,7 @@
                 , { field: 'SingerName', width: 120, title: '歌手' }
                 , { field: 'SongMarkStr', title: '标签', width: 200 }
                 , { field: 'PlayTimes', width: 120, title: '累计播放次数'}
-               , { field: 'TotalPlayTimeStr', width: 120, title: '累计播放时长', sort: true }
+               , { field: 'TotalPlayTimeStr', width: 120, title: '累计播放时长' }
             ]]
             , parseData: function (res) {
                 $.each(res.data, function (index, value) {
