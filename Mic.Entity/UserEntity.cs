@@ -18,7 +18,12 @@ namespace Mic.Entity
         public DateTime LastLoginTime { get; set; }
         public bool Status { get; set; }
         public string HeadImg { get; set; }
-        public string FullHeadImg { get; set; }
+        public string FullHeadImg
+        {
+            get {
+                return "http://152.136.227.143" + HeadImg;
+            }
+        }
 
         public string AccessToken { get; set; } = string.Empty;
     }
