@@ -141,7 +141,7 @@ password='{Util.MD5Encrypt(user.Password)}' and Status=1 and Enable=1").FirstOrD
                             retMsg = "当前账号已经被禁用，请联系管理员启用该账号。";
                         }
                         else {
-                            userEntity.UserName = temp.StoreCode;
+                            userEntity.UserName = temp.StoreName;
                             helper.Execute($@"update [User] set LastLoginTime='{DateTime.Now}' where Phone='{userEntity.Phone}'");
                         }
                     }
