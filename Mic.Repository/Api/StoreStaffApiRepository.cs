@@ -27,7 +27,7 @@ namespace Mic.Repository.Repositories
         public Tuple<bool, string> AddStoreStaff(string token, StoreStaffParam staff)
         {
             var temp = helper.QueryScalar($@"select Count(1) from [User] where Phone='{staff.Phone}'");
-            if (Convert.ToInt32(temp) >0 )
+            if (Convert.ToInt32(temp) > 0)
             {
                 return Tuple.Create(false, "该手机号已经存在，无法添加");
             }
@@ -37,9 +37,9 @@ namespace Mic.Repository.Repositories
             {
                 return Tuple.Create(false, "该账号无法添加员工");
             }
-//            string sql = $@"insert into [User] (StoreCode,StaffName,Phone,Password,StoreManage,SongManage,UserManage,Enable,Status,UserType,IsMain)
-//values ('{storeCode}','{staff.StaffName}','{staff.Phone}','{Util.MD5Encrypt(staff.Password)}',
-//'{staff.StoreManage}','{staff.SongManage}','{staff.UserManage}',{1},{1},{2},{0})";
+            //            string sql = $@"insert into [User] (StoreCode,StaffName,Phone,Password,StoreManage,SongManage,UserManage,Enable,Status,UserType,IsMain)
+            //values ('{storeCode}','{staff.StaffName}','{staff.Phone}','{Util.MD5Encrypt(staff.Password)}',
+            //'{staff.StoreManage}','{staff.SongManage}','{staff.UserManage}',{1},{1},{2},{0})";
 
             //同时向StoreDeatilInfo表添加数据，为了管理员工播放列表
 
@@ -50,8 +50,8 @@ namespace Mic.Repository.Repositories
 values ('{storeCode}','{staff.StaffName}','{staff.Phone}','{Util.MD5Encrypt(staff.Password)}',
 '{staff.StoreManage}','{staff.SongManage}','{staff.UserManage}',{1},{1},{2},{0}); SELECT @Id=SCOPE_IDENTITY()", p);
             var id = p.Get<int>("@Id");
-            string sql = $@"insert into StoreDetailInfo (UserId,Enabled,CreateTime) 
-values ({id},{1},'{DateTime.Now}')";
+            string sql = $@"insert into StoreDetailInfo (UserId,StoreName,Enabled,CreateTime) 
+values ({id},'{staff.StaffName}',{1},'{DateTime.Now}')";
 
 
             return Tuple.Create(helper.Execute(sql) > 0 ? true : false, string.Empty);
@@ -80,6 +80,7 @@ values ({id},{1},'{DateTime.Now}')";
             {
                 password = Util.MD5Encrypt(staff.Password);
             }
+            helper.Execute($@"update StoreDetailInfo set StoreName='{staff.StaffName}'");
             string sql = $@"update [User] set StaffName='{staff.StaffName}',Phone='{staff.Phone}',Password='{password}',
 StoreManage='{staff.StoreManage}',SongManage='{staff.SongManage}',UserManage='{staff.UserManage}' where Id={staff.Id}";
             return Tuple.Create(helper.Execute(sql) > 0 ? true : false, string.Empty);

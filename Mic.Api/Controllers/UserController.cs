@@ -227,7 +227,7 @@ namespace Mic.Api.Controllers
         public ResponseResultDto<UserEntity> CreateAccessToken(UserParam user)
         {
             // 验证账号密码
-            bool isSuccess = false;
+            bool isSuccess = true;
             string message = string.Empty;
             var resultUser = userRepository.VerifyLogin(user);
 

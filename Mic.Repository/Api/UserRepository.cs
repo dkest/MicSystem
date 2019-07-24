@@ -117,27 +117,31 @@ password='{Util.MD5Encrypt(user.Password)}' and Status=1 and Enable=1").FirstOrD
                 {
                     if (userEntity.UserType == 1)
                     {
-                        var temp = helper.QueryScalar($@"select Enabled from SingerDetailInfo where UserId={userEntity.Id}");
-                        if (!Convert.ToBoolean(temp))
+                        var temp = helper.Query<SingerDetailInfoEntity>($@"select SingerName,HeadImg, Enabled from SingerDetailInfo where UserId={userEntity.Id}").FirstOrDefault();
+
+
+                        if (!Convert.ToBoolean(temp.Enabled))
                         {
                             userEntity = null;
                             isSuccess = false;
                             retMsg = "当前账号已经被禁用，请联系管理员启用该账号。";
                         }
                         else {//登陆成功
+                            userEntity.UserName = temp.SingerName;
                             helper.Execute($@"update [User] set LastLoginTime='{DateTime.Now}' where Phone='{userEntity.Phone}'");
                         }
                     }
                     else //商家或者分店
                     {
-                        var temp = helper.QueryScalar($@"select Enabled from StoreDetailInfo where UserId={userEntity.Id}");
-                        if (!Convert.ToBoolean(temp))
+                        var temp = helper.Query<StoreDetailInfoEntity>($@"select StoreName, Enabled from StoreDetailInfo where UserId={userEntity.Id}").FirstOrDefault();
+                        if (temp ==null || !Convert.ToBoolean(temp.Enabled))
                         {
                             userEntity = null;
                             isSuccess = false;
                             retMsg = "当前账号已经被禁用，请联系管理员启用该账号。";
                         }
                         else {
+                            userEntity.UserName = temp.StoreCode;
                             helper.Execute($@"update [User] set LastLoginTime='{DateTime.Now}' where Phone='{userEntity.Phone}'");
                         }
                     }
