@@ -130,11 +130,13 @@ namespace Mic.Repository.Repositories
         public List<SongBookEntity> GetSongListByPlayListStr(string listContent, string storeCode)
         {
             string[] arr = listContent.Split(',');
-            StringBuilder sb = new StringBuilder("(");
+            StringBuilder sb = new StringBuilder("a.SongId in (");
+            List<string> tempList = new List<string>();
             foreach (var item in arr)
             {
                 if (!string.IsNullOrWhiteSpace(item))
                 {
+                    tempList.Add(item);
                     sb.Append(item).Append(",");
                 }
             }
@@ -143,9 +145,13 @@ namespace Mic.Repository.Repositories
             whereIn = whereIn.Substring(0, length - 1);
             whereIn += ")";
 
+            if (tempList.Count == 0)
+            {
+                whereIn = string.Empty;
+            }
             string sql = $@"select d.*,e.SingerName,e.SongLength,e.SongMark from (select a.SongId, b.SongName, Sum(BroadcastTime) as TotalPlayTime,count(1) as PlayTimes 
  from [dbo].[SongPlayRecord] a  left join SongBook b
-on a.SongId = b.Id where  a.SongId in {whereIn}
+on a.SongId = b.Id where   {whereIn}
  group by a.SongId,b.SongName) as d  left join SongBook e on d.SongId=e.Id";
             return helper.Query<SongBookEntity>(sql).ToList();
 

@@ -59,29 +59,33 @@ namespace Mic.Repository.Repositories
             // 获取歌单 只获取最后增加的一个歌单
             var listContent = helper.QueryScalar($@"select ListContent from PlayList where StoreId={storeId} and IsPublish={1} order by Id desc");
             string[] arr = listContent.ToString().Split(',');
-            StringBuilder sb = new StringBuilder(" (");
+            StringBuilder sb = new StringBuilder("and d.Id in (");
             List<int> tempList = new List<int>();
             foreach (var item in arr)
             {
-                if (string.IsNullOrWhiteSpace(item))
+                if (!string.IsNullOrWhiteSpace(item))
                 {
                     tempList.Add(Convert.ToInt32(item));
                     sb.Append(item).Append(",");
                 }
             }
 
-            string resultSql = sb.ToString();
-            int length = resultSql.Length;
-            resultSql = resultSql.Substring(0, length - 1);
-            resultSql += ");";
+            string whereIn = sb.ToString();
+            int length = whereIn.Length;
+            whereIn = whereIn.Substring(0, length - 1);
+            whereIn += ")";
 
+            if (tempList.Count == 0)
+            {
+                whereIn = string.Empty;
+            }
             string likeSql = string.IsNullOrWhiteSpace(param.Keyword) ? string.Empty : $@" and (d.SingerName like '%{param.Keyword}%'  or d.SongName like '%{param.Keyword}%')";
             string sql = string.Format(@"
                 select top {0} * from (select row_number() over(order by {4} d.UploadTime desc) as rownumber, 
 * from SongBook d left join (select COUNT(a.Id) as PlayTimes , Sum(b.BroadcastTime) as TotalPlayTime ,a.Id as tempId
 from SongPlayRecord b left join  SongBook a  on a.Id = b.SongId    where a.Status=1 and a.AuditStatus=2 
-group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2 and d.Id in {3}  {2}) temp_row
-                    where temp_row.rownumber>(({1}-1)*{0});", param.PageSize, param.PageIndex, likeSql, resultSql,
+group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {2}) temp_row
+                    where temp_row.rownumber>(({1}-1)*{0});", param.PageSize, param.PageIndex, likeSql, whereIn,
                                 string.IsNullOrWhiteSpace(param.OrderField) ? string.Empty : ("c." + param.OrderField + " " + param.OrderType + ","));
 
             return Tuple.Create(true, string.Empty, new PagedResult<SongInfoParam>
@@ -109,30 +113,45 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2 and d.I
             }
 
             var listContent = helper.QueryScalar($@"select PlayListStr  from StoreDetailInfo where UserId={user.Id}");
+            if (listContent == null)
+            {
+                return Tuple.Create(true, string.Empty, new PagedResult<SongInfoParam>
+                {
+                    Page = param.PageIndex,
+                    PageSize = param.PageSize,
+                    Results = null,
+                    Total = 0
+                });
+            }
+
             string[] arr = listContent.ToString().Split(',');
-            StringBuilder sb = new StringBuilder(" (");
+            StringBuilder sb = new StringBuilder("and d.Id in (");
             List<int> tempList = new List<int>();
             foreach (var item in arr)
             {
-                if (string.IsNullOrWhiteSpace(item))
+                if (!string.IsNullOrWhiteSpace(item))
                 {
                     tempList.Add(Convert.ToInt32(item));
                     sb.Append(item).Append(",");
                 }
             }
 
-            string resultSql = sb.ToString();
-            int length = resultSql.Length;
-            resultSql = resultSql.Substring(0, length - 1);
-            resultSql += ");";
+            string whereIn = sb.ToString();
+            int length = whereIn.Length;
+            whereIn = whereIn.Substring(0, length - 1);
+            whereIn += ")";
+            if (tempList.Count==0)
+            {
+                whereIn = string.Empty;
+            }
 
             string likeSql = string.IsNullOrWhiteSpace(param.Keyword) ? string.Empty : $@" and (d.SingerName like '%{param.Keyword}%'  or d.SongName like '%{param.Keyword}%')";
             string sql = string.Format(@"
                 select top {0} * from (select row_number() over(order by {4} d.UploadTime desc) as rownumber, 
 * from SongBook d left join (select COUNT(a.Id) as PlayTimes , Sum(b.BroadcastTime) as TotalPlayTime ,a.Id as tempId
 from SongPlayRecord b left join  SongBook a  on a.Id = b.SongId    where a.Status=1 and a.AuditStatus=2 
-group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2 and d.Id in {3}  {2}) temp_row
-                    where temp_row.rownumber>(({1}-1)*{0});", param.PageSize, param.PageIndex, likeSql, resultSql,
+group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {2}) temp_row
+                    where temp_row.rownumber>(({1}-1)*{0});", param.PageSize, param.PageIndex, likeSql, whereIn,
                                 string.IsNullOrWhiteSpace(param.OrderField) ? string.Empty : ("c." + param.OrderField + " " + param.OrderType + ","));
 
             return Tuple.Create(true, string.Empty, new PagedResult<SongInfoParam>
@@ -154,15 +173,18 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2 and d.I
 
             UserEntity user = helper.Query<UserEntity>($@"select a.* from [User] a left join [UserAccessToken] b on a.Id=b.UserId where b.TokenId='{token}'").FirstOrDefault();
 
+            string temp = string.Empty;
             //先获取我的播放列表
-            var playListStr = helper.QueryScalar($@"select PlayListStr from StoreDetailInfo where UserId={user.Id}").ToString();
-            if (string.IsNullOrWhiteSpace(playListStr))// 直接将歌曲添加到列表
+            var playListStr = helper.QueryScalar($@"select PlayListStr from StoreDetailInfo where UserId={user.Id}");
+
+            if (playListStr == null || string.IsNullOrWhiteSpace(playListStr.ToString()))// 直接将歌曲添加到列表
             {
-                playListStr += ("," + songId);
+                temp += ("," + songId);
             }
             else//判断该歌曲是否已经在歌单中
             {
-                string[] playListArr = playListStr.Split(',');
+                temp = playListStr.ToString();
+                string[] playListArr = playListStr.ToString().Split(',');
                 List<int> tempList = new List<int>();
                 foreach (var item in playListArr)
                 {
@@ -177,11 +199,11 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2 and d.I
                 }
                 else
                 {
-                    playListStr += ("," + songId);
+                    temp += ("," + songId);
                 }
             }
             //更新用户播放列表
-            var result = helper.Execute($@"update StoreDetailInfo set PlayListStr='{playListStr}' where UserId={user.Id}");
+            var result = helper.Execute($@"update StoreDetailInfo set PlayListStr='{temp}' where UserId={user.Id}");
             return Tuple.Create(result > 0 ? true : false, string.Empty);
         }
 
@@ -197,18 +219,18 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2 and d.I
             UserEntity user = helper.Query<UserEntity>($@"select a.* from [User] a left join [UserAccessToken] b on a.Id=b.UserId where b.TokenId='{token}'").FirstOrDefault();
 
             //先获取我的播放列表
-            var playListStr = helper.QueryScalar($@"select PlayListStr from StoreDetailInfo where UserId={user.Id}").ToString();
-            if (string.IsNullOrWhiteSpace(playListStr))// 直接将歌曲添加到列表
+            var playListStr = helper.QueryScalar($@"select PlayListStr from StoreDetailInfo where UserId={user.Id}");
+            if (playListStr == null || string.IsNullOrWhiteSpace(playListStr.ToString()))
             {
-                playListStr += ("," + songId);
+                return Tuple.Create(false,"当前没有歌曲");
             }
-            else//判断该歌曲是否已经在歌单中
+            else
             {
-                string[] playListArr = playListStr.Split(',');
+                string[] playListArr = playListStr.ToString().Split(',');
                 List<int> tempList = new List<int>();
                 foreach (var item in playListArr)
                 {
-                    if (string.IsNullOrWhiteSpace(item))
+                    if (!string.IsNullOrWhiteSpace(item))
                     {
                         tempList.Add(Convert.ToInt32(item));
                     }
@@ -322,27 +344,32 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2 and d.I
             var listContent = helper.QueryScalar($@"select ListContent from [PlayList] where Id={id}");
 
             string[] arr = listContent.ToString().Split(',');
-            StringBuilder sb = new StringBuilder(" (");
+            StringBuilder sb = new StringBuilder("a.SongId in (");
+            List<string> tempList = new List<string>();
             foreach (var item in arr)
             {
                 if (!string.IsNullOrWhiteSpace(item))
                 {
                     sb.Append(item).Append(",");
+                    tempList.Add(item);
                 }
             }
             string whereIn = sb.ToString();
             int length = whereIn.Length;
             whereIn = whereIn.Substring(0, length - 1);
             whereIn += ")";
-
+            if (tempList.Count == 0)
+            {
+                whereIn = string.Empty;
+            }
 
             string sql = $@"select d.*,e.SingerName,e.SongLength,e.SongMark from (select a.SongId, b.SongName, Sum(BroadcastTime) as TotalPlayTime,count(1) as PlayTimes 
  from [dbo].[SongPlayRecord] a  left join SongBook b
-on a.SongId = b.Id where  a.SongId in {whereIn}
+on a.SongId = b.Id where   {whereIn}
  group by a.SongId,b.SongName) as d  left join SongBook e on d.SongId=e.Id";
             //return helper.Query<StorePlaySongEntity>(sql).ToList();
 
-            return helper.Query<SongInfoParam>(whereIn).ToList();
+            return helper.Query<SongInfoParam>(sql).ToList();
 
         }
     }
