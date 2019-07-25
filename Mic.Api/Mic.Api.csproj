@@ -111,6 +111,7 @@
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\SongPlayController.cs" />
+    <Compile Include="Controllers\SongSheetController.cs" />
     <Compile Include="Controllers\StoreSatffController.cs" />
     <Compile Include="Provider\MultipartFormDataMemoryStreamProvider.cs" />
     <Compile Include="Common\SmsSingleSenderHelper.cs" />

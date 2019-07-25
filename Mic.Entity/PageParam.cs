@@ -33,4 +33,12 @@ namespace Mic.Repository
         public DateTime EndDate { get; set; }
 
     }
+
+
+    public class SonSongSheetListPageParam
+    {
+        public int PageIndex { get; set; }
+        public int PageSize { get; set; }
+        public string StoreCode { get; set; }
+    }
 }

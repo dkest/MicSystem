@@ -46,9 +46,11 @@
     <Compile Include="Admin.cs" />
     <Compile Include="Api\Param\FileInfo.cs" />
     <Compile Include="Api\Param\SongInfoParam.cs" />
+    <Compile Include="Api\Param\SonSongSheetParam.cs" />
     <Compile Include="Api\Param\SonStoreInfoParam.cs" />
     <Compile Include="Api\Param\StoreInfoParam.cs" />
     <Compile Include="Api\Param\StoreStaffParam.cs" />
+    <Compile Include="Api\Param\SonStoreParam.cs" />
     <Compile Include="Api\Param\UserParam.cs" />
     <Compile Include="Api\Param\RegisterParam.cs" />
     <Compile Include="CityEntity.cs" />
