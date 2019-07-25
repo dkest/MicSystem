@@ -80,7 +80,7 @@ values ({id},'{staff.StaffName}',{1},'{DateTime.Now}')";
             {
                 password = Util.MD5Encrypt(staff.Password);
             }
-            helper.Execute($@"update StoreDetailInfo set StoreName='{staff.StaffName}'");
+            helper.Execute($@"update StoreDetailInfo set StoreName='{staff.StaffName}' where UserId={staff.Id}");
             string sql = $@"update [User] set StaffName='{staff.StaffName}',Phone='{staff.Phone}',Password='{password}',
 StoreManage='{staff.StoreManage}',SongManage='{staff.SongManage}',UserManage='{staff.UserManage}' where Id={staff.Id}";
             return Tuple.Create(helper.Execute(sql) > 0 ? true : false, string.Empty);

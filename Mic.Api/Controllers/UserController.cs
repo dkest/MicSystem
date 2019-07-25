@@ -1,4 +1,5 @@
 ﻿using Mic.Api.Common;
+using Mic.Api.Filter;
 using Mic.Api.Models;
 using Mic.Entity;
 using Mic.Repository;
@@ -195,11 +196,12 @@ namespace Mic.Api.Controllers
         }
 
         /// <summary>
-        /// 更新用户密码
+        /// 更新用户密码[AUTH]
         /// </summary>
         /// <param name="userParam"></param>
         /// <returns></returns>
         [HttpPost, Route("updatePassword")]
+        [AccessTokenAuthorize]
         public ResponseResultDto<bool> UpdateUserPassword(UserParam userParam)
         {
             if (userParam == null || string.IsNullOrWhiteSpace(userParam.Phone) || string.IsNullOrWhiteSpace(userParam.Password))

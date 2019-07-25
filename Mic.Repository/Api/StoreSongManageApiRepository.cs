@@ -58,6 +58,10 @@ namespace Mic.Repository.Repositories
             }
             // 获取歌单 只获取最后增加的一个歌单
             var listContent = helper.QueryScalar($@"select ListContent from PlayList where StoreId={storeId} and IsPublish={1} order by Id desc");
+            if (listContent == null || string.IsNullOrWhiteSpace(listContent.ToString()))
+            {
+                return Tuple.Create(true, "没有歌单", new PagedResult<SongInfoParam>());
+            }
             string[] arr = listContent.ToString().Split(',');
             StringBuilder sb = new StringBuilder("and d.Id in (");
             List<int> tempList = new List<int>();
@@ -78,6 +82,7 @@ namespace Mic.Repository.Repositories
             if (tempList.Count == 0)
             {
                 whereIn = string.Empty;
+                return Tuple.Create(true, "没有歌单", new PagedResult<SongInfoParam>());
             }
             string likeSql = string.IsNullOrWhiteSpace(param.Keyword) ? string.Empty : $@" and (d.SingerName like '%{param.Keyword}%'  or d.SongName like '%{param.Keyword}%')";
             string sql = string.Format(@"
@@ -113,9 +118,9 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
             }
 
             var listContent = helper.QueryScalar($@"select PlayListStr  from StoreDetailInfo where UserId={user.Id}");
-            if (listContent == null)
+            if (listContent == null || string.IsNullOrWhiteSpace(listContent.ToString()))
             {
-                return Tuple.Create(true, string.Empty, new PagedResult<SongInfoParam>
+                return Tuple.Create(true, "播放列表为空", new PagedResult<SongInfoParam>
                 {
                     Page = param.PageIndex,
                     PageSize = param.PageSize,
@@ -140,9 +145,16 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
             int length = whereIn.Length;
             whereIn = whereIn.Substring(0, length - 1);
             whereIn += ")";
-            if (tempList.Count==0)
+            if (tempList.Count == 0)
             {
                 whereIn = string.Empty;
+                return Tuple.Create(true, "播放列表为空", new PagedResult<SongInfoParam>
+                {
+                    Page = param.PageIndex,
+                    PageSize = param.PageSize,
+                    Results = null,
+                    Total = 0
+                });
             }
 
             string likeSql = string.IsNullOrWhiteSpace(param.Keyword) ? string.Empty : $@" and (d.SingerName like '%{param.Keyword}%'  or d.SongName like '%{param.Keyword}%')";
@@ -188,7 +200,7 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
                 List<int> tempList = new List<int>();
                 foreach (var item in playListArr)
                 {
-                    if (string.IsNullOrWhiteSpace(item))
+                    if (!string.IsNullOrWhiteSpace(item))
                     {
                         tempList.Add(Convert.ToInt32(item));
                     }
@@ -222,7 +234,7 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
             var playListStr = helper.QueryScalar($@"select PlayListStr from StoreDetailInfo where UserId={user.Id}");
             if (playListStr == null || string.IsNullOrWhiteSpace(playListStr.ToString()))
             {
-                return Tuple.Create(false,"当前没有歌曲");
+                return Tuple.Create(false, "当前没有歌曲");
             }
             else
             {
@@ -289,7 +301,7 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
             var p = new DynamicParameters();
             p.Add("@Id", dbType: DbType.Int32, direction: ParameterDirection.Output);
             var result = helper.Execute($@"insert into SongPlayRecord (SongId,PlayUserId,BeginPlayTime,BroadcastTime,StoreCode) values 
-({songId},{playUserId},'{DateTime.Now}'{0},'{storeCode}');SELECT @Id=SCOPE_IDENTITY()", p);
+({songId},{playUserId},'{DateTime.Now}',{0},'{storeCode}');SELECT @Id=SCOPE_IDENTITY()", p);
             var recordId = p.Get<int>("@Id");
             return Tuple.Create(true, string.Empty, recordId);
 
