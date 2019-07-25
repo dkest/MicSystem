@@ -66,13 +66,13 @@ namespace Mic.Api.Controllers
         /// <returns></returns>
         [HttpPost, Route("add")]
         [AccessTokenAuthorize]
-        public ResponseResultDto<bool> AddSongSheet(PlayListEntity songSheet)
+        public ResponseResultDto<int> AddSongSheet(PlayListEntity songSheet)
         {
-            return new ResponseResultDto<bool>
+            return new ResponseResultDto<int>
             {
                 IsSuccess = true,
                 ErrorMessage = string.Empty,
-                Result = true
+                Result = 0 //返回新添加的歌单的Id，便于直接查看歌单详情
             };
         }
 
@@ -119,15 +119,34 @@ namespace Mic.Api.Controllers
         /// <returns></returns>
         [HttpPost, Route("copy/{songSheetId:int}/{songSheetName}/{storeId:int}")]
         [AccessTokenAuthorize]
-        public ResponseResultDto<bool> CopySongSheet(int songSheetId, string songSheetName, int storeId)
+        public ResponseResultDto<int> CopySongSheet(int songSheetId, string songSheetName, int storeId)
         {
-            return new ResponseResultDto<bool>
+            return new ResponseResultDto<int>
             {
                 IsSuccess = true,
                 ErrorMessage = string.Empty,
-                Result = true
+                Result = 0 //返回新添加的歌单的Id，便于直接查看歌单详情
             };
         }
+
+        /// <summary>
+        /// 根据分店Id，获取分店的歌单基本信息[AUTH]
+        /// </summary>
+        /// <param name="storeId">分店或商家Id</param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        [HttpPost, Route("getSongSheetInfo/{storeId:int}")]
+        [AccessTokenAuthorize]
+        public ResponseResultDto<SonSongSheetParam> GetSongSheetInfoByStoreId(int storeId, PageParam param)
+        {
+            return new ResponseResultDto<SonSongSheetParam>
+            {
+                IsSuccess = true,
+                ErrorMessage = string.Empty,
+                Result = null
+            };
+        }
+
         /// <summary>
         /// 根据分店Id，获取分店的歌单中的歌曲列表[AUTH]
         /// </summary>
