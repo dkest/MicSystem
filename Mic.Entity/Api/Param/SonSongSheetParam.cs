@@ -6,7 +6,7 @@ namespace Mic.Entity
     {
         public int Id { get; set; }
         public string ListName { get; set; } //歌单名称
-
+        public string ListContent { get; set; }
         public int StoreId { get; set; } //歌单所属商家Id或分店Id
         public string StoreName { get; set; } //分店名称
         public string StoreCode { get; set; }//歌单所属商家编码

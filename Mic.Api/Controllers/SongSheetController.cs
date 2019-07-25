@@ -26,7 +26,7 @@ namespace Mic.Api.Controllers
         }
 
         /// <summary>
-        /// 获取商家所有分店，HasSongSheet=true，则有个歌单无法选择[AUTH]
+        /// 获取商家所有分店，HasSongSheet=true，说明有歌单[AUTH]
         /// </summary>
         /// <param name="storeCode">商家编码</param>
         /// <returns></returns>
@@ -34,11 +34,12 @@ namespace Mic.Api.Controllers
         [AccessTokenAuthorize]
         public ResponseResultDto<List<SonStoreParam>> GetSonStoreList(string storeCode)
         {
+            var result = songSheetApiRepository.GetSonStoreList(storeCode);
             return new ResponseResultDto<List<SonStoreParam>>
             {
                 IsSuccess = true,
                 ErrorMessage = String.Empty,
-                Result = null
+                Result = result
             };
         }
 
@@ -49,13 +50,14 @@ namespace Mic.Api.Controllers
         /// <returns></returns>
         [HttpPost, Route("getSonSongSheetList")]
         [AccessTokenAuthorize]
-        public ResponseResultDto<List<SonSongSheetParam>> GetSonSongSheetList(SonSongSheetListPageParam param)
+        public ResponseResultDto<PagedResult<SonSongSheetParam>> GetSonStoreSongSheetList(SonSongSheetListPageParam param)
         {
-            return new ResponseResultDto<List<SonSongSheetParam>>
+            var result = songSheetApiRepository.GetSonStoreSongSheetList(param);
+            return new ResponseResultDto<PagedResult<SonSongSheetParam>>
             {
                 IsSuccess = true,
                 ErrorMessage = String.Empty,
-                Result = null
+                Result = result
             };
         }
 
@@ -63,16 +65,17 @@ namespace Mic.Api.Controllers
         /// 添加歌单,ListContent(歌曲Id，用逗号分隔)[AUTH]
         /// </summary>
         /// <param name="songSheet"></param>
-        /// <returns></returns>
+        /// <returns>Result是新歌单的Id</returns>
         [HttpPost, Route("add")]
         [AccessTokenAuthorize]
         public ResponseResultDto<int> AddSongSheet(PlayListEntity songSheet)
         {
+            var result = songSheetApiRepository.AddSongSheet(songSheet);
             return new ResponseResultDto<int>
             {
-                IsSuccess = true,
+                IsSuccess = result > 0 ? true : false,
                 ErrorMessage = string.Empty,
-                Result = 0 //返回新添加的歌单的Id，便于直接查看歌单详情
+                Result = result //返回新添加的歌单的Id，便于直接查看歌单详情
             };
         }
 
@@ -85,11 +88,21 @@ namespace Mic.Api.Controllers
         [AccessTokenAuthorize]
         public ResponseResultDto<bool> UpdateSongSheetById(PlayListEntity songSheet)
         {
+            if (songSheet.Id <= 0)
+            {
+                return new ResponseResultDto<bool>
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "参数异常",
+                    Result = false
+                };
+            }
+            var result = songSheetApiRepository.UpdateSongSheetById(songSheet);
             return new ResponseResultDto<bool>
             {
-                IsSuccess = true,
+                IsSuccess = result,
                 ErrorMessage = string.Empty,
-                Result = true
+                Result = result
             };
         }
 
@@ -100,13 +113,14 @@ namespace Mic.Api.Controllers
         /// <returns></returns>
         [HttpPost, Route("delete/{songSheetId:int}")]
         [AccessTokenAuthorize]
-        public ResponseResultDto<bool> UpdateSongSheetById(int songSheetId)
+        public ResponseResultDto<bool> DeleteSongSheetById(int songSheetId)
         {
+            var result = songSheetApiRepository.DeleteSongSheetById(songSheetId);
             return new ResponseResultDto<bool>
             {
-                IsSuccess = true,
+                IsSuccess = result,
                 ErrorMessage = string.Empty,
-                Result = true
+                Result = result
             };
         }
 
@@ -121,11 +135,12 @@ namespace Mic.Api.Controllers
         [AccessTokenAuthorize]
         public ResponseResultDto<int> CopySongSheet(int songSheetId, string songSheetName, int storeId)
         {
+            var result = songSheetApiRepository.CopySongSheet(songSheetId, songSheetName, storeId);
             return new ResponseResultDto<int>
             {
-                IsSuccess = true,
-                ErrorMessage = string.Empty,
-                Result = 0 //返回新添加的歌单的Id，便于直接查看歌单详情
+                IsSuccess = result.Item1,
+                ErrorMessage = result.Item2,
+                Result = result.Item3 //返回新添加的歌单的Id，便于直接查看歌单详情
             };
         }
 
@@ -133,17 +148,18 @@ namespace Mic.Api.Controllers
         /// 根据分店Id，获取分店的歌单基本信息[AUTH]
         /// </summary>
         /// <param name="storeId">分店或商家Id</param>
-        /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost, Route("getSongSheetInfo/{storeId:int}")]
         [AccessTokenAuthorize]
-        public ResponseResultDto<SonSongSheetParam> GetSongSheetInfoByStoreId(int storeId, PageParam param)
+        public ResponseResultDto<SonSongSheetParam> GetSongSheetInfoByStoreId(int storeId)
         {
+            var result = songSheetApiRepository.GetSongSheetInfoByStoreId(storeId);
+
             return new ResponseResultDto<SonSongSheetParam>
             {
-                IsSuccess = true,
+                IsSuccess = result == null ? false : true,
                 ErrorMessage = string.Empty,
-                Result = null
+                Result = result
             };
         }
 
