@@ -11,23 +11,23 @@ namespace Mic.Entity
         public string SingerNameForStore { get; set; }
         public int SingerTypeId { get; set; }
         public string SingerTypeName { get; set; }
-        public string HeadImg { get; set; }
+        public new string HeadImg { get; set; }
         public string HeadImgFullPath { get {
-                return "http://152.136.227.143" + HeadImg;
+                return WebConfig.RootUrl + HeadImg;
             } }
         public string IdCardNo { get; set; }
         public string IdCardFront { get; set; }
         public string IdCardFrontFullPath
         {
             get {
-                return "http://152.136.227.143" + IdCardFront;
+                return WebConfig.RootUrl + IdCardFront;
             }
         }
         public string IdCardBack { get; set; }
         public string IdCardBackFullPath
         {
             get {
-                return "http://152.136.227.143" + IdCardBack;
+                return WebConfig.RootUrl + IdCardBack;
             }
         }
         public string Introduce { get; set; }

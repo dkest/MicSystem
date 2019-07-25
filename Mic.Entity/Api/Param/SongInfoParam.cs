@@ -13,7 +13,7 @@ namespace Mic.Entity
         public string SongPath { get; set; }//歌曲文件在服务器的路径
         public string FullSongPath
         {
-            get { return "http://152.136.227.143" + SongPath; }
+            get { return WebConfig.RootUrl + SongPath; }
         }
         public int PlayTimes { get; set; } //累计播放次数
         public int TotalPlayTime { get; set; }//累计播放时长

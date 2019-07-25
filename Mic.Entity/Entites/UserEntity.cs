@@ -21,7 +21,7 @@ namespace Mic.Entity
         public string FullHeadImg
         {
             get {
-                return "http://152.136.227.143" + HeadImg;
+                return WebConfig.RootUrl + HeadImg;
             }
         }
 

@@ -34,6 +34,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -42,8 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccessToken.cs" />
-    <Compile Include="Admin.cs" />
+    <Compile Include="Entites\AccessToken.cs" />
+    <Compile Include="Entites\Admin.cs" />
     <Compile Include="Api\Param\FileInfo.cs" />
     <Compile Include="Api\Param\SongInfoParam.cs" />
     <Compile Include="Api\Param\SonSongSheetParam.cs" />
@@ -53,27 +54,28 @@
     <Compile Include="Api\Param\SonStoreParam.cs" />
     <Compile Include="Api\Param\UserParam.cs" />
     <Compile Include="Api\Param\RegisterParam.cs" />
-    <Compile Include="CityEntity.cs" />
-    <Compile Include="IEntity.cs" />
+    <Compile Include="Entites\CityEntity.cs" />
+    <Compile Include="Entites\IEntity.cs" />
     <Compile Include="Model\StoreStatisticsEntity.cs" />
-    <Compile Include="PagedResult.cs" />
-    <Compile Include="PageParam.cs" />
-    <Compile Include="ParamEntity.cs" />
-    <Compile Include="PlayListEntity.cs" />
-    <Compile Include="ResponseResult.cs" />
-    <Compile Include="SingerDetailInfoEntity.cs" />
-    <Compile Include="SingerTypeEntity.cs" />
-    <Compile Include="SmsRecord.cs" />
-    <Compile Include="SongOptDetail.cs" />
-    <Compile Include="SongBookEntity.cs" />
-    <Compile Include="SongMarkEntity.cs" />
-    <Compile Include="SongPlayRecordEntity.cs" />
-    <Compile Include="StoreDetailInfoEntity.cs" />
-    <Compile Include="StoreSongListEntity.cs" />
-    <Compile Include="StoreTypeEntity.cs" />
-    <Compile Include="SysNoticeEntity.cs" />
+    <Compile Include="Entites\PagedResult.cs" />
+    <Compile Include="Entites\PageParam.cs" />
+    <Compile Include="Entites\ParamEntity.cs" />
+    <Compile Include="Entites\PlayListEntity.cs" />
+    <Compile Include="Entites\ResponseResult.cs" />
+    <Compile Include="Entites\SingerDetailInfoEntity.cs" />
+    <Compile Include="Entites\SingerTypeEntity.cs" />
+    <Compile Include="Entites\SmsRecord.cs" />
+    <Compile Include="Entites\SongOptDetail.cs" />
+    <Compile Include="Entites\SongBookEntity.cs" />
+    <Compile Include="Entites\SongMarkEntity.cs" />
+    <Compile Include="Entites\SongPlayRecordEntity.cs" />
+    <Compile Include="Entites\StoreDetailInfoEntity.cs" />
+    <Compile Include="Entites\StoreSongListEntity.cs" />
+    <Compile Include="Entites\StoreTypeEntity.cs" />
+    <Compile Include="Entites\SysNoticeEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UserEntity.cs" />
+    <Compile Include="Entites\UserEntity.cs" />
+    <Compile Include="WebConfig.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

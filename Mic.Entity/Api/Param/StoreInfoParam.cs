@@ -17,12 +17,12 @@ namespace Mic.Entity
         public string LegalPersonIdCardF { get; set; } //企业法人身份证正面路径
         public string FullLegalPersonIdCardF
         {
-            get { return "http://152.136.227.143" + LegalPersonIdCardF; }
+            get { return WebConfig.RootUrl + LegalPersonIdCardF; }
         }
         public string LegalPersonIdCardB { get; set; } //企业法人身份证反面路径
         public string FullLegalPersonIdCardB
         {
-            get { return "http://152.136.227.143" + LegalPersonIdCardB; }
+            get { return WebConfig.RootUrl + LegalPersonIdCardB; }
         }
 
         public int Province { get; set; }

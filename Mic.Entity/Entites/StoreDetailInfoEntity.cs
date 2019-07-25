@@ -31,7 +31,7 @@ namespace Mic.Entity
         public string DelegatingContract { get; set; } //授权合同文件路径
         public string FullDelegatingContractPath
         {
-            get { return "http://152.136.227.143" + DelegatingContract; }
+            get { return WebConfig.RootUrl + DelegatingContract; }
         }
         public DateTime CreateTime { get; set; }
         public bool Enabled { get; set; }

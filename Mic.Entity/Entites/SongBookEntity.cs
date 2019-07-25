@@ -15,13 +15,13 @@ namespace Mic.Entity
         public string SongLength { get; set; } //歌曲时长，00:03:26
         public DateTime ExpirationTime { get; set; } // 版权到期时间
         public string CopyrightFilePath { get; set; } //版权到期证明
-        public string FullCopyrightFilePath { get { return "http://152.136.227.143" + CopyrightFilePath; } }
+        public string FullCopyrightFilePath { get { return   WebConfig.RootUrl + CopyrightFilePath; } }
         public int PlayTimes { get; set; } // 播放次数
         public string SongMark { get; set; } //关联歌曲标签表Id，多个标签用逗号分割开
         public string SongPath { get; set; }//歌曲文件在服务器的路径
         public string FullSongPath
         {
-            get { return "http://152.136.227.143" + SongPath; }
+            get { return WebConfig.RootUrl + SongPath; }
         }
         public int SongSize { get; set; } //歌曲文件大小
         public string SongBPM { get; set; } //歌曲BPM
