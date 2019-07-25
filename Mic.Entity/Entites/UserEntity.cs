@@ -24,7 +24,7 @@ namespace Mic.Entity
                 return WebConfig.RootUrl + HeadImg;
             }
         }
-
+        public bool Enable { get; set; }
         public string AccessToken { get; set; } = string.Empty;
     }
 }

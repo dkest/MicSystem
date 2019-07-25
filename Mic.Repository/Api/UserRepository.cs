@@ -107,14 +107,20 @@ values ({userId},'{DateTime.Now}',{1},'{storeInfo.StoreName}',{storeInfo.Provinc
             else
             {
                 userEntity = helper.Query<UserEntity>($@"select * from [User] where Phone='{user.Phone}' and 
-password='{Util.MD5Encrypt(user.Password)}' and Status=1 and Enable=1").FirstOrDefault();
+password='{Util.MD5Encrypt(user.Password)}' and Status=1").FirstOrDefault();
                 if (userEntity == null)
                 {
-                    isSuccess = false;
-                    retMsg = "密码不正确或该账号不可用";
+                    //isSuccess = false;
+                    //retMsg = "密码不正确";
+                    return Tuple.Create(false, "密码不正确", new UserEntity());
                 }
                 else
                 {
+                    if (!userEntity.Enable)
+                    {
+                        return Tuple.Create(false, "该账号不可用", new UserEntity());
+                    }
+
                     if (userEntity.UserType == 1)
                     {
                         var temp = helper.Query<SingerDetailInfoEntity>($@"select SingerName,HeadImg, Enabled from SingerDetailInfo where UserId={userEntity.Id}").FirstOrDefault();
@@ -126,7 +132,8 @@ password='{Util.MD5Encrypt(user.Password)}' and Status=1 and Enable=1").FirstOrD
                             isSuccess = false;
                             retMsg = "当前账号已经被禁用，请联系管理员启用该账号。";
                         }
-                        else {//登陆成功
+                        else
+                        {//登陆成功
                             userEntity.UserName = temp.SingerName;
                             helper.Execute($@"update [User] set LastLoginTime='{DateTime.Now}' where Phone='{userEntity.Phone}'");
                         }
@@ -134,13 +141,14 @@ password='{Util.MD5Encrypt(user.Password)}' and Status=1 and Enable=1").FirstOrD
                     else //商家或者分店
                     {
                         var temp = helper.Query<StoreDetailInfoEntity>($@"select StoreName, Enabled from StoreDetailInfo where UserId={userEntity.Id}").FirstOrDefault();
-                        if (temp ==null || !Convert.ToBoolean(temp.Enabled))
+                        if (temp == null || !Convert.ToBoolean(temp.Enabled))
                         {
                             userEntity = null;
                             isSuccess = false;
                             retMsg = "当前账号已经被禁用，请联系管理员启用该账号。";
                         }
-                        else {
+                        else
+                        {
                             userEntity.UserName = temp.StoreName;
                             helper.Execute($@"update [User] set LastLoginTime='{DateTime.Now}' where Phone='{userEntity.Phone}'");
                         }
