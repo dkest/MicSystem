@@ -106,7 +106,7 @@ namespace Mic.Api.Controllers
         }
 
         /// <summary>
-        /// 播放歌曲，返回播放记录Id，用于更新播放时长,如果返回false，前端不能播放歌曲[AUTH]
+        /// 播放歌曲，返回歌曲文件地址和播放记录Id，记录Id用于更新播放时长,如果返回false，前端不能播放歌曲[AUTH]
         /// </summary>
         /// <param name="songId">歌曲Id</param>
         /// <param name="playUserId">播放用户Id</param>
@@ -114,16 +114,21 @@ namespace Mic.Api.Controllers
         /// <returns></returns>
         [HttpPost, Route("playSong/{songId:int}/{playUserId:int}/{storeCode:guid}")]
         [AccessTokenAuthorize]
-        public ResponseResultDto<int> AddPlayRecord(int songId, int playUserId, string storeCode)
+        public ResponseResultDto<PlaySongParam> AddPlayRecord(int songId, int playUserId, string storeCode)
         {
             HttpRequest request = HttpContext.Current.Request;
             string token = request.Headers.GetValues("Access-Token").FirstOrDefault();
             var result = storeSongManageRspository.AddPlayRecord(token, songId, playUserId, storeCode);
-            return new ResponseResultDto<int>
+            return new ResponseResultDto<PlaySongParam>
             {
                 IsSuccess = result.Item1,
                 ErrorMessage = result.Item2,
-                Result = result.Item3
+                Result = new PlaySongParam
+                {
+                    RecordId = result.Item3,
+                    SongId = songId,
+                    SongPath = result.Item4
+                }
             };
         }
 

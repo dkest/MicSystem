@@ -87,7 +87,8 @@ namespace Mic.Repository.Repositories
             string likeSql = string.IsNullOrWhiteSpace(param.Keyword) ? string.Empty : $@" and (d.SingerName like '%{param.Keyword}%'  or d.SongName like '%{param.Keyword}%')";
             string sql = string.Format(@"
                 select top {0} * from (select row_number() over(order by {4} d.UploadTime desc) as rownumber, 
-* from SongBook d left join (select COUNT(a.Id) as PlayTimes , Sum(b.BroadcastTime) as TotalPlayTime ,a.Id as tempId
+d.Id,d.SongName,d.SingerName,d.SingerId,d.SongLength,d.SongMark,d.ExpirationTime,c.*
+from SongBook d left join (select COUNT(a.Id) as PlayTimes , Sum(b.BroadcastTime) as TotalPlayTime ,a.Id as tempId
 from SongPlayRecord b left join  SongBook a  on a.Id = b.SongId    where a.Status=1 and a.AuditStatus=2 
 group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {2}) temp_row
                     where temp_row.rownumber>(({1}-1)*{0});", param.PageSize, param.PageIndex, likeSql, whereIn,
@@ -160,7 +161,8 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
             string likeSql = string.IsNullOrWhiteSpace(param.Keyword) ? string.Empty : $@" and (d.SingerName like '%{param.Keyword}%'  or d.SongName like '%{param.Keyword}%')";
             string sql = string.Format(@"
                 select top {0} * from (select row_number() over(order by {4} d.UploadTime desc) as rownumber, 
-* from SongBook d left join (select COUNT(a.Id) as PlayTimes , Sum(b.BroadcastTime) as TotalPlayTime ,a.Id as tempId
+d.Id,d.SongName,d.SingerName,d.SingerId,d.SongLength,d.SongMark,d.ExpirationTime,c.*
+from SongBook d left join (select COUNT(a.Id) as PlayTimes , Sum(b.BroadcastTime) as TotalPlayTime ,a.Id as tempId
 from SongPlayRecord b left join  SongBook a  on a.Id = b.SongId    where a.Status=1 and a.AuditStatus=2 
 group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {2}) temp_row
                     where temp_row.rownumber>(({1}-1)*{0});", param.PageSize, param.PageIndex, likeSql, whereIn,
@@ -286,16 +288,17 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
         /// <param name="songId"></param>
         /// <param name="storeId"></param>
         /// <returns></returns>
-        public Tuple<bool, string, int> AddPlayRecord(string token, int songId, int playUserId, string storeCode)
+        public Tuple<bool, string, int, string> AddPlayRecord(string token, int songId, int playUserId, string storeCode)
         {
             UserEntity user = helper.Query<UserEntity>($@"select a.* from [User] a left join [UserAccessToken] b on a.Id=b.UserId where b.TokenId='{token}'").FirstOrDefault();
             if (user == null)
             {
                 Tuple.Create(false, "用户还未登录", 0);
             }
+
             if (user.Id != playUserId || user.StoreCode != storeCode)
             {
-                return Tuple.Create(false, "Token 信息和用户Id或商家编码不匹配", 0);
+                return Tuple.Create(false, "Token 信息和用户Id或商家编码不匹配", 0, string.Empty);
             }
 
             var p = new DynamicParameters();
@@ -303,7 +306,21 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
             var result = helper.Execute($@"insert into SongPlayRecord (SongId,PlayUserId,BeginPlayTime,BroadcastTime,StoreCode) values 
 ({songId},{playUserId},'{DateTime.Now}',{0},'{storeCode}');SELECT @Id=SCOPE_IDENTITY()", p);
             var recordId = p.Get<int>("@Id");
-            return Tuple.Create(true, string.Empty, recordId);
+            var song = helper.Query<SongBookEntity>($@"select * from SongBook where Id={songId}").FirstOrDefault();
+            if (song == null || string.IsNullOrWhiteSpace(song.SongPath.ToString()))
+            {
+                return Tuple.Create(false, "该歌曲未找到", 0, string.Empty);
+            }
+            if (!song.Status)
+            {
+                return Tuple.Create(false, "该歌曲已经被删除", 0, string.Empty);
+            }
+            if (song.ExpirationTime < DateTime.Now)
+            {
+                return Tuple.Create(false, "该歌曲版权已过期", 0, string.Empty);
+            }
+
+            return Tuple.Create(true, string.Empty, recordId, song.SongPath);
 
         }
 

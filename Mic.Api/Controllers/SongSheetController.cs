@@ -47,7 +47,7 @@ namespace Mic.Api.Controllers
         }
 
         /// <summary>
-        /// 获取商家分店歌单列表[AUTH]
+        /// 获取商家所有有歌单的分店列表[AUTH]
         /// </summary>
         /// <param name="param">分页参数</param>
         /// <returns></returns>
