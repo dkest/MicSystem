@@ -123,7 +123,7 @@ group by a.StoreCode,b.StoreName ) temp_row
         }
 
 
-        public StoreStatisticsInfoEntity GetStoreStatisticsInfo(int storeId,DateTime beginDate,DateTime endDate)
+        public StoreStatisticsInfoEntity GetStoreStatisticsInfo(int storeId, DateTime beginDate, DateTime endDate)
         {
             string sql = $@" select Sum(BroadcastTime) as PlayTime,count(1) as PlayCount from [dbo].[SongPlayRecord] 
 where BeginPlayTime >= '{beginDate}' and BeginPlayTime <= '{endDate.AddDays(1).AddSeconds(-1)}' and PlayUserId= {storeId}";
@@ -135,7 +135,7 @@ where BeginPlayTime >= '{beginDate}' and BeginPlayTime <= '{endDate.AddDays(1).A
         /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>
-        public List<StorePlaySongEntity> GetStorePlaySongList(StorePlaySongPageParam param)
+        public Tuple<int, List<StorePlaySongEntity>> GetStorePlaySongList(StorePlaySongPageParam param)
         {
             string order = string.Empty;
             switch (param.OrderField)
@@ -152,7 +152,10 @@ where BeginPlayTime >= '{beginDate}' and BeginPlayTime <= '{endDate.AddDays(1).A
 on a.SongId = b.Id where a.BeginPlayTime >= '{param.BeginDate}' and  a.BeginPlayTime <='{param.EndDate}' and StoreCode='{param.StoreCode}'
  group by a.SongId,b.SongName   ) temp_row
                     where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize}) ;";
-            return helper.Query<StorePlaySongEntity>(sql).ToList();
+            var count = helper.QueryScalar($@"select Count(1)  from [dbo].[SongPlayRecord] a  left join SongBook b
+on a.SongId = b.Id where a.BeginPlayTime >= '{param.BeginDate}' and  a.BeginPlayTime <='{param.EndDate}' and StoreCode='{param.StoreCode}'
+ group by a.SongId,b.SongName ");
+            return Tuple.Create(Convert.ToInt32(count), helper.Query<StorePlaySongEntity>(sql).ToList());
         }
     }
 }

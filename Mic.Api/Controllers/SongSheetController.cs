@@ -3,6 +3,7 @@ using Mic.Api.Models;
 using Mic.Entity;
 using Mic.Repository;
 using Mic.Repository.Api;
+using Mic.Repository.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,9 +21,11 @@ namespace Mic.Api.Controllers
     {
 
         private SongSheetApiRepository songSheetApiRepository;
+        private TokenRepository tokenRepository;
         public SongSheetController()
         {
             songSheetApiRepository = ClassInstance<SongSheetApiRepository>.Instance;
+            tokenRepository = ClassInstance<TokenRepository>.Instance;
         }
 
         /// <summary>
@@ -173,11 +176,12 @@ namespace Mic.Api.Controllers
         [AccessTokenAuthorize]
         public ResponseResultDto<PagedResult<SongInfoParam>> GetSongSheetContentListByStoreId(int storeId, PageParam param)
         {
+            var result = songSheetApiRepository.GetSongListByStoreId(storeId, param);
             return new ResponseResultDto<PagedResult<SongInfoParam>>
             {
                 IsSuccess = true,
                 ErrorMessage = string.Empty,
-                Result = null
+                Result = result
             };
         }
 
@@ -191,6 +195,8 @@ namespace Mic.Api.Controllers
         [AccessTokenAuthorize]
         public ResponseResultDto<PagedResult<SongInfoParam>> GetPlayRecordByStoreId(int storeId, PageParam param)
         {
+
+            var result = songSheetApiRepository.GetSongPlayRecordListByStoreId(storeId, param);
             return new ResponseResultDto<PagedResult<SongInfoParam>>
             {
                 IsSuccess = true,

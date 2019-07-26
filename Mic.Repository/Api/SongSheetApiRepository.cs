@@ -140,7 +140,145 @@ left join [User] a on c.StoreId = a.Id left join StoreDetailInfo b on a.Id=b.Use
             return helper.Query<SonSongSheetParam>(sql).FirstOrDefault();
         }
 
+        /// <summary>
+        /// 根据商家或分店Id，分页获取歌单中的歌曲列表
+        /// </summary>
+        /// <param name="storeId"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public PagedResult<SongInfoParam> GetSongListByStoreId(int storeId, PageParam param)
+        {
+            PlayListEntity playListEntity = helper.Query<PlayListEntity>($@"select * from PlayList where StoreId={storeId}").FirstOrDefault();
+            if (playListEntity == null || string.IsNullOrWhiteSpace(playListEntity.ListContent))
+            {
+                return new PagedResult<SongInfoParam>
+                {
+                    Page = param.PageIndex,
+                    PageSize = param.PageSize,
+                    Total = 0,
+                    Results = null
+                };
+            }
 
+            string[] arr = playListEntity.ListContent.Split(',');
+            StringBuilder sb = new StringBuilder("b.Id  in (");
+            List<string> tempList = new List<string>();
+            foreach (var item in arr)
+            {
+                if (!string.IsNullOrWhiteSpace(item))
+                {
+                    tempList.Add(item);
+                    sb.Append(item).Append(",");
+                }
+            }
+            string whereIn = sb.ToString();
+            int length = whereIn.Length;
+            whereIn = whereIn.Substring(0, length - 1);
+            whereIn += ")";
+
+            if (tempList.Count == 0)
+            {
+                whereIn = string.Empty;
+                return new PagedResult<SongInfoParam>
+                {
+                    Page = param.PageIndex,
+                    PageSize = param.PageSize,
+                    Total = 0,
+                    Results = null
+                };
+            }
+            string orderField = string.Empty;
+            switch (param.OrderField)
+            {
+                case "PlayTime":
+                    orderField = "Sum(BroadcastTime)";
+                    break;
+                case "PlaySongCount":
+                    orderField = "count( distinct a.SongId) ";
+                    break;
+                case "PlayCount":
+                    orderField = "count(a.SongId)";
+                    break;
+            }
+
+            string order = string.IsNullOrWhiteSpace(orderField) ? string.Empty : ("c." + orderField + " " + param.OrderType + ",");
+            string sql = $@" select top {param.PageSize} * from (select row_number() over(order by {order} b.Id desc) as rownumber,
+ b.SongLength, b.Id, b.SongName,Sum(BroadcastTime) as PlayTime,count(a.SongId) as PlayCount 
+ from  SongBook b left join SongPlayRecord a  
+on a.SongId = b.Id 
+where  {whereIn}
+ group by b.Id,b.SongName,b.SongLength
+) temp_row
+                    where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize}) ;";
+
+
+            var count = helper.QueryScalar($@"select Count(1)  from  SongBook b left join SongPlayRecord a  
+on a.SongId = b.Id 
+where  {whereIn}
+ group by b.Id,b.SongName,b.SongLength");
+
+            var result = helper.Query<SongInfoParam>(sql).ToList();
+
+            return new PagedResult<SongInfoParam>
+            {
+                Page = param.PageIndex,
+                PageSize = param.PageSize,
+                Total = Convert.ToInt32(count),
+                Results = result
+            };
+        }
+
+
+        /// <summary>
+        /// 获取分店播放记录
+        /// </summary>
+        /// <param name="storeId"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public PagedResult<SongInfoParam> GetSongPlayRecordListByStoreId(int storeId, PageParam param)
+        {
+
+            string orderField = string.Empty;
+            switch (param.OrderField)
+            {
+                case "PlayTime":
+                    orderField = "Sum(BroadcastTime)";
+                    break;
+                case "PlaySongCount":
+                    orderField = "count( distinct a.SongId) ";
+                    break;
+                case "PlayCount":
+                    orderField = "count(a.SongId)";
+                    break;
+            }
+
+            string order = string.IsNullOrWhiteSpace(orderField) ? string.Empty : ("c." + orderField + " " + param.OrderType + ",");
+            string sql = $@" select top {param.PageSize} * from (select row_number() over(order by {order} b.Id desc) as rownumber,
+ b.SongLength, b.Id, b.SongName,b.SingerName,Sum(BroadcastTime) as PlayTime,count(a.SongId) as PlayCount 
+ from  SongPlayRecord a left join   SongBook b
+on a.SongId = b.Id 
+where a.SongId = {storeId}
+ group by b.Id,b.SongName,b.SongLength,b.SingerName
+) temp_row
+                    where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize}) ;";
+
+
+            var count = helper.QueryScalar($@"select Count(1) 
+ from  SongPlayRecord a left join   SongBook b
+on a.SongId = b.Id 
+where a.SongId = {storeId}
+ group by b.Id,b.SongName,b.SongLength,b.SingerName");
+
+            var result = helper.Query<SongInfoParam>(sql).ToList();
+
+            return new PagedResult<SongInfoParam>
+            {
+                Page = param.PageIndex,
+                PageSize = param.PageSize,
+                Total = Convert.ToInt32(count),
+                Results = result
+            };
+        }
 
 
 

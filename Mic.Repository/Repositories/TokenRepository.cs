@@ -37,7 +37,12 @@ values ('{accessToken.TokenId}',{accessToken.UserId},'{accessToken.CreateTime}',
 
         public void RemoveExpired()
         {
-             helper.Query<AccessToken>($@"Delete  from UserAccessToken where ExpireTime<'{DateTime.Now}'").FirstOrDefault();
+            helper.Query<AccessToken>($@"Delete  from UserAccessToken where ExpireTime<'{DateTime.Now}'").FirstOrDefault();
+        }
+
+        public UserEntity GetUserInfoByToken(string token)
+        {
+            return helper.Query<UserEntity>($@"select a.* from [User] a left join [UserAccessToken] b on a.Id=b.UserId where b.TokenId='{token}'").FirstOrDefault();
         }
 
     }

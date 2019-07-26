@@ -199,7 +199,7 @@ namespace Mic.Web.Controllers
                 list.Add(item);
 
             }
-            return Json(new { code = 0, msg = string.Empty, count = result.Count, data = result }, JsonRequestBehavior.AllowGet);
+            return Json(new { code = 0, msg = string.Empty, count = result == null ? 0 : result.Count, data = result }, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult PublishSongList(int playListId)

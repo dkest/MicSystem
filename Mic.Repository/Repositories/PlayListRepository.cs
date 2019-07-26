@@ -148,6 +148,7 @@ namespace Mic.Repository.Repositories
             if (tempList.Count == 0)
             {
                 whereIn = string.Empty;
+                return null;
             }
             string sql = $@"select d.*,e.SingerName,e.SongLength,e.SongMark from (select a.SongId, b.SongName, Sum(BroadcastTime) as TotalPlayTime,count(1) as PlayTimes 
  from [dbo].[SongPlayRecord] a  left join SongBook b
