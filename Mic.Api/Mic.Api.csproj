@@ -113,6 +113,7 @@
     <Compile Include="Controllers\SongPlayController.cs" />
     <Compile Include="Controllers\SongSheetController.cs" />
     <Compile Include="Controllers\StoreSatffController.cs" />
+    <Compile Include="Controllers\SysNoticeController.cs" />
     <Compile Include="Provider\MultipartFormDataMemoryStreamProvider.cs" />
     <Compile Include="Common\SmsSingleSenderHelper.cs" />
     <Compile Include="Common\Util.cs" />
