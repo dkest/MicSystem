@@ -110,6 +110,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\SingAuthController.cs" />
+    <Compile Include="Controllers\SingerSongController.cs" />
     <Compile Include="Controllers\SongPlayController.cs" />
     <Compile Include="Controllers\SongSheetController.cs" />
     <Compile Include="Controllers\StoreSatffController.cs" />

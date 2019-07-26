@@ -17,8 +17,23 @@ namespace Mic.Entity
         //}
         public int PlayTimes { get; set; } //累计播放次数
         public int TotalPlayTime { get; set; }//累计播放时长
-       
+
         public string SongMarkStr { get; set; }//歌曲标签
         public DateTime ExpirationTime { get; set; } // 版权到期时间
+        public DateTime UploadTime { get; set; } //上传时间
+        public int AuditStatus { get; set; } //审核状态
     }
+
+    public class UploadSongParam
+    {
+        public int Id { get; set; }
+        public string SongName { get; set; }
+        public int SingerId { get; set; }
+        public string SongLength { get; set; }
+        public int SongSize { get; set; }
+        public string SongPath { get; set; }
+        public string CopyrightFilePath { get; set; }
+    }
+
+
 }
