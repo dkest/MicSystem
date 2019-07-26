@@ -3,6 +3,7 @@ using Mic.Api.Models;
 using Mic.Entity;
 using Mic.Repository;
 using Mic.Repository.Api;
+using System.Collections.Generic;
 using System.Web.Http;
 
 namespace Mic.Api.Controllers
@@ -114,6 +115,24 @@ namespace Mic.Api.Controllers
         public ResponseResultDto<bool> MarkRead(int noticeId)
         {
             var result = noticeRepository.MarkRead(noticeId);
+            return new ResponseResultDto<bool>
+            {
+                IsSuccess = true,
+                ErrorMessage = string.Empty,
+                Result = result
+            };
+        }
+
+        /// <summary>
+        /// 批量标记为已读[AUTH]
+        /// </summary>
+        /// <param name="noticeIdList">消息通知Idl列表</param>
+        /// <returns></returns>
+        [HttpPost, Route("markReadList")]
+        [AccessTokenAuthorize]
+        public ResponseResultDto<bool> MarkReadList(List<int> noticeIdList)
+        {
+            var result = noticeRepository.MarkReadMany(noticeIdList);
             return new ResponseResultDto<bool>
             {
                 IsSuccess = true,

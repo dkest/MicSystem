@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 
 namespace Mic.Repository.Api
 {
@@ -78,5 +79,27 @@ namespace Mic.Repository.Api
             return helper.Execute($@"update SysNotice set IsRead=1 where Id={noticeId}") > 0 ? true : false;
         }
 
+
+        /// <summary>
+        /// 批量标记为已读
+        /// </summary>
+        /// <param name="noticeId"></param>
+        /// <returns></returns>
+        public bool MarkReadMany(List<int> noticeIdList)
+        {
+            if (noticeIdList.Count < 1)
+            {
+                return true;
+            }
+            StringBuilder sb = new StringBuilder("(");
+            foreach (var item in noticeIdList)
+            {
+                sb.Append(item).Append(",");
+            }
+            var whereIn = sb.ToString();
+            whereIn.Substring(0, whereIn.Length - 1);
+            whereIn += ")";
+            return helper.Execute($@"update SysNotice set IsRead=1 where Id in {whereIn}") > 0 ? true : false;
+        }
     }
 }
