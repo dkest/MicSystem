@@ -10,7 +10,7 @@ namespace Mic.Entity
         public int Id { get; set; }
         public int SongId { get; set; }
         public int AuditTimes { get; set; }
-        public int AuditStatus { get; set; }
+        public int AuditStatus { get; set; }//审核状态 0-待发布；1-待审核；2-已通过；3-未通过
         public string Note { get; set; }
         public DateTime AuditTime { get; set; }
         public int AuditAdminId { get; set; }

@@ -31,7 +31,9 @@ namespace Mic.Repository.Repositories
             {
                 return Tuple.Create(false, new StoreInfoParam());
             }
-            string sql = $@"select * from [User] a  left join StoreDetailInfo b on a.Id= b.UserId 
+            string sql = $@"select a.Id,a.Phone,a.Password, b.StoreName, b.BusinessLicense,b.LegalPerson,b.LegalPersonIdCardF,
+b.LegalPersonIdCardB,b.Province,b.City,b.County,b.DetailAddress,b.Contacts,b.ContactsPhone,b.StoreTypeId,
+c.StoreTypeName from [User] a  left join StoreDetailInfo b on a.Id= b.UserId 
 left join StoreType c on c.Id=b.StoreTypeId  where a.Id = {Convert.ToInt32(storeId)}";
             var result = helper.Query<StoreInfoParam>(sql).FirstOrDefault();
             return Tuple.Create(result == null ? false : true, result);
@@ -104,7 +106,7 @@ ContactsPhone='{storeInfo.ContactsPhone}' where UserId={storeInfo.Id};");
                 select top {0} * from (select row_number() over(order by  b.CreateTime desc) as rownumber,
  a.Id,b.StoreName,a.Phone,a.Password,b.Enabled from [User] a left join StoreDetailInfo b on a.Id= b.UserId 
 where a.StoreCode='{2}' and a.UserType=3 {3}) temp_row
-                    where temp_row.rownumber>(({1}-1)*{0});", pageParam.PageSize, pageParam.PageIndex, user.StoreCode,likeSql);
+                    where temp_row.rownumber>(({1}-1)*{0});", pageParam.PageSize, pageParam.PageIndex, user.StoreCode, likeSql);
             int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from [User] a left join StoreDetailInfo b on a.Id= b.UserId  where a.Status=1 and a.UserType=3 and a.StoreCode= '{user.StoreCode}'  {likeSql} "));
 
 

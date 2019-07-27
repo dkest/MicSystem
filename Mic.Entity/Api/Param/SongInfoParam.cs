@@ -29,6 +29,7 @@ namespace Mic.Entity
         public int Id { get; set; }
         public string SongName { get; set; }
         public int SingerId { get; set; }
+        public string SingerName { get; set; }
         public string SongLength { get; set; }
         public int SongSize { get; set; }
         public string SongPath { get; set; }

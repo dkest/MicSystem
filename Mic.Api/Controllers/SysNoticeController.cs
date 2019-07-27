@@ -8,6 +8,9 @@ using System.Web.Http;
 
 namespace Mic.Api.Controllers
 {
+    /// <summary>
+    /// 音乐人消息通知
+    /// </summary>
     [RoutePrefix("notice")]
     public class SysNoticeController : ApiController
     {
