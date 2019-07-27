@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\Param\SingerAuthParam.cs" />
     <Compile Include="Api\Param\PlaySongParam.cs" />
     <Compile Include="Api\Param\SingerParam.cs" />
     <Compile Include="Entites\AccessToken.cs" />
