@@ -29,7 +29,7 @@ namespace Mic.Api.Controllers
         /// 获取认证条款[AUTH]
         /// </summary>
         /// <returns></returns>
-        [HttpPost, Route("getAttestationClause")]
+        [HttpGet, Route("getAttestationClause")]
         [AccessTokenAuthorize]
         public ResponseResultDto<string> GetAuthNote()
         {
@@ -47,7 +47,7 @@ namespace Mic.Api.Controllers
         /// </summary>
         /// <param name="singer"></param>
         /// <returns></returns>
-        [HttpPost, Route("addAuthinfo")]
+        [HttpPost, Route("addAuthInfo")]
         [AccessTokenAuthorize]
         public ResponseResultDto<bool> AddAuthInfo(SingerAuthParam singer)
         {
@@ -66,7 +66,7 @@ namespace Mic.Api.Controllers
         /// </summary>
         /// <param name="singerId"></param>
         /// <returns></returns>
-        [HttpPost, Route("getAuthInfo")]
+        [HttpGet, Route("getAuthInfo/{singerId:int}")]
         [AccessTokenAuthorize]
         public ResponseResultDto<SingerAuthParam> GetSingerAuthInfo(int singerId)
         {
@@ -84,7 +84,7 @@ namespace Mic.Api.Controllers
         /// 获取音乐人流派列表[AUTH]
         /// </summary>
         /// <returns></returns>
-        [HttpPost, Route("getSingerTypeList")]
+        [HttpGet, Route("getSingerTypeList")]
         [AccessTokenAuthorize]
         public ResponseResultDto<List<SingerTypeEntity>> GetAllSingerTypeList()
         {
