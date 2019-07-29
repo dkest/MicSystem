@@ -108,7 +108,7 @@
     var storeTypeName;
 
     var currentId  = @ViewBag.storeId;
-    
+
     var fileName = "";
 
     var listItem = null;
@@ -168,10 +168,11 @@
                    $("#sqht_img").attr("src", sqhtPath);
 
                 } else {
-
-                     $("#sqht_pdf").show();
-                    $("#sqht_pdf").attr('href', sqhtPath);
-                   $("#sqht_pdf").text(sqhtPath);
+                    if (currentInfo.DelegatingContract != "") {
+                        $("#sqht_pdf").show();
+                        $("#sqht_pdf").attr('href', sqhtPath);
+                        $("#sqht_pdf").text(sqhtPath);
+                    }
                 }
                 // 编辑框信息
                 $("#store_type_edit").val(result.data.StoreTypeId);

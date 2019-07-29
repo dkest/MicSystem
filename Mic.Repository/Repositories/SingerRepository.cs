@@ -56,7 +56,7 @@ where a.Status=1 and a.UserType=1  {likeSql}"));
         /// <returns></returns>
         public bool UpdateSingerName(int singerId, string name)
         {
-            string sql = $@"update [SingerDetailInfo] set  SingerNameForStore='{name}' where UserId={singerId};";
+            string sql = $@"update [SingerDetailInfo] set  SingerName='{name}' where UserId={singerId};";
             return helper.Execute(sql) > 0 ? true : false;
         }
 
