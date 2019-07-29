@@ -129,16 +129,44 @@ namespace Mic.Api.Controllers
             };
         }
 
+        ///// <summary>
+        /////  验证短信验证码
+        ///// </summary>
+        ///// <param name="phone">手机号</param>
+        ///// <param name="smsCode">短信验证码</param>
+        ///// <returns></returns>
+        //[HttpGet, Route("validateSms/{phone}/{smsCode}")]
+        //public ResponseResultDto<bool> ValidateSmsCode(string phone, string smsCode)
+        //{
+        //    var res = userRepository.ValidateSmsCode(phone, smsCode);
+        //    if (!res.Item1)
+        //    {
+        //        return new ResponseResultDto<bool>
+        //        {
+        //            IsSuccess = false,
+        //            ErrorMessage = "验证码不正确",
+        //            Result = false
+        //        };
+        //    }
+        //    userRepository.DeleteSmsCode(phone, smsCode);
+        //    return new ResponseResultDto<bool>
+        //    {
+        //        IsSuccess = true,
+        //        ErrorMessage = string.Empty,
+        //        Result = true
+        //    };
+
+        //}
         /// <summary>
-        ///  验证短信验证码
+        /// 用户账号注册
         /// </summary>
-        /// <param name="phone">手机号</param>
-        /// <param name="smsCode">短信验证码</param>
+        /// <param name="userInfo">用户注册参数</param>
         /// <returns></returns>
-        [HttpGet, Route("validateSms/{phone}/{smsCode}")]
-        public ResponseResultDto<bool> ValidateSmsCode(string phone, string smsCode)
+        [HttpPost, Route("register")]
+        public ResponseResultDto<bool> Register(RegisterParam userInfo)
         {
-            var res = userRepository.ValidateSmsCode(phone, smsCode);
+
+            var res = userRepository.ValidateSmsCode(userInfo.Phone, userInfo.SmsCode);
             if (!res.Item1)
             {
                 return new ResponseResultDto<bool>
@@ -148,23 +176,8 @@ namespace Mic.Api.Controllers
                     Result = false
                 };
             }
-            userRepository.DeleteSmsCode(phone, smsCode);
-            return new ResponseResultDto<bool>
-            {
-                IsSuccess = true,
-                ErrorMessage = string.Empty,
-                Result = true
-            };
+            userRepository.DeleteSmsCode(userInfo.Phone, userInfo.SmsCode);
 
-        }
-        /// <summary>
-        /// 用户账号注册
-        /// </summary>
-        /// <param name="userInfo">用户注册参数</param>
-        /// <returns></returns>
-        [HttpPost, Route("register")]
-        public ResponseResultDto<bool> Register(RegisterParam userInfo)
-        {
             bool isSussess = false;
             string errorMessage = string.Empty;
             bool result = false;
@@ -203,6 +216,19 @@ namespace Mic.Api.Controllers
         [HttpPost, Route("updatePassword")]
         public ResponseResultDto<bool> UpdateUserPassword(UserParam userParam)
         {
+
+            var res = userRepository.ValidateSmsCode(userParam.Phone, userParam.SmsCode);
+            if (!res.Item1)
+            {
+                return new ResponseResultDto<bool>
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "验证码不正确",
+                    Result = false
+                };
+            }
+            userRepository.DeleteSmsCode(userParam.Phone, userParam.SmsCode);
+
             if (userParam == null || string.IsNullOrWhiteSpace(userParam.Phone) || string.IsNullOrWhiteSpace(userParam.Password))
             {
                 return new ResponseResultDto<bool>

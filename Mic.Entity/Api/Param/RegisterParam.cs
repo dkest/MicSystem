@@ -11,6 +11,7 @@ namespace Mic.Entity
     /// </summary>
     public class RegisterParam
     {
+        public string SmsCode { get; set; }
         /// <summary>
         /// 注册手机号
         /// </summary>
