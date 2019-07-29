@@ -59,7 +59,7 @@
     <Compile Include="Api\Param\RegisterParam.cs" />
     <Compile Include="Entites\CityEntity.cs" />
     <Compile Include="Entites\IEntity.cs" />
-    <Compile Include="Model\StoreStatisticsEntity.cs" />
+    <Compile Include="Entites\StoreStatisticsEntity.cs" />
     <Compile Include="Entites\PagedResult.cs" />
     <Compile Include="Entites\PageParam.cs" />
     <Compile Include="Entites\ParamEntity.cs" />
