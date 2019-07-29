@@ -100,7 +100,7 @@ ContactsPhone='{storeInfo.ContactsPhone}' where UserId={storeInfo.Id};");
                 return Tuple.Create(false, string.Empty, 0, new List<SonStoreInfoParam>());
             }
 
-            string likeSql = string.IsNullOrWhiteSpace(pageParam.Keyword) ? string.Empty : $@" and  b.StoreName like '%{pageParam.Keyword}%')";
+            string likeSql = string.IsNullOrWhiteSpace(pageParam.Keyword) ? string.Empty : $@" and  b.StoreName like '%{pageParam.Keyword}%' ";
 
             string sql = string.Format(@"
                 select top {0} * from (select row_number() over(order by  b.CreateTime desc) as rownumber,
