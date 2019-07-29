@@ -196,12 +196,11 @@ namespace Mic.Api.Controllers
         }
 
         /// <summary>
-        /// 更新用户密码[AUTH]
+        /// 更新用户密码
         /// </summary>
         /// <param name="userParam"></param>
         /// <returns></returns>
         [HttpPost, Route("updatePassword")]
-        [AccessTokenAuthorize]
         public ResponseResultDto<bool> UpdateUserPassword(UserParam userParam)
         {
             if (userParam == null || string.IsNullOrWhiteSpace(userParam.Phone) || string.IsNullOrWhiteSpace(userParam.Password))
