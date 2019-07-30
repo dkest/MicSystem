@@ -86,6 +86,26 @@ namespace Mic.Api.Controllers
         }
 
         /// <summary>
+        /// 批量添加歌曲到播放列表中[AUTH]
+        /// </summary>
+        /// <param name="songIds">歌曲Id集合</param>
+        /// <returns></returns>
+        [HttpPost, Route("addSongs2PlayList")]
+        [AccessTokenAuthorize]
+        public ResponseResultDto<bool> AddSongs2PlayList(List<int> songIds)
+        {
+            HttpRequest request = HttpContext.Current.Request;
+            string token = request.Headers.GetValues("Access-Token").FirstOrDefault();
+            var result = storeSongManageRspository.AddSongs2MyPlayList(token, songIds);
+            return new ResponseResultDto<bool>
+            {
+                IsSuccess = result.Item1,
+                ErrorMessage = result.Item2,
+                Result = result.Item1
+            };
+        }
+
+        /// <summary>
         /// 从播放列表中删除歌曲[AUTH]
         /// </summary>
         /// <param name="songId">歌曲Id</param>

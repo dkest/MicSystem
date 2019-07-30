@@ -184,9 +184,7 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
         /// <param name="songId"></param>
         public Tuple<bool, string> AddSong2MyPlayList(string token, int songId)
         {
-
             UserEntity user = helper.Query<UserEntity>($@"select a.* from [User] a left join [UserAccessToken] b on a.Id=b.UserId where b.TokenId='{token}'").FirstOrDefault();
-
             string temp = string.Empty;
             //先获取我的播放列表
             var playListStr = helper.QueryScalar($@"select PlayListStr from StoreDetailInfo where UserId={user.Id}");
@@ -220,6 +218,52 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
             var result = helper.Execute($@"update StoreDetailInfo set PlayListStr='{temp}' where UserId={user.Id}");
             return Tuple.Create(result > 0 ? true : false, string.Empty);
         }
+
+        /// <summary>
+        /// 批量添加歌曲到播放列表
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="songId"></param>
+        /// <returns></returns>
+        public Tuple<bool, string> AddSongs2MyPlayList(string token, List<int> songIds)
+        {
+            UserEntity user = helper.Query<UserEntity>($@"select a.* from [User] a left join [UserAccessToken] b on a.Id=b.UserId where b.TokenId='{token}'").FirstOrDefault();
+            string temp = string.Empty;
+            //先获取我的播放列表
+            var playListStr = helper.QueryScalar($@"select PlayListStr from StoreDetailInfo where UserId={user.Id}");
+
+            if (playListStr == null || string.IsNullOrWhiteSpace(playListStr.ToString()))// 直接将歌曲添加到列表
+            {
+                foreach (var item in songIds)
+                {
+                    temp += ("," + item);
+                } 
+            }
+            else//判断该歌曲是否已经在歌单中
+            {
+                temp = playListStr.ToString();
+                string[] playListArr = playListStr.ToString().Split(',');
+                List<int> tempList = new List<int>();
+                foreach (var item in playListArr)
+                {
+                    if (!string.IsNullOrWhiteSpace(item))
+                    {
+                        tempList.Add(Convert.ToInt32(item));
+                    }
+                }
+                foreach (var item in songIds)
+                {
+                    if (!tempList.Contains(item))
+                    {
+                        temp += ("," + item);
+                    }
+                }
+            }
+            //更新用户播放列表
+            var result = helper.Execute($@"update StoreDetailInfo set PlayListStr='{temp}' where UserId={user.Id}");
+            return Tuple.Create(result > 0 ? true : false, string.Empty);
+        }
+
 
         /// <summary>
         /// 从播放列表中删除歌曲
