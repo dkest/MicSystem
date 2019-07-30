@@ -49,7 +49,7 @@ namespace Mic.Repository.Api
             string sql = string.Format(@"
                 select top {0} * from (select row_number() over(order by c.UpdateTime desc) as rownumber, 
 c.Id,c.ListName,c.StoreId,c.StoreCode,b.StoreName,c.ListContent,c.UpdateTime  from PlayList c left join [User] a on c.StoreId = a.Id left join StoreDetailInfo b on a.Id=b.UserId
-                            where a.StoreCode={2} and a.UserType=3 and c.IsPublish=1 and c.Status=1) temp_row
+                            where a.StoreCode='{2}' and a.UserType=3 and c.IsPublish=1 and c.Status=1) temp_row
                     where temp_row.rownumber>(({1}-1)*{0})", param.PageSize, param.PageIndex, param.StoreCode);
             int count = Convert.ToInt32(helper.QueryScalar($@"select count(1) from PlayList c left join [User] a on c.StoreId = a.Id left join StoreDetailInfo b on a.Id=b.UserId
                             where a.StoreCode='{param.StoreCode}' and a.UserType=3 and c.IsPublish=1 and c.Status=1"));
