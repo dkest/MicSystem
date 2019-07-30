@@ -130,7 +130,7 @@ namespace Mic.Repository.Repositories
         public List<SongBookEntity> GetSongListByPlayListStr(string listContent, string storeCode)
         {
             string[] arr = listContent.Split(',');
-            StringBuilder sb = new StringBuilder("a.SongId in (");
+            StringBuilder sb = new StringBuilder("a.Id in (");
             List<string> tempList = new List<string>();
             foreach (var item in arr)
             {
@@ -150,10 +150,16 @@ namespace Mic.Repository.Repositories
                 whereIn = string.Empty;
                 return null;
             }
-            string sql = $@"select d.*,e.SingerName,e.SongLength,e.SongMark from (select a.SongId, b.SongName, Sum(BroadcastTime) as TotalPlayTime,count(1) as PlayTimes 
- from [dbo].[SongPlayRecord] a  left join SongBook b
-on a.SongId = b.Id where   {whereIn}
- group by a.SongId,b.SongName) as d  left join SongBook e on d.SongId=e.Id";
+            //            string sql = $@"select d.*,e.SingerName,e.SongLength,e.SongMark from (select a.SongId, b.SongName, Sum(BroadcastTime) as TotalPlayTime,count(1) as PlayTimes 
+            // from [dbo].[SongPlayRecord] a  left join SongBook b
+            //on a.SongId = b.Id where   {whereIn}
+            // group by a.SongId,b.SongName) as d  left join SongBook e on d.SongId=e.Id";
+            string sql = $@" select  a.Id, a.SongName, a.SingerName,a.SongLength,a.SongMark, d.TotalPlayTime,d.PlayTimes
+  from  SongBook a left join 
+ (select b.SongId,  Sum(BroadcastTime) as TotalPlayTime,count(1) as PlayTimes 
+ from [dbo].[SongPlayRecord] b
+ group by b.SongId,b.StoreCode) as d 
+on d.SongId=a.Id where {whereIn} ";
             return helper.Query<SongBookEntity>(sql).ToList();
 
         }
