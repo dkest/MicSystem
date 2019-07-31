@@ -197,7 +197,7 @@ namespace Mic.Api.Controllers
         /// </summary>
         /// <param name="id">历史歌单Id</param>
         /// <returns></returns>
-        [HttpPost, Route("getSongSheetSongs/{id:int}/{order}")]
+        [HttpPost, Route("getSongSheetSongs/{id:int}")]
         [AccessTokenAuthorize]
         public ResponseResultDto<List<SongInfoParam>> GetHisSongListById(int id)
         {
