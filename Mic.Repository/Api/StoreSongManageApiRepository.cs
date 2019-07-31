@@ -105,6 +105,76 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
         }
 
         /// <summary>
+        /// 获取歌单中所有歌曲，不分页
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public Tuple<bool, string, List<SongInfoParam>> GetSongSheet(string token)
+        {
+            UserEntity user = helper.Query<UserEntity>($@"select a.* from [User] a left join [UserAccessToken] b on a.Id=b.UserId where b.TokenId='{token}'").FirstOrDefault();
+            if (user == null)
+            {
+                Tuple.Create(false, "用户还未登录", 0, new PagedResult<SongInfoParam>());
+            }
+            int storeId = user.Id;
+            if (user.UserType == 2)
+            {
+                if (user.IsMain)
+                {
+                    storeId = user.Id;
+                }
+                else
+                {
+                    var temp = helper.QueryScalar($@"select Id from [User] a left join [User] b on a.StoreCode=b.StoreCode where b.Id={user.Id} and a.UserType=2 and a.IsMain=1");
+                    if (temp != null)
+                    {
+                        storeId = Convert.ToInt32(temp);
+                    }
+                }
+            }
+            if (user.UserType == 1)
+            {
+                return Tuple.Create(false, "该用户不是商家或者分店，没有歌单", new List<SongInfoParam>());
+            }
+            // 获取歌单 只获取最后增加的一个歌单
+            var listContent = helper.QueryScalar($@"select ListContent from PlayList where StoreId={storeId} and IsPublish={1} order by Id desc");
+            if (listContent == null || string.IsNullOrWhiteSpace(listContent.ToString()))
+            {
+                return Tuple.Create(true, "没有歌单", new List<SongInfoParam>());
+            }
+            string[] arr = listContent.ToString().Split(',');
+            StringBuilder sb = new StringBuilder("and d.Id in (");
+            List<int> tempList = new List<int>();
+            foreach (var item in arr)
+            {
+                if (!string.IsNullOrWhiteSpace(item))
+                {
+                    tempList.Add(Convert.ToInt32(item));
+                    sb.Append(item).Append(",");
+                }
+            }
+
+            string whereIn = sb.ToString();
+            int length = whereIn.Length;
+            whereIn = whereIn.Substring(0, length - 1);
+            whereIn += ")";
+
+            if (tempList.Count == 0)
+            {
+                whereIn = string.Empty;
+                return Tuple.Create(true, "没有歌单", new List<SongInfoParam>());
+            }
+            //string likeSql = string.IsNullOrWhiteSpace(param.Keyword) ? string.Empty : $@" and (d.SingerName like '%{param.Keyword}%'  or d.SongName like '%{param.Keyword}%')";
+            string sql = $@"select d.Id,d.SongName,d.SingerName,d.SingerId,d.SongLength,d.SongMark,d.ExpirationTime,c.*
+from SongBook d left join (select COUNT(a.Id) as PlayTimes , Sum(b.BroadcastTime) as TotalPlayTime ,a.Id as tempId
+from SongPlayRecord b left join  SongBook a  on a.Id = b.SongId    where a.Status=1 and a.AuditStatus=2 
+group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {whereIn}";
+
+            return Tuple.Create(true, string.Empty, helper.Query<SongInfoParam>(sql).ToList());
+
+        }
+
+        /// <summary>
         /// 获取我的播放列表，播放列表的歌曲需要在我的歌单中选择歌曲
         /// </summary>
         /// <param name="token"></param>

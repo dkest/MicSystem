@@ -46,6 +46,25 @@ namespace Mic.Api.Controllers
         }
 
         /// <summary>
+        /// 获取分店或商家歌单中全部歌曲,不分页[AUTH]
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost, Route("getAllSongSheet")]
+        [AccessTokenAuthorize]
+        public ResponseResultDto<List<SongInfoParam>> GetAllSongSheet()
+        {
+            HttpRequest request = HttpContext.Current.Request;
+            string token = request.Headers.GetValues("Access-Token").FirstOrDefault();
+            var result = storeSongManageRspository.GetSongSheet(token);
+            return new ResponseResultDto<List<SongInfoParam>>
+            {
+                IsSuccess = result.Item1,
+                ErrorMessage = result.Item2,
+                Result = result.Item3
+            };
+        }
+
+        /// <summary>
         /// 分页播放列表[AUTH]
         /// </summary>
         /// <param name="param">分页参数</param>
