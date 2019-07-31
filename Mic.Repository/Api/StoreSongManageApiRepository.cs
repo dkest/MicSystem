@@ -168,12 +168,13 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
                     where temp_row.rownumber>(({1}-1)*{0});", param.PageSize, param.PageIndex, likeSql, whereIn,
                                 string.IsNullOrWhiteSpace(param.OrderField) ? string.Empty : ("c." + param.OrderField + " " + param.OrderType + ","));
 
+            var totalCount = helper.QueryScalar($@"select Count(1) from SongBook d where d.Status=1 and d.AuditStatus=2  {likeSql} {whereIn} ");
             return Tuple.Create(true, string.Empty, new PagedResult<SongInfoParam>
             {
                 Page = param.PageIndex,
                 PageSize = param.PageSize,
                 Results = helper.Query<SongInfoParam>(sql).ToList(),
-                Total = tempList.Count
+                Total = Convert.ToInt32(totalCount)
             });
         }
 
@@ -211,7 +212,10 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
                 }
                 else
                 {
-                    temp += ("," + songId);
+                    if (SongExist(songId))
+                    {
+                        temp += ("," + songId);
+                    }
                 }
             }
             //更新用户播放列表
@@ -237,7 +241,7 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
                 foreach (var item in songIds)
                 {
                     temp += ("," + item);
-                } 
+                }
             }
             else//判断该歌曲是否已经在歌单中
             {
@@ -450,6 +454,16 @@ on d.SongId=a.Id where {whereIn} ";
 
             return helper.Query<SongInfoParam>(sql).ToList();
 
+        }
+        /// <summary>
+        /// 判断歌曲是否存在
+        /// </summary>
+        /// <param name="songId"></param>
+        /// <returns></returns>
+        private bool SongExist(int songId)
+        {
+            var count = helper.QueryScalar($@"select count(1) from SongBook where Status=1 and AuditStatus=2 and Id={songId}");
+            return Convert.ToInt32(count) > 0 ? true : false;
         }
     }
 }
