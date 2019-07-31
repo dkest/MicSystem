@@ -65,7 +65,7 @@ namespace Mic.Api.Controllers
         }
 
         /// <summary>
-        /// 分页播放列表[AUTH]
+        /// 分页获取播放列表[AUTH]
         /// </summary>
         /// <param name="param">分页参数</param>
         /// <returns></returns>
@@ -83,6 +83,26 @@ namespace Mic.Api.Controllers
                 Result = result.Item3
             };
         }
+
+        /// <summary>
+        /// 获取播放列表，不分页[AUTH]
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost, Route("getAllPlayList")]
+        [AccessTokenAuthorize]
+        public ResponseResultDto<List<SongInfoParam>> GetPlayList()
+        {
+            HttpRequest request = HttpContext.Current.Request;
+            string token = request.Headers.GetValues("Access-Token").FirstOrDefault();
+            var result = storeSongManageRspository.GetMyPlayList(token);
+            return new ResponseResultDto<List<SongInfoParam>>
+            {
+                IsSuccess = result.Item1,
+                ErrorMessage = result.Item2,
+                Result = result.Item3
+            };
+        }
+
 
         /// <summary>
         /// 将歌单中歌曲添加到播放列表[AUTH]

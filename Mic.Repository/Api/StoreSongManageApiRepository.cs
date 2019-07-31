@@ -181,7 +181,6 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {where
         /// <param name="param"></param>
         public Tuple<bool, string, PagedResult<SongInfoParam>> GetMyPlayList(string token, PageParam param)
         {
-
             UserEntity user = helper.Query<UserEntity>($@"select a.* from [User] a left join [UserAccessToken] b on a.Id=b.UserId where b.TokenId='{token}'").FirstOrDefault();
             if (user == null)
             {
@@ -246,6 +245,60 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
                 Results = helper.Query<SongInfoParam>(sql).ToList(),
                 Total = Convert.ToInt32(totalCount)
             });
+        }
+
+        public Tuple<bool, string, List<SongInfoParam>> GetMyPlayList(string token)
+        {
+            UserEntity user = helper.Query<UserEntity>($@"select a.* from [User] a left join [UserAccessToken] b on a.Id=b.UserId where b.TokenId='{token}'").FirstOrDefault();
+            if (user == null)
+            {
+                Tuple.Create(false, "授权失败", new PagedResult<SongInfoParam>());
+            }
+
+            var listContent = helper.QueryScalar($@"select PlayListStr  from StoreDetailInfo where UserId={user.Id}");
+            if (listContent == null || string.IsNullOrWhiteSpace(listContent.ToString()))
+            {
+                return Tuple.Create(true, "播放列表为空", new List<SongInfoParam>());
+            }
+
+            string[] arr = listContent.ToString().Split(',');
+            StringBuilder sb = new StringBuilder("and d.Id in (");
+            List<int> tempList = new List<int>();
+            foreach (var item in arr)
+            {
+                if (!string.IsNullOrWhiteSpace(item))
+                {
+                    tempList.Add(Convert.ToInt32(item));
+                    sb.Append(item).Append(",");
+                }
+            }
+
+            string whereIn = sb.ToString();
+            int length = whereIn.Length;
+            whereIn = whereIn.Substring(0, length - 1);
+            whereIn += ")";
+            if (tempList.Count == 0)
+            {
+                whereIn = string.Empty;
+                return Tuple.Create(true, "播放列表为空", new List<SongInfoParam>());
+            }
+
+            //string likeSql = string.IsNullOrWhiteSpace(param.Keyword) ? string.Empty : $@" and (d.SingerName like '%{param.Keyword}%'  or d.SongName like '%{param.Keyword}%')";
+            //            string sql = string.Format(@"
+            //                select top {0} * from (select row_number() over(order by {4} d.UploadTime desc) as rownumber, 
+            //d.Id,d.SongName,d.SingerName,d.SingerId,d.SongLength,d.SongMark,d.ExpirationTime,c.*
+            //from SongBook d left join (select COUNT(a.Id) as PlayTimes , Sum(b.BroadcastTime) as TotalPlayTime ,a.Id as tempId
+            //from SongPlayRecord b left join  SongBook a  on a.Id = b.SongId    where a.Status=1 and a.AuditStatus=2 
+            //group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {2}) temp_row
+            //                    where temp_row.rownumber>(({1}-1)*{0});", param.PageSize, param.PageIndex, likeSql, whereIn,
+            //                                string.IsNullOrWhiteSpace(param.OrderField) ? string.Empty : ("c." + param.OrderField + " " + param.OrderType + ","));
+
+            //            var totalCount = helper.QueryScalar($@"select Count(1) from SongBook d where d.Status=1 and d.AuditStatus=2  {likeSql} {whereIn} ");
+            string sql = $@"select d.Id,d.SongName,d.SingerName,d.SingerId,d.SongLength,d.SongMark,d.ExpirationTime,c.*
+from SongBook d left join (select COUNT(a.Id) as PlayTimes , Sum(b.BroadcastTime) as TotalPlayTime ,a.Id as tempId
+from SongPlayRecord b left join  SongBook a  on a.Id = b.SongId    where a.Status=1 and a.AuditStatus=2 
+group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {whereIn} ";
+            return Tuple.Create(true, string.Empty, helper.Query<SongInfoParam>(sql).ToList());
         }
 
         /// <summary>
