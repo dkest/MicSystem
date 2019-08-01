@@ -82,13 +82,14 @@ where UserType=1 and LastLoginTime>'{yesLastWeek}' and LastLoginTime<'{yesLastWe
                     break;
             }
             string sql = $@"select top {param.PageSize} * from (select row_number() over(order by {order} desc) as rownumber,
-SingerId,SingerName,
-SUM(CASE  WHEN a.AuditStatus in ('0','1','2','3') THEN 1 ELSE 0 END) AS UploadCount,
+u.Id as SingerId,c.SingerName,
+ SUM(CASE  WHEN a.AuditStatus in ('0','1','2','3') THEN 1 ELSE 0 END) AS UploadCount,
 SUM(CASE a.AuditStatus WHEN '2' THEN 1 ELSE 0 END) AS  PublishCount,
-COUNT( b.PlayUserId) PlayStoreCount,
-COUNT(distinct b.SongId) PlaySongCount
-  from SongBook a left join SongPlayRecord b on a.Id=b.SongId 
- where a.SingerId is not  null and a.UploadTime >'{param.BeginDate}' and a.UploadTime <'{param.EndDate}'  group by SingerId,SingerName ) temp_row
+COUNT( b.PlayUserId) PlayStoreCount, COUNT(distinct b.SongId) PlaySongCount
+  from [User] u left join   SongBook a on u.Id=a.SingerId left join SingerDetailInfo c on a.SingerId=c.UserId
+  left join SongPlayRecord b on a.Id=b.SongId 
+  where u.UserType=1 and u.LastLoginTime >'{param.BeginDate}' and u.LastLoginTime <'{param.EndDate}'  
+ group by u.Id,c.SingerName ) temp_row
                     where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize}) ;";
             return helper.Query<SingerListStatisticsEntity>(sql).ToList();
         }
