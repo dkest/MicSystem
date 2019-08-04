@@ -268,7 +268,7 @@ where  {whereIn}
                     break;
             }
 
-            string order = string.IsNullOrWhiteSpace(orderField) ? string.Empty : ("c." + orderField + " " + param.OrderType + ",");
+            string order = string.IsNullOrWhiteSpace(orderField) ? string.Empty : (orderField + " " + param.OrderType + ",");
             string sql = $@" select top {param.PageSize} * from (select row_number() over(order by {order} b.Id desc) as rownumber,
  b.SongLength, b.Id, b.SongName,b.SingerName,Sum(BroadcastTime) as TotalPlayTime,count(a.SongId) as PlayTimes 
  from  SongPlayRecord a left join   SongBook b
@@ -279,11 +279,12 @@ where a.PlayUserId = {storeId}
                     where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize}) ;";
 
 
-            var count = helper.QueryScalar($@"select Count(1) 
+            var countList = helper.Query<SongInfoParam>($@"select 
+b.SongLength
  from  SongPlayRecord a left join   SongBook b
 on a.SongId = b.Id 
 where a.PlayUserId = {storeId}
- group by b.Id,b.SongName,b.SongLength,b.SingerName");
+ group by b.Id,b.SongName,b.SongLength,b.SingerName").ToList();
 
             var result = helper.Query<SongInfoParam>(sql).ToList();
 
@@ -291,7 +292,7 @@ where a.PlayUserId = {storeId}
             {
                 Page = param.PageIndex,
                 PageSize = param.PageSize,
-                Total = Convert.ToInt32(count),
+                Total = countList.Count,
                 Results = result
             };
         }

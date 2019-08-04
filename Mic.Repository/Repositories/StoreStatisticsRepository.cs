@@ -98,28 +98,35 @@ where  [BeginPlayTime]>'{yesLastWeek}' and [BeginPlayTime]<'{yesLastWeek.AddDays
         /// 获取商家播放歌曲列表信息
         /// </summary>
         /// <returns></returns>
-        public List<StoreSongStatisticsEntity> GetStorePlaySongInfo(StorePlaySongPageParam param)
+        public Tuple<int, List<StoreSongStatisticsEntity>> GetStorePlaySongInfo(StorePlaySongPageParam param)
         {
             string order = string.Empty;
-            switch (param.OrderField)
-            {
-                case "PlayTime":
-                    order = "Sum(BroadcastTime)";
-                    break;
-                case "PlaySongCount":
-                    order = "count( distinct a.SongId) ";
-                    break;
-                case "PlayCount":
-                    order = "count(1)";
-                    break;
-            }
-            string sql = $@"select top {param.PageSize} * from (select row_number() over(order by {order} desc) as rownumber,
-b.StoreName, count( distinct a.SongId) as  PlaySongCount, a.StoreCode,Sum(BroadcastTime) as PlayTime,count(1) as PlayCount from [dbo].[SongPlayRecord] a  
+            //switch (param.OrderField)
+            //{
+            //    case "PlayTime":
+            //        order = "r.Sum(BroadcastTime)";
+            //        break;
+            //    case "PlaySongCount":
+            //        order = "r.count( distinct a.SongId) ";
+            //        break;
+            //    case "PlayCount":
+            //        order = "r.count(1)";
+            //        break;
+            //}
+            string sql = $@"select top {param.PageSize} * from (select row_number() over(order by r.{param.OrderField} desc) as rownumber,
+ r.*,d.Id as PlayUserId from (select b.StoreName, count( distinct a.SongId) as  PlaySongCount, a.StoreCode,Sum(BroadcastTime) as PlayTime,count(1) as PlayCount from [dbo].[SongPlayRecord] a  
 left join [User] c on c.StoreCode=a.StoreCode left join StoreDetailInfo b
 on c.Id = b.UserId where c.UserType=2 and c.IsMain=1 and a.BeginPlayTime >= '{param.BeginDate}' and a.BeginPlayTime <= '{param.EndDate}'
-group by a.StoreCode,b.StoreName ) temp_row
+group by a.StoreCode,b.StoreName)  r left join [User] d on d.StoreCode=r.StoreCode and d.UserType=2 and d.IsMain=1
+
+) temp_row
                     where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize}) ;";
-            return helper.Query<StoreSongStatisticsEntity>(sql).ToList();
+
+            var count = helper.QueryScalar($@"select Count(distinct a.StoreCode)  from [dbo].[SongPlayRecord] a  
+left join [User] c on c.StoreCode=a.StoreCode left join StoreDetailInfo b
+on c.Id = b.UserId where c.UserType=2 and c.IsMain=1 and a.BeginPlayTime >= '{param.BeginDate}' and a.BeginPlayTime <= '{param.EndDate}'
+group by a.StoreCode,b.StoreName");
+            return Tuple.Create(Convert.ToInt32(count), helper.Query<StoreSongStatisticsEntity>(sql).ToList());
         }
 
 

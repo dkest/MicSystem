@@ -64,7 +64,7 @@ namespace Mic.Web.Controllers
                 EndDate = end
             };
             var result = storeStatisticsRepository.GetStorePlaySongInfo(param);
-            return Json(new { code = 0, msg = string.Empty, count = result.Count, data = result }, JsonRequestBehavior.AllowGet);
+            return Json(new { code = 0, msg = string.Empty, count = result.Item1, data = result.Item2 }, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult GetStoreStaticInfo(int storeId, DateTime beginDate, DateTime endDate)
