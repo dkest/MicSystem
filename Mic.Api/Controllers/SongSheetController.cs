@@ -201,7 +201,7 @@ namespace Mic.Api.Controllers
             {
                 IsSuccess = true,
                 ErrorMessage = string.Empty,
-                Result = null
+                Result = result
             };
 
         }

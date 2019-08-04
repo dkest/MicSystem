@@ -36,7 +36,7 @@ namespace Mic.Repository.Api
                             from [User] a left join StoreDetailInfo b on a.Id=b.UserId
                             left  join PlayList c on (c.StoreId=a.Id  and c.IsPublish=1 and c.Status=1)
                             where a.StoreCode='{storeCode}' and a.UserType=3 ";
-            return helper.Query<SonStoreParam>(sql).ToList();
+                return helper.Query<SonStoreParam>(sql).ToList();  
         }
 
         /// <summary>
@@ -54,6 +54,25 @@ c.Id,c.ListName,c.StoreId,c.StoreCode,b.StoreName,c.ListContent,c.UpdateTime  fr
             int count = Convert.ToInt32(helper.QueryScalar($@"select count(1) from PlayList c left join [User] a on c.StoreId = a.Id left join StoreDetailInfo b on a.Id=b.UserId
                             where a.StoreCode='{param.StoreCode}' and a.UserType=3 and c.IsPublish=1 and c.Status=1"));
             var result = helper.Query<SonSongSheetParam>(sql).ToList();
+            foreach (var item in result)
+            {
+                item.SongCount = 0;
+                var temp = item.ListContent;
+                if (temp == null || string.IsNullOrEmpty(temp))
+                {
+                    item.SongCount = 0;
+                }
+                else {
+                    var arr = temp.Split(',');
+                    foreach (var arrItem in arr)
+                    {
+                        if (!string.IsNullOrEmpty(arrItem))
+                        {
+                            item.SongCount++;
+                        }
+                    }
+                }
+            }
             return new PagedResult<SonSongSheetParam>
             {
                 Total = count,
@@ -108,7 +127,7 @@ ListContent='{songSheet.ListContent}',UpdateTime='{DateTime.Now}' where Id={song
         {
             var oldListContent = string.Empty;
             var storeCode = string.Empty;
-            var temp = helper.Query<PlayListEntity>($@"selct ListContent,StoreCode from PlayList where Id={songSheetId}").FirstOrDefault();
+            var temp = helper.Query<PlayListEntity>($@"select ListContent,StoreCode from PlayList where Id={songSheetId}").FirstOrDefault();
             if (temp != null)
             {
                 oldListContent = temp.ListContent;
@@ -241,23 +260,20 @@ where  {whereIn}
             string orderField = string.Empty;
             switch (param.OrderField)
             {
-                case "PlayTime":
+                case "TotalPlayTime":
                     orderField = "Sum(BroadcastTime)";
                     break;
-                case "PlaySongCount":
-                    orderField = "count( distinct a.SongId) ";
-                    break;
-                case "PlayCount":
-                    orderField = "count(a.SongId)";
+                case "PlayTimes":
+                    orderField = "count( a.SongId) ";
                     break;
             }
 
             string order = string.IsNullOrWhiteSpace(orderField) ? string.Empty : ("c." + orderField + " " + param.OrderType + ",");
             string sql = $@" select top {param.PageSize} * from (select row_number() over(order by {order} b.Id desc) as rownumber,
- b.SongLength, b.Id, b.SongName,b.SingerName,Sum(BroadcastTime) as PlayTime,count(a.SongId) as PlayCount 
+ b.SongLength, b.Id, b.SongName,b.SingerName,Sum(BroadcastTime) as TotalPlayTime,count(a.SongId) as PlayTimes 
  from  SongPlayRecord a left join   SongBook b
 on a.SongId = b.Id 
-where a.SongId = {storeId}
+where a.PlayUserId = {storeId}
  group by b.Id,b.SongName,b.SongLength,b.SingerName
 ) temp_row
                     where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize}) ;";
@@ -266,7 +282,7 @@ where a.SongId = {storeId}
             var count = helper.QueryScalar($@"select Count(1) 
  from  SongPlayRecord a left join   SongBook b
 on a.SongId = b.Id 
-where a.SongId = {storeId}
+where a.PlayUserId = {storeId}
  group by b.Id,b.SongName,b.SongLength,b.SingerName");
 
             var result = helper.Query<SongInfoParam>(sql).ToList();
