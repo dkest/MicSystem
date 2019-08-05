@@ -37,7 +37,7 @@ Authentication={1} where UserId={singer.SingerId}";
 
         public SingerAuthParam GetSingerAuthInfo(int singerId)
         {
-            string sql = $@"select * from SingerDetailInfo where Singer={singerId}";
+            string sql = $@"select * from SingerDetailInfo where UserId={singerId}";
             return helper.Query<SingerAuthParam>(sql).FirstOrDefault();
         }
 
