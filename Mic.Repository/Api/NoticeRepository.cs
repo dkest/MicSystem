@@ -97,7 +97,7 @@ namespace Mic.Repository.Api
                 sb.Append(item).Append(",");
             }
             var whereIn = sb.ToString();
-            whereIn.Substring(0, whereIn.Length - 1);
+            whereIn = whereIn.Substring(0, whereIn.Length - 1);
             whereIn += ")";
             return helper.Execute($@"update SysNotice set IsRead=1 where Id in {whereIn}") > 0 ? true : false;
         }
