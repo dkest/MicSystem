@@ -68,6 +68,17 @@ where a.Status=1 and a.UserType=1  {likeSql}"));
         /// <returns></returns>
         public bool UpdateAuthStatus(int singerId, int auth)
         {
+            if (auth == 3)//通过
+            {
+                helper.Execute($@"insert into SysNotice (Title,Content,UserId,NoticeTime) 
+values ('认证审核通过','认证审核通过',{singerId},'{DateTime.Now}')");
+            }
+            else if (auth == 2) //审核不通过
+            {
+                helper.Execute($@"insert into SysNotice (Title,Content,UserId,NoticeTime) 
+values ('认证审核未通过','不通过',{singerId},'{DateTime.Now}')");
+            }
+
             string sql = $@"update [SingerDetailInfo] set  Authentication='{auth}' where UserId={singerId};";
             return helper.Execute(sql) > 0 ? true : false;
         }
