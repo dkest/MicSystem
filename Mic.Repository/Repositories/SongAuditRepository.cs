@@ -38,6 +38,11 @@ namespace Mic.Repository.Repositories
                 helper.Execute($@"insert into SysNotice (Title,Content,UserId,NoticeTime) 
 values ('歌曲审核未通过','{song.Memo}',{song.SingerId},'{DateTime.Now}')");
             }
+            else if (song.AuditStatus == 2) //审核通过
+            {
+                helper.Execute($@"insert into SysNotice (Title,Content,UserId,NoticeTime) 
+values ('歌曲审核通过','{song.Memo}',{song.SingerId},'{DateTime.Now}')");
+            }
             string sql = $@"update SongBook set AuditStatus={song.AuditStatus},SongMark='{song.SongMark}',SongBPM='{song.SongBPM}'
  where Id={song.Id};
 insert into SongOptDetail (SongId,Note,AuditStatus,OptType,OptTime) values(
