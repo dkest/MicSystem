@@ -146,7 +146,7 @@ namespace Mic.Api.Controllers
         /// </summary>
         /// <param name="songId"></param>
         /// <returns></returns>
-        [HttpPost, Route("songDetail/{songId:int}")]
+        [HttpPost, Route("songAuditDetail/{songId:int}")]
         [AccessTokenAuthorize]
         public ResponseResultDto<List<SongOptDetail>> SongAuditDeatil(int songId)
         {
@@ -192,6 +192,35 @@ namespace Mic.Api.Controllers
             return new ResponseResultDto<PagedResult<SongInfoParam>>
             {
                 IsSuccess = true,
+                ErrorMessage = string.Empty,
+                Result = result
+            };
+        }
+
+
+        /// <summary>
+        /// 获取歌曲信息详情[AUTH]
+        /// </summary>
+        /// <param name="singerId">歌手Id</param>
+        /// <param name="songId">歌曲Id</param>
+        /// <returns></returns>
+        [HttpPost, Route("songDetail/{singerId:int}/{songId:int}")]
+        [AccessTokenAuthorize]
+        public ResponseResultDto<SongBookEntity> GetSongDetail(int singerId, int songId)
+        {
+            if (singerId < 0 || songId < 0)//参数检查
+            {
+                return new ResponseResultDto<SongBookEntity>
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "参数异常",
+                    Result = null
+                };
+            }
+            var result = singerSongApiRepository.GetSongDetailInfo(singerId, songId);
+            return new ResponseResultDto<SongBookEntity>
+            {
+                IsSuccess = result == null ? false : true,
                 ErrorMessage = string.Empty,
                 Result = result
             };

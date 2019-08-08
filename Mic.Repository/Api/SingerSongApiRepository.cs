@@ -85,7 +85,7 @@ insert into SongOptDetail (SongId,AuditTimes,AuditStatus,Note,OptType,OptTime) v
         /// <returns></returns>
         public List<SongOptDetail> SongAuditDeatil(int songId)
         {
-            string sql = $@"select * from SongOptDetail where Id={songId} order by OptTime asc";
+            string sql = $@"select * from SongOptDetail where SongId={songId} order by OptTime asc";
             var result = helper.Query<SongOptDetail>(sql).ToList();
             return result;
         }
@@ -100,10 +100,10 @@ insert into SongOptDetail (SongId,AuditTimes,AuditStatus,Note,OptType,OptTime) v
         {
             string sql = $@"select top {param.PageSize} * from (select row_number() over(order by UploadTime desc) as rownumber, 
 Id,SongName,SongLength,UploadTime,AuditStatus from SongBook where SingerId={singerId} and AuditStatus in (0,1,3)
-) temp_row  where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize})";
+and Status =1 ) temp_row  where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize})";
             var result = helper.Query<SongInfoParam>(sql).ToList();
             int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from SongBook 
-where SingerId={singerId} and AuditStatus in (0,1,3)"));
+where SingerId={singerId} and AuditStatus in (0,1,3)  and Status =1"));
             return new PagedResult<SongInfoParam>
             {
                 Page = param.PageIndex,
@@ -111,6 +111,18 @@ where SingerId={singerId} and AuditStatus in (0,1,3)"));
                 Total = count,
                 Results = result
             };
+        }
+
+        /// <summary>
+        /// 获取歌曲详情
+        /// </summary>
+        /// <param name="singerId"></param>
+        /// <param name="songId"></param>
+        /// <returns></returns>
+        public SongBookEntity GetSongDetailInfo(int singerId, int songId)
+        {
+            string sql = $@"select * from SongBook where Id={songId} and SingerId={singerId}";
+            return helper.Query<SongBookEntity>(sql).FirstOrDefault();
         }
 
         /// <summary>
@@ -129,11 +141,11 @@ else b.PlayTimes end as PlayTimes,
 case when b.TotalPlayTime is null then 0 else b.TotalPlayTime end TotalPlayTime
  from SongBook a left join
 (select SongId,COUNT(1) as PlayTimes,SUM(BroadcastTime) as TotalPlayTime from SongPlayRecord group by SongId)  b on a.Id=b.SongId
-where SingerId={singerId} and AuditStatus=2
+where SingerId={singerId} and AuditStatus=2 and a.Status =1
 ) temp_row  where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize})";
             var result = helper.Query<SongInfoParam>(sql).ToList();
             int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from SongBook 
-where SingerId={singerId} and AuditStatus=2"));
+where SingerId={singerId} and AuditStatus=2 and Status =1"));
             return new PagedResult<SongInfoParam>
             {
                 Page = param.PageIndex,
