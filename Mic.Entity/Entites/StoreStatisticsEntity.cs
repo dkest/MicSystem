@@ -43,6 +43,17 @@ namespace Mic.Entity.Model
         /// 昨日播放时长
         /// </summary>
         public int PlayTimeYes { get; set; }
+        public string PlayTimeYesStr
+        {
+            get {
+                var temp = string.Empty;
+                int hour = Convert.ToInt32(Math.Floor(PlayTimeYes / 3600.0));
+                int min = Convert.ToInt32(Math.Floor((PlayTimeYes - 3600 * hour) / 60.0));
+                int sec = PlayTimeYes - 3600 * hour - 60 * min;
+                return hour + ":" + min + ":" + sec;
+            }
+        }
+
 
         /// <summary>
         /// 上周昨日播放时长

@@ -3,6 +3,8 @@ using Mic.Api.Models;
 using Mic.Entity;
 using Mic.Repository;
 using System.Collections.Generic;
+using System.Linq;
+using System.Web;
 using System.Web.Http;
 
 namespace Mic.Api.Controllers
@@ -41,13 +43,18 @@ namespace Mic.Api.Controllers
                     Result = 0
                 };
             }
-            int songId = singerSongApiRepository.AddSongInfo(song);
+
+            HttpRequest request = HttpContext.Current.Request;
+            string token = request.Headers.GetValues("Access-Token").FirstOrDefault();
+
+            var result = singerSongApiRepository.AddSongInfo(song, token);
+            //int songId = singerSongApiRepository.AddSongInfo(song,token);
 
             return new ResponseResultDto<int>
             {
-                IsSuccess = true,
-                ErrorMessage = string.Empty,
-                Result = songId //上传歌曲后，返回歌曲Id
+                IsSuccess = result.Item1,
+                ErrorMessage = result.Item2,
+                Result = result.Item3 //上传歌曲后，返回歌曲Id
             };
         }
 
@@ -87,10 +94,11 @@ namespace Mic.Api.Controllers
         /// 音乐人发布歌曲[AUTH]
         /// </summary>
         /// <param name="songId"></param>
+        /// <param name="songName"></param>
         /// <returns></returns>
-        [HttpPost, Route("publishSong/{songId:int}")]
+        [HttpPost, Route("publishSong/{songId:int}/{songName}")]
         [AccessTokenAuthorize]
-        public ResponseResultDto<bool> PublishSong(int songId)
+        public ResponseResultDto<bool> PublishSong(int songId,string songName)
         {
             if (songId < 0)//参数检查
             {
@@ -102,7 +110,7 @@ namespace Mic.Api.Controllers
                 };
             }
 
-            var result = singerSongApiRepository.PublishSong(songId);
+            var result = singerSongApiRepository.PublishSong(songId,songName);
 
             return new ResponseResultDto<bool>
             {
@@ -206,11 +214,11 @@ namespace Mic.Api.Controllers
         /// <returns></returns>
         [HttpPost, Route("songDetail/{singerId:int}/{songId:int}")]
         [AccessTokenAuthorize]
-        public ResponseResultDto<SongBookEntity> GetSongDetail(int singerId, int songId)
+        public ResponseResultDto<SongInfo> GetSongDetail(int singerId, int songId)
         {
             if (singerId < 0 || songId < 0)//参数检查
             {
-                return new ResponseResultDto<SongBookEntity>
+                return new ResponseResultDto<SongInfo>
                 {
                     IsSuccess = false,
                     ErrorMessage = "参数异常",
@@ -218,7 +226,7 @@ namespace Mic.Api.Controllers
                 };
             }
             var result = singerSongApiRepository.GetSongDetailInfo(singerId, songId);
-            return new ResponseResultDto<SongBookEntity>
+            return new ResponseResultDto<SongInfo>
             {
                 IsSuccess = result == null ? false : true,
                 ErrorMessage = string.Empty,
@@ -295,10 +303,10 @@ namespace Mic.Api.Controllers
         /// <returns></returns>
         [HttpPost, Route("songStattisticsByStore/{songId:int}")]
         [AccessTokenAuthorize]
-        public ResponseResultDto<PagedResult<SongInfoParam>> SongStattisticsByStore(int songId, PageParam param)
+        public ResponseResultDto<PagedResult<SongByStoreParam>> SongStattisticsByStore(int songId, PageParam param)
         {
             var result = singerSongApiRepository.SongStattisticsByStore(songId, param);
-            return new ResponseResultDto<PagedResult<SongInfoParam>>
+            return new ResponseResultDto<PagedResult<SongByStoreParam>>
             {
                 IsSuccess = true,
                 ErrorMessage = string.Empty,
@@ -312,10 +320,10 @@ namespace Mic.Api.Controllers
         /// </summary>
         [HttpPost, Route("getSongPlayRecordDetail/{songId:int}")]
         [AccessTokenAuthorize]
-        public ResponseResultDto<PagedResult<SongInfoParam>> SongStattisticsDetailByStore(int songId, PageParam param)
+        public ResponseResultDto<PagedResult<SongByStoreRecordParam>> SongStattisticsDetailByStore(int songId, PageParam param)
         {
             var result = singerSongApiRepository.SongStattisticsDetailByStore(songId, param);
-            return new ResponseResultDto<PagedResult<SongInfoParam>>
+            return new ResponseResultDto<PagedResult<SongByStoreRecordParam>>
             {
                 IsSuccess = true,
                 ErrorMessage = string.Empty,

@@ -46,6 +46,7 @@
     <Compile Include="Api\Param\SingerAuthParam.cs" />
     <Compile Include="Api\Param\PlaySongParam.cs" />
     <Compile Include="Api\Param\SingerParam.cs" />
+    <Compile Include="Api\Param\SongInfo.cs" />
     <Compile Include="Entites\AccessToken.cs" />
     <Compile Include="Entites\Admin.cs" />
     <Compile Include="Api\Param\FileInfo.cs" />

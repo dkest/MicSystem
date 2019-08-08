@@ -135,6 +135,7 @@ password='{Util.MD5Encrypt(user.Password)}' and Status=1").FirstOrDefault();
                         else
                         {//登陆成功
                             userEntity.UserName = temp.SingerName;
+                            userEntity.HeadImg = temp.HeadImg;
                             helper.Execute($@"update [User] set LastLoginTime='{DateTime.Now}' where Phone='{userEntity.Phone}'");
                         }
                     }

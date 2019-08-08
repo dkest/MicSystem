@@ -67,9 +67,9 @@ namespace Mic.Web.Controllers
             return Json(new { code = 0, msg = string.Empty, count = result.Item1, data = result.Item2 }, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult GetStoreStaticInfo(int storeId, DateTime beginDate, DateTime endDate)
+        public ActionResult GetStoreStaticInfo(int storeId,string storeCode, DateTime beginDate, DateTime endDate)
         {
-            var result = storeStatisticsRepository.GetStoreStatisticsInfo(storeId, beginDate, endDate);
+            var result = storeStatisticsRepository.GetStoreStatisticsInfo(storeId,storeCode, beginDate, endDate);
             return Json(new { status = true, data = result }, JsonRequestBehavior.AllowGet);
         }
 

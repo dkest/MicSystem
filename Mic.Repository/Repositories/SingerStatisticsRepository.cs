@@ -123,9 +123,10 @@ group by a.Id) c on c.tempId = d.Id where d.SingerId={3} and d.Status=1 and d.Au
         {
             string sql = string.Format(@"
                 select top {0} * from (select row_number() over(order by  a.BeginPlayTime desc) as rownumber, 
-a.BeginPlayTime,c.StoreName,d.StoreTypeName,b.* from SongPlayRecord a left join SongBook b on a.SongId = b.Id 
-left join StoreDetailInfo c
-on c.UserId=a.PlayUserId left join StoreType d on d.Id=c.StoreTypeId
+a.StoreCode,BeginPlayTime,b.SongName,b.SongLength,d.StoreName,e.StoreTypeName from SongPlayRecord a left join  SongBook b 
+					on a.SongId = b.Id 
+					left join [User] c on c.StoreCode=a.StoreCode and c.IsMain=1 left join StoreDetailInfo d
+					on d.UserId=c.Id left join StoreType e on e.Id= d.StoreTypeId
 where b.SingerId = {2} 
 ) temp_row
                     where temp_row.rownumber>(({1}-1)*{0});", param.PageSize, param.PageIndex, param.SingerId);

@@ -24,6 +24,26 @@ namespace Mic.Entity
         public int AuditStatus { get; set; } //审核状态
     }
 
+
+    public class SongByStoreParam
+    {
+        public int Id { get; set; }
+        public string StoreName { get; set; }
+        public string StoreTypeName { get; set; }
+        public int PlayTimes { get; set; }
+        public int TotalPlayTime { get; set; }
+        public int StoreCount { get; set; }
+    }
+
+    public class SongByStoreRecordParam
+    {
+        public DateTime BeginPlayTime { get; set; }
+        public string StoreName { get; set; }
+        public string StoreTypeName { get; set; }
+    }
+
+
+
     public class UploadSongParam
     {
         public int Id { get; set; }

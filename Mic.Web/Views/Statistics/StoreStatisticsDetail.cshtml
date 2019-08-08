@@ -186,7 +186,7 @@
 
 
     var loadStoreStatisticsInfo = function () {
-         Service.ajax(JSON.stringify({ storeId:storeId,beginDate: beginDate, endDate: endDate }), function (result) {
+         Service.ajax(JSON.stringify({ storeId:storeId,storeCode:storeCode,beginDate: beginDate, endDate: endDate }), function (result) {
         if (result.status) {
             $("#play_times_info").html(result.data.PlayCount);
             $("#ljsc").html(result.data.PlayTimeStr);

@@ -246,7 +246,7 @@
                 $("#active_store_bh").html(result.data.ActiveStoreComparedLastWeek + "%");
                 $('#active_store_bh_img').attr('src','http://152.136.227.143/Content/images/down.png');
             }
-            $("#store_plat_time").html(result.data.PlayTimeYesLastWeekStr);
+            $("#store_plat_time").html(result.data.PlayTimeYesStr);
             if (result.data.PlayTimeComparedLastWeek > 0) {
                 if (result.data.PlayTimeComparedLastWeek == 101) {
                     $("#play_time_bh").html('上周无数据');
