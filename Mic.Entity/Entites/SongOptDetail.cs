@@ -14,7 +14,9 @@ namespace Mic.Entity
         public string Note { get; set; }
         public DateTime AuditTime { get; set; }
         public int AuditAdminId { get; set; }
+        public string AuditUser { get; set; }
         public int OptType { get; set; }//操作类型 1-上传，2-发布 3-更新信息 4-审核
         public DateTime OptTime { get; set; } //操作时间，操作先后顺序排序
+        public string SongName { get; set; }
     }
 }

@@ -31,17 +31,17 @@ namespace Mic.Repository.Repositories
         /// </summary>
         /// <param name="song"></param>
         /// <returns></returns>
-        public bool AuditSong(SongBookEntity song)
+        public bool AuditSong(SongBookEntity song,int adminId)
         {
             if (song.AuditStatus==3)//不通过 需要通知歌手
             {
-                helper.Execute($@"insert into SysNotice (Title,Content,UserId,NoticeTime) 
-values ('歌曲审核未通过','{song.Memo}',{song.SingerId},'{DateTime.Now}')");
+                helper.Execute($@"insert into SysNotice (Title,Content,UserId,NoticeTime,SongName,AuditAdminId) 
+values ('歌曲审核未通过','{song.Memo}',{song.SingerId},'{DateTime.Now}','{song.SongName}',{adminId})");
             }
             else if (song.AuditStatus == 2) //审核通过
             {
-                helper.Execute($@"insert into SysNotice (Title,Content,UserId,NoticeTime) 
-values ('歌曲审核通过','{song.Memo}',{song.SingerId},'{DateTime.Now}')");
+                helper.Execute($@"insert into SysNotice (Title,Content,UserId,NoticeTime,SongName,AuditAdminId) 
+values ('歌曲审核通过','{song.Memo}',{song.SingerId},'{DateTime.Now}','{song.SongName}',{adminId})");
             }
             string sql = $@"update SongBook set AuditStatus={song.AuditStatus},SongMark='{song.SongMark}',SongBPM='{song.SongBPM}'
  where Id={song.Id};

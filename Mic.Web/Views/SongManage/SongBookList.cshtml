@@ -375,7 +375,7 @@
                         var note = $("#audit_note").val() == null ? "" : $("#audit_note").val();
                         var param = {
                             Id: data.Id, AuditStatus: auditStatus, SongMark: mark,
-                            SongBPM: bpm, Memo: note, SingerId: data.SingerId
+                            SongBPM: bpm, Memo: note, SingerId: data.SingerId, SongName: data.SongName
                         };
                         Service.ajax(JSON.stringify(param), function (result) {
                             if (result.status) {

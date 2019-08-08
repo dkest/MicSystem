@@ -1,6 +1,7 @@
 ﻿using Mic.Entity;
 using Mic.Repository;
 using Mic.Repository.Repositories;
+using Mic.Web.Common;
 using System.Web.Mvc;
 
 namespace Mic.Web.Controllers
@@ -78,7 +79,8 @@ namespace Mic.Web.Controllers
 
         public ActionResult AuditSong(SongBookEntity song)
         {
-            var result = songAuditRepository.AuditSong(song);
+            Admin admin = SessionHelper.GetUser(Session);
+            var result = songAuditRepository.AuditSong(song, admin.Id);
             return Json(new { status = result }, JsonRequestBehavior.AllowGet);
         }
         #endregion
@@ -93,7 +95,7 @@ namespace Mic.Web.Controllers
         public ActionResult DeleteSongMark(int id)
         {
             var result = songMarkRepository.DeleteSongMark(id);
-            return Json(new { status = result.Item1, msg=result.Item2 });
+            return Json(new { status = result.Item1, msg = result.Item2 });
         }
 
         public ActionResult GetSongMakList()
