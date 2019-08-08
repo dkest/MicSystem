@@ -170,7 +170,7 @@ namespace Mic.Api.Controllers
         }
 
         /// <summary>
-        /// 根据音乐人Id，分页获取音乐人未发布的歌曲，包括待发布/待审核/未通过
+        /// 根据音乐人Id，分页获取音乐人未发布的歌曲，包括待发布/待审核/未通过[AUTH]
         /// </summary>
         /// <param name="singerId">音乐人Id</param>
         /// <param name="param"></param>

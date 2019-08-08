@@ -98,7 +98,7 @@ insert into SongOptDetail (SongId,AuditTimes,AuditStatus,Note,OptType,OptTime) v
         /// <returns></returns>
         public PagedResult<SongInfoParam> GetUnPublishSongList(int singerId, PageParam param)
         {
-            string sql = $@"select top {param.PageSize} * from (select row_number() over(order by UpdateTime desc) as rownumber, 
+            string sql = $@"select top {param.PageSize} * from (select row_number() over(order by UploadTime desc) as rownumber, 
 Id,SongName,SongLength,UploadTime,AuditStatus from SongBook where SingerId={singerId} and AuditStatus in (0,1,3)
 ) temp_row  where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize})";
             var result = helper.Query<SongInfoParam>(sql).ToList();
@@ -121,7 +121,7 @@ where SingerId={singerId} and AuditStatus in (0,1,3)"));
         /// <returns></returns>
         public PagedResult<SongInfoParam> GetPublishSongList(int singerId, PageParam param)
         {
-            string sql = $@"select top {param.PageSize} * from (select row_number() over(order by UpdateTime desc) as rownumber, 
+            string sql = $@"select top {param.PageSize} * from (select row_number() over(order by UploadTime desc) as rownumber, 
 
  Id,SongName,SongLength,UploadTime,AuditStatus,
 case when b.PlayTimes is null then 0
