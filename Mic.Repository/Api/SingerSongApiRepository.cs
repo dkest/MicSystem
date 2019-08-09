@@ -156,7 +156,10 @@ where SingerId={singerId} and AuditStatus=2 and a.Status =1";
         /// <returns></returns>
         public PagedResult<SongInfoParam> GetPublishSongList(int singerId, PageParam param)
         {
-            string sql = $@"select top {param.PageSize} * from (select row_number() over(order by UploadTime desc) as rownumber, 
+            var order = string.Empty;
+            string sql = $@"select top {param.PageSize} * from (select row_number() over(order by 
+{(string.IsNullOrWhiteSpace(param.OrderField)?string.Empty: "b."+param.OrderField+" " +param.OrderType+" , ")}
+UploadTime desc) as rownumber, 
 
  Id,SongName,SongLength,UploadTime,AuditStatus,
 case when b.PlayTimes is null then 0
