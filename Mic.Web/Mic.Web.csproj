@@ -163,6 +163,7 @@
     <Content Include="Content\js\jquery-3.3.1.min.js" />
     <Content Include="Content\js\jquery.validate.js" />
     <Content Include="Content\js\jquery.validate.min.js" />
+    <Content Include="Content\js\md5.js" />
     <Content Include="Content\js\service.js" />
     <Content Include="Content\layui-formSelects\formSelects-v4.css" />
     <Content Include="Content\layui-formSelects\formSelects-v4.js" />

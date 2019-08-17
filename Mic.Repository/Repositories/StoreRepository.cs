@@ -60,7 +60,7 @@ where a.Status=1 and a.UserType=2  and a.IsMain=1  {likeSql}"));
                     password = Util.MD5Encrypt(storeInfo.Password);
                 }
                 result = helper.Execute($@"update [User] set UserName='{storeInfo.UserName}',
- Phone='{storeInfo.Phone}',Password='{password}' where Id={storeInfo.StoreId};
+ Phone='{storeInfo.Phone}' where Id={storeInfo.StoreId};
 update StoreDetailInfo set StoreName='{storeInfo.StoreName}',StoreTypeId={storeInfo.StoreTypeId},MaximumStore={storeInfo.MaximumStore},
 DelegatingContract='{storeInfo.DelegatingContract}',Province='{storeInfo.Province}',City='{storeInfo.City}',
 County='{storeInfo.County}',DetailAddress='{storeInfo.DetailAddress}' where UserId={storeInfo.StoreId};");

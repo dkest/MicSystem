@@ -161,6 +161,7 @@
                 $("#store_type").html(result.data.StoreTypeName);
                 $("#store_phone").html(result.data.Phone);
                 var sqhtPath = currentInfo.FullDelegatingContractPath;
+
                 var arr = sqhtPath.split('.');
                 var temp = arr[arr.length - 1].toLowerCase();;
                 if (temp == 'jpg' || temp == 'png' || temp == 'jpeg' || temp == 'bmp') {
@@ -169,9 +170,15 @@
 
                 } else {
                     if (currentInfo.DelegatingContract != "") {
-                        $("#sqht_pdf").show();
-                        $("#sqht_pdf").attr('href', sqhtPath);
-                        $("#sqht_pdf").text(sqhtPath);
+                        if (currentInfo.DelegatingContract == "" || currentInfo.DelegatingContrac == null) {
+                            $("#sqht_pdf").show();
+                            $("#sqht_pdf").text("无");
+                        } else{
+                            $("#sqht_pdf").show();
+                            $("#sqht_pdf").attr('href', sqhtPath);
+                            $("#sqht_pdf").attr('target', '_blank');
+                            $("#sqht_pdf").text(sqhtPath);
+                        }
                     }
                 }
                 // 编辑框信息
@@ -450,11 +457,11 @@
             return;
         }
 
-        var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}$/;
-        if (!reg.test($("#store_password_edit").val())) {
-            layer.msg("密码不得少于6位，且需包含数字和字母");
-            return;
-        }
+         var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,30}$/;
+                        if (!reg.test($("#reset_password").val())) {
+                            layer.msg("密码应为6位至30位，且需包含数字和字母");
+                            return;
+                        }
         var param = {
             Id: currentId, StoreId: currentId,
             UserName: $("#store_name_edit").val(),StoreName:$("#store_name_edit").val(), StoreTypeId: currentInfo.StoreTypeId,

@@ -91,7 +91,7 @@ values ('认证审核未通过','不通过',{singerId},'{DateTime.Now}')");
         public Tuple<bool, SingerDetailInfoEntity> GetSingerInfoById(int singerId)
         {
             string sql = $@"select * from [User] a left join  SingerDetailInfo b 
-on a.Id=b.UserId where b.UserId={singerId}";
+on a.Id=b.UserId left join SingerType c on c.Id=b.SingerTypeId where b.UserId={singerId}";
             var result = helper.Query<SingerDetailInfoEntity>(sql).FirstOrDefault();
             return Tuple.Create(result == null ? false : true, result);
         }

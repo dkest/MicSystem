@@ -143,6 +143,8 @@
                 var select = 'dd[lay-value=' + data.StoreTypeId + ']';
                 $('#store_type_edit').siblings("div.layui-form-select").find('dl').find(select).click();// 查找点击
 
+            $("#store_password_edit").attr("readonly","readonly");
+
 
                 $("#store_phone_edit").val(data.Phone);
                 $("#store_count_edit").val(data.MaximumStore);
@@ -325,10 +327,8 @@
             layer.msg("登录手机号不能为空");
             return;
         }
-        if ($("#store_password_edit").val()=="") {
-            layer.msg("登录密码不能为空");
-            return;
-        }
+
+
         if ($("#store_count_edit").val()=="") {
             layer.msg("分店数量不能为空");
             return;
@@ -341,16 +341,23 @@
             layer.msg("手机号格式不正确");
             return;
         }
-
-        var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}$/;
-        if (!reg.test($("#store_password_edit").val())) {
-            layer.msg("密码不得少于6位，且需包含数字和字母");
-            return;
+        var tempPassword = '';
+        if (currentId > 0) {
+            $("#store_password_edit").attr("readonly","readonly");
+        } else {
+            $("#store_password_edit").removeAttr('readonly');
+            var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,30}$/;
+                        if (!reg.test($("#store_password_edit").val())) {
+                            layer.msg("密码应为6位至30位，且需包含数字和字母");
+                            return;
+            }
+            tempPassword = md5($("#store_password_edit").val()) ;
         }
+
         var param = {
             Id: currentId, StoreId: currentId,
             UserName: $("#store_name_edit").val(),StoreName:$("#store_name_edit").val(), StoreTypeId: currentSelectStoreTypeId,
-            Phone: $("#store_phone_edit").val(), Password: $("#store_password_edit").val(),
+            Phone: $("#store_phone_edit").val(), Password: tempPassword, //$("#store_password_edit").val(),
             MaximumStore: $("#store_count_edit").val(), Province: province == null ? -1 : province,
             City: city == null ? "-1" : city, County: county == null ? "-1" : county,
             DetailAddress: $("#detail_address_edit").val(), DelegatingContract: fileName
@@ -456,6 +463,8 @@
             $("#store_password_edit").val("");
             $("#detail_address_edit").val("");
             $("#store_count_edit").val("");
+
+            $("#store_password_edit").removeAttr("readonly");
 
             layer.open({
                     type: 1,
@@ -623,7 +632,8 @@
         upload.render({
         elem: '#upload_btn'
         , url: '@Url.Action("UploadOrdinaryFile", "File")'
-        ,accept:'file' //普通文件
+            ,accept: 'file' //普通文件
+        ,exts:'pdf|jpg|png|jpeg|bmp'
         , done: function (res) {
             if (res.status) {
                 fileName = res.fileName;
@@ -637,3 +647,4 @@
 
 
 </script>
+<script src="~/Content/js/md5.js"></script>

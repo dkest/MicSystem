@@ -211,7 +211,7 @@
                 $("#song_edit_singername").val(data.SingerName);
                 $("#song_edit_bpm").val(data.SongBPM);
                 $("#yxq_song").val(data.ExpirationTime);
-                
+
                 var t = data.SongMark.split(',');
 
 
@@ -362,17 +362,36 @@
                     btn: ['确定', '取消'],
                     skin: 'tempSkin',
                     area: ['500px', '550px'],
-                    content: $('#song_audit_detail_div'),
+                    content: $('#song_audit_div'),
                     success: function () {
-                        $('#song_audit_detail_div').attr("display", 'block');
+                        $('#song_audit_div').attr("display", 'block');
                     },
                     end: function () {
-                        $('#song_audit_detail_div').attr("display", 'none');
+                        $('#song_audit_div').attr("display", 'none');
                     },
                     yes: function (index, layero) {//审核完成 提交数据
                         var mark = formSelects.value('songmark_audit', 'valStr');
                         var bpm = $("#song_edit_bpm_audit").val() == null ? 0 : $("#song_edit_bpm_audit").val();
                         var note = $("#audit_note").val() == null ? "" : $("#audit_note").val();
+                        if (auditStatus == 2) {
+
+                            if (bpm == '0' || bpm == '') {
+                                layer.msg('bpm请填写有效的值');
+                                return;
+                            }
+                            if (mark < 1) {
+                                layer.msg('请选择有效的标签');
+                                return;
+                            }
+                        } else {
+                                if (note.length > 150) {
+                                layer.msg('审核意见不能超过150个字符');
+                                return;
+                            }
+                        }
+
+
+
                         var param = {
                             Id: data.Id, AuditStatus: auditStatus, SongMark: mark,
                             SongBPM: bpm, Memo: note, SingerId: data.SingerId, SongName: data.SongName
@@ -539,6 +558,7 @@
                 content: $('#song_label_edit_div'),
                 success: function () {
                     $('#song_label_edit_div').attr("display", 'block');
+                    table.reload('songmark_table');
                 },
                 end: function () {
                     $('#song_label_edit_div').attr("display", 'none');
@@ -593,9 +613,15 @@
             var mark = formSelects.value('songmark', 'valStr');
                     if ($("#song_edit_songname").val() == "") {
                         layer.msg("歌曲名不能为空"); return;
+            }
+            if ($("#song_edit_songname").val().length >20) {
+                        layer.msg("歌曲名不能超过20个字符"); return;
                     }
                     if ($("#song_edit_singername").val() == "") {
                         layer.msg("歌手名不能为空"); return;
+            }
+            if ($("#song_edit_singername").val().length > 20) {
+                        layer.msg("歌手名不能超过20个字符"); return;
                     }
                     if (mark == "") {
                         layer.msg("歌曲标签不能为空"); return;
@@ -647,11 +673,18 @@
                 , field = obj.field; //得到字段
             var param = { "Id": obj.data.Id, "MarkName": obj.data.MarkName };
             if (obj.data.MarkName == "") {
-                layer.msg("标签名称不能为空");
+                layer.msg("标签名称不能为空，保存失败");
+                table.reload('songmark_table');
+                return;
+            }
+            if (obj.data.MarkName.length >20) {
+                layer.msg("标签名称不能太长，保存失败");
+                table.reload('songmark_table');
                 return;
             }
             Service.ajax(JSON.stringify(param), function (result) {
                 if (result.status) {
+
                     layer.msg("保存成功");
                 }
             }, '@Url.Action("AddOrUpdateSongMark", "SongManage")', true, true);
@@ -670,6 +703,10 @@
         $("#add_songmark_btn").click(function () {
             if ($("#song_mark_text").val() == "") {
                 layer.msg("标签名称不能为空");
+                return;
+            }
+            if ($("#song_mark_text").val().length >20) {
+                layer.msg("标签名称不能太长");
                 return;
             }
             var param = { "Id": -1, "MarkName": $("#song_mark_text").val() };
@@ -831,9 +868,11 @@
     });
 </script>
 
+<div id="song_audit_detail_div" style="display:none;margin-left:15px;margin-top:10px;">
+</div>
 
 <!--审核详情-->
-<div id="song_audit_detail_div" class="layui-form" style="display:none;margin-left:15px;margin-top:10px;">
+<div id="song_audit_div" class="layui-form" style="display:none;margin-left:15px;margin-top:10px;">
     <div class="layui-form-item">
         <label class="layui-form-label">版权证明</label>
         <div class="layui-input-block">

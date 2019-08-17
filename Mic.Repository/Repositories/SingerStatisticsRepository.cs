@@ -86,7 +86,7 @@ u.Id as SingerId,c.SingerName,
  SUM(CASE  WHEN a.AuditStatus in ('0','1','2','3') THEN 1 ELSE 0 END) AS UploadCount,
 SUM(CASE a.AuditStatus WHEN '2' THEN 1 ELSE 0 END) AS  PublishCount,
 COUNT( b.PlayUserId) PlayStoreCount, COUNT(distinct b.SongId) PlaySongCount
-  from [User] u left join   SongBook a on u.Id=a.SingerId left join SingerDetailInfo c on a.SingerId=c.UserId
+  from [User] u left join   SongBook a on u.Id=a.SingerId left join SingerDetailInfo c on u.Id=c.UserId
   left join SongPlayRecord b on a.Id=b.SongId 
   where u.UserType=1 and u.LastLoginTime >'{param.BeginDate}' and u.LastLoginTime <'{param.EndDate}'  
  group by u.Id,c.SingerName ) temp_row

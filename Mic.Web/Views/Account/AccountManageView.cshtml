@@ -111,6 +111,11 @@
                             layer.msg("用户名不能超过30个字符");
                             return;
                         }
+                         if ($("#user_name").val().length < 1) {
+                            layer.msg("用户名不能为空");
+                            return;
+                        }
+
                         Service.ajax(JSON.stringify({ Id: data.Id, UserName: $('#user_name').val(), Password: data.Password }), function (result) {
                             if (result.status) {
                                 layer.msg("保存成功");
@@ -175,9 +180,13 @@
                             layer.msg('两次密码不一致,请重新输入。');
                             return;
                         }
-                        var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}$/;
+                        if ($("#reset_password").length > 30) {
+                             layer.msg('密码长度过长,请重新输入。');
+                            return;
+                        }
+                        var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,30}$/;
                         if (!reg.test($("#reset_password").val())) {
-                            layer.msg("密码不得少于6位，且需包含数字和字母");
+                            layer.msg("密码应为6位至30位，且需包含数字和字母");
                             return;
                         }
 
@@ -214,13 +223,15 @@
                         $('#admin_edit_div').attr("display", 'none');
                     },
                     yes: function (index, layero) {
-                        var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}$/;
-                        if (!reg.test($("#password").val())) {
-                            layer.msg("密码不得少于6位，且需包含数字和字母");
+                        
+                        
+                         if ($("#user_name").val().length < 1) {
+                            layer.msg("用户名不能为空");
                             return;
                         }
-                        if ($("#user_name").val().length > 30) {
-                            layer.msg("用户名不能超过30个字符");
+                          var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,30}$/;
+                        if (!reg.test($("#password").val())) {
+                            layer.msg("密码应为6位至30位，且需包含数字和字母");
                             return;
                         }
                         Service.ajax(JSON.stringify({ Id: -1, UserName: $('#user_name').val(), Password: $('#password').val() }), function (result) {

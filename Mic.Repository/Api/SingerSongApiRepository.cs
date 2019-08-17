@@ -40,9 +40,9 @@ where b.TokenId='{token}'").FirstOrDefault();
             var p = new DynamicParameters();
             p.Add("@Id", dbType: DbType.Int32, direction: ParameterDirection.Output);
             var result = helper.Execute($@"insert into SongBook (SongName,SingerName,SingerId,
-SongLength,CopyrightFilePath,SongPath,SongSize,UploadTime,AuditStatus,Status)
+SongLength,CopyrightFilePath,SongPath,SongSize,UploadTime,AuditStatus,Status,ExpirationTime)
 values ('{song.SongName}','{song.SingerName}',{song.SingerId},'{song.SongLength}',
-'{song.CopyrightFilePath}','{song.SongPath}',{song.SongSize},'{DateTime.Now}',{0},{1}); SELECT @Id=SCOPE_IDENTITY()", p);
+'{song.CopyrightFilePath}','{song.SongPath}',{song.SongSize},'{DateTime.Now}',{0},{1},'2100-01-01'); SELECT @Id=SCOPE_IDENTITY()", p);
             helper.Execute($@"insert into SongOptDetail (SongId,AuditTimes,AuditStatus,Note,OptType,OptTime) values
 ({song.Id},{0},{0},'音乐人上传歌曲',{1},'{DateTime.Now}')");
             var tt = p.Get<int>("@Id");
@@ -136,7 +136,7 @@ where SingerId={singerId} and AuditStatus in (0,1,3)  and Status =1"));
         public SongInfo GetSongDetailInfo(int singerId, int songId)
         {
             //string sql = $@"select * from SongBook where Id={songId} and SingerId={singerId}";
-            string sql = $@"select a.Id,a.SongName,a.SongLength,a.ExpirationTime,a.CopyrightFilePath,a.SongMark,a.SongSize,a.SongBPM,
+            string sql = $@"select a.Id,a.SongName,a.AuditStatus,a.SongLength,a.ExpirationTime,a.CopyrightFilePath,a.SongMark,a.SongSize,a.SongBPM,
 a.UploadTime,a.SongPath,
 case when b.PlayTimes is null then 0
 else b.PlayTimes end as PlayTimes,
@@ -144,7 +144,7 @@ case when b.TotalPlayTime is null then 0 else b.TotalPlayTime end TotalPlayTime
  from SongBook a left join
 (select SongId,COUNT(1) as PlayTimes,SUM(BroadcastTime) as TotalPlayTime from SongPlayRecord where SongId={songId} group by SongId)  b 
 on a.Id=b.SongId
-where SingerId={singerId} and AuditStatus=2 and a.Status =1";
+where SingerId={singerId} and a.Id={songId} and a.Status =1";
             return helper.Query<SongInfo>(sql).FirstOrDefault();
         }
 

@@ -43,7 +43,7 @@ password='{password}' and Status=1").FirstOrDefault();
                     isSuccess = false;
                     retMsg = "密码不正确。";
                 }
-                if (!admin.Enabled)
+                if (admin != null && !admin.Enabled)
                 {
                     isSuccess = false;
                     retMsg = "当前账号已经被禁用，请联系管理员启用该账号。";
@@ -72,6 +72,12 @@ password='{password}' and Status=1").FirstOrDefault();
             string sql = string.Empty;
             if (admin.Id > 0)
             {
+                var a = helper.QueryScalar($@"select Count(1) from [Admin] where UserName='{admin.UserName}' and Id not in ({admin.Id})");
+                if (Convert.ToInt32(a) > 0)
+                {
+                    return Tuple.Create(false, "已经存在该用户名的用户了，无法修改");
+
+                }
                 sql = $@"update [Admin] set [UserName]='{admin.UserName}',
 [Password]='{admin.Password}',UpdateTime='{DateTime.Now}' where Id={admin.Id}";
             }

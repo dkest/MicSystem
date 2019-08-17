@@ -45,7 +45,7 @@ namespace Mic.Repository.Repositories
                 }
                 else
                 {
-                    var temp = helper.QueryScalar($@"select Id from [User] a left join [User] b on a.StoreCode=b.StoreCode where b.Id={user.Id} and a.UserType=2 and a.IsMain=1");
+                    var temp = helper.QueryScalar($@"select Id from [User]   where StoreCode='{user.StoreCode}' and UserType=2 and IsMain=1");
                     if (temp != null)
                     {
                         storeId = Convert.ToInt32(temp);
@@ -125,7 +125,7 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
                 }
                 else
                 {
-                    var temp = helper.QueryScalar($@"select Id from [User] a left join [User] b on a.StoreCode=b.StoreCode where b.Id={user.Id} and a.UserType=2 and a.IsMain=1");
+                    var temp = helper.QueryScalar($@"select Id from [User]   where StoreCode='{user.StoreCode}' and UserType=2 and IsMain=1");
                     if (temp != null)
                     {
                         storeId = Convert.ToInt32(temp);

@@ -25,7 +25,7 @@
     }
 
     .info_item_div {
-        height: 40px;
+        margin-bottom:10px;
         width: 100%;
     }
 </style>
@@ -82,7 +82,7 @@
                     <label>艺名：</label> <span id="singer_ym"></span>
                 </div>
                 <div class="info_item_div">
-                    <label>音乐流派：</label> <span id="singer_lp" ></span>
+                    <label>音乐流派：</label> <span id="singer_lp"></span>
                 </div>
                 <div class="info_item_div">
                     <label>自我介绍：</label> <span id="singer_zwjs"></span>
@@ -104,7 +104,7 @@
             </div>
         </div>
     </div>
-   
+
 </div>
 
 
@@ -170,6 +170,7 @@
             if (layEvent === 'manage') {
                 location.href = '@Url.Action("SingerDetail", "SingerManage")?singerId=' + data.SingerId;
             } else if (layEvent === 'edit') {
+
                 layer.open({
                     type: 1,
                     title: '<span style="font-weight:bolder;">编辑显示名称</span>',
@@ -185,6 +186,16 @@
                         $('#show_name_edit_div').attr("display", 'none');
                     },
                     yes: function (index, layero) {
+                        var tName = $("#singer_show_name").val();
+                if (tName == "") {
+                    layer.msg("艺名不能为空");
+                    return;
+                }
+                if (tName.length >50 ) {
+                    layer.msg("艺名不能超过50个字符");
+                    return;
+                        }
+
                         Service.ajax(JSON.stringify({ singerId: data.SingerId, name: $("#singer_show_name").val() }), function (result) {
                             if (result.status) {
                                 layer.msg('艺名更新成功');
@@ -230,7 +241,7 @@
                 }
 
             } else if (layEvent == 'auth') {
-                $('#singer_ym').html(data.SingerNameForStore);
+                $('#singer_ym').html(data.SingerName);
                 $('#singer_lp').html(data.SingerTypeName);
                 $('#singer_zwjs').html(data.Introduce);
                 $('#idcard_no').html(data.IdCardNo);

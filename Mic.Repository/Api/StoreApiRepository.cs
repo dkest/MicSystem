@@ -127,6 +127,12 @@ where a.StoreCode='{2}' and a.UserType=3 {3}) temp_row
             {
                 return Tuple.Create(false, "该手机号已经存在，无法添加");
             }
+            var count1 = helper.QueryScalar($@"select Count(1) from [StoreDetailInfo] where StoreName='{sonStore.StoreName}' and UserId not in ({sonStore.Id})");
+            if (Convert.ToInt32(count1) > 0)
+            {
+                return Tuple.Create(false, "该分店名称已经存在");
+            }
+
 
             // 先根据token，Id,再获取，获取 StoreCode，然后再添加Staff
             UserEntity user = helper.Query<UserEntity>($@"select a.* from [User] a left join [UserAccessToken] b on a.Id=b.UserId where b.TokenId='{token}'").FirstOrDefault();
@@ -176,6 +182,12 @@ values ({id},'{sonStore.StoreName}',{1},'{DateTime.Now}')";
             if (Convert.ToInt32(count) > 0)
             {
                 return Tuple.Create(false, "该手机号已经存在");
+            }
+
+            var count1 = helper.QueryScalar($@"select Count(1) from [StoreDetailInfo] where StoreName='{sonStore.StoreName}' and UserId not in ({sonStore.Id})");
+            if (Convert.ToInt32(count1) > 0)
+            {
+                return Tuple.Create(false, "该分店名称已经存在");
             }
 
             var temp = helper.QueryScalar($@"select [Password] from [User] where Id={sonStore.Id}");
