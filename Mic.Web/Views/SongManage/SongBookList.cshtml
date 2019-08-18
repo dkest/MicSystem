@@ -211,7 +211,7 @@
                 $("#song_edit_singername").val(data.SingerName);
                 $("#song_edit_bpm").val(data.SongBPM);
                 $("#yxq_song").val(data.ExpirationTime);
-
+                $('#upload_btn').text(data.SongPath);
                 var t = data.SongMark.split(',');
 
 
@@ -239,11 +239,11 @@
 
                 layer.open({
                     type: 1,
-                    title: '<span style="font-weight:bolder;">上传歌曲</span>',
+                    title: '<span style="font-weight:bolder;">编辑歌曲</span>',
                     move: false,
                     btn: ['确定', '取消'],
                     skin: 'tempSkin',
-                    area: ['500px', '550px'],
+                    area: ['700px', '600px'],
                     content: $('#song_add_edit_div'),
                     success: function () {
                         $('#song_add_edit_div').attr("display", 'block');
@@ -428,9 +428,14 @@
                                     break;
                                 case 4:
                                     s = "审核--" + ((item.AuditStatus == 2) ? "通过" : "未通过");
+                                    s += "  审核人：" + item.AuditAdminName
+                                    if (item.AuditStatus == 3) {
+                                        s += ("  审核意见："+item.Note);
+                                    }
                                     break;
                                 default:
                             }
+
                             htmlStr += ' <li class="layui-timeline-item">' +
                                 '<i class="layui-icon layui-timeline-axis"></i>' +
                                 '<div class="layui-timeline-content layui-text">' +
@@ -499,9 +504,11 @@
             if (data == "list") {
                 $("#song_audit").hide();
                 $("#song_list").show();
+                table.reload('songbook');
             } else if (data == "audit") {
                 $("#song_audit").show();
                 $("#song_list").hide();
+                table.reload('audit_list');
             }
         });
         $("#song_search_btn").click(function () {
@@ -595,7 +602,7 @@
                 move: false,
                 btn: ['确定', '取消'],
                 skin: 'tempSkin',
-                area: ['500px', '550px'],
+                area: ['700px', '600px'],
                 content: $('#song_add_edit_div'),
                 success: function () {
                     $('#song_add_edit_div').attr("display", 'block');
@@ -686,6 +693,11 @@
                 if (result.status) {
 
                     layer.msg("保存成功");
+                } else {
+                    layer.msg("当前标签已经存在");
+                    //$("#song_mark_text").val("");
+                    songmarkTable.reload({});
+
                 }
             }, '@Url.Action("AddOrUpdateSongMark", "SongManage")', true, true);
             //$.each(songmarkList, function (index, item) {
@@ -715,6 +727,10 @@
                     layer.msg("添加成功");
                     $("#song_mark_text").val("");
                     songmarkTable.reload({});
+                } else {
+                    layer.msg("当前标签已经存在");
+                    //$("#song_mark_text").val("");
+                    //songmarkTable.reload({});
                 }
             }, '@Url.Action("AddOrUpdateSongMark", "SongManage")', true, true);
             //var newNum = songmarkList.length +1;
@@ -849,6 +865,7 @@
             if (res.status) {
                 fileName = res.fileName;
                 duration = res.duration;
+                $('#upload_btn').text(fileName);
                 layer.msg("上传成功");
             } else {
                 layer.msg("上传失败");

@@ -30,11 +30,21 @@ namespace Mic.Repository.Repositories
             int result = 0;
             if (singerTypeEntity.Id > 0)
             {
+                var t = helper.QueryScalar($@"select count(1) from SingerType where SingerTypeName='{singerTypeEntity.SingerTypeName}' and Id not in ({singerTypeEntity.Id}) ");
+                if (Convert.ToInt32(t) > 0)
+                {
+                    return Tuple.Create(false, new SingerTypeEntity());
+                }
                 result = helper.Execute($@"update SingerType set SingerTypeName='{singerTypeEntity.SingerTypeName}',UpdateTime='{DateTime.Now}' where Id={singerTypeEntity.Id}");
                 updateEntity = singerTypeEntity;
             }
             else
             {
+                var t = helper.QueryScalar($@"select count(1) from SingerType where SingerTypeName='{singerTypeEntity.SingerTypeName}' ");
+                if (Convert.ToInt32(t) > 0)
+                {
+                    return Tuple.Create(false, new SingerTypeEntity());
+                }
                 var p = new DynamicParameters();
                 p.Add("@Id", dbType: DbType.Int32, direction: ParameterDirection.Output);
                 result = helper.Execute($@"insert into SingerType (SingerTypeName,UpdateTime) values ('{singerTypeEntity.SingerTypeName}','{DateTime.Now}');SELECT @Id=SCOPE_IDENTITY()", p);

@@ -85,7 +85,9 @@
     var fileName;
     var province;
     var city;
-     var county;
+    var county;
+
+    var password = '';
 
     layui.use('table', function () {
         var table = layui.table;
@@ -137,13 +139,14 @@
                 city = data.City;
                 county = data.County;
 
+                $($('#upload_btn').parent()).css("background-image", "url('"+data.FullDelegatingContractPath+"')");
                 $("#store_name_edit").val(data.StoreName);
                 $("#store_type_edit").val(data.StoreTypeId);
 
                 var select = 'dd[lay-value=' + data.StoreTypeId + ']';
                 $('#store_type_edit').siblings("div.layui-form-select").find('dl').find(select).click();// 查找点击
-
-            $("#store_password_edit").attr("readonly","readonly");
+                $('#demo1').attr('src', data.FullDelegatingContractPath);
+            //$("#store_password_edit").attr("readonly","readonly");
 
 
                 $("#store_phone_edit").val(data.Phone);
@@ -184,7 +187,7 @@
                 }, '@Url.Action("GetCountyList", "City")', false);
 
                 form.render()
-
+                password = '';
                 layer.open({
                     type: 1,
                     title: '<span style="font-weight:bolder;">修改商家</span>',
@@ -262,13 +265,18 @@
                 , data = obj.data //得到所在行所有键值
                 , field = obj.field; //得到字段
             var param = { "Id": obj.data.Id, "StoreTypeName": obj.data.StoreTypeName };
-            if (obj.data.StoreTypeName == "") {
+            if ( $.trim(obj.data.StoreTypeName) == "") {
                 layer.msg("商家类型名称不能为空");
+                table.reload('store_type_table');
                 return;
             }
             Service.ajax(JSON.stringify(param), function (result) {
                 if (result.status) {
                     layer.msg("保存成功");
+                    table.reload('store_type_table')
+                } else {
+                    layer.msg("该商家类型已经存在");
+                    table.reload('store_type_table')
                 }
             }, '@Url.Action("AddOrUpdateStoreType", "StoreManage")', true, true);
 
@@ -285,6 +293,9 @@
                     layer.msg("添加成功");
                     $("#store_type_text").val("");
                     storeTypeTable.reload({});
+                }else {
+                    layer.msg("该商家类型已经存在");
+                    //table.reload('store_type_table')
                 }
             }, '@Url.Action("AddOrUpdateStoreType", "StoreManage")', true, true);
 
@@ -343,17 +354,27 @@
         }
         var tempPassword = '';
         if (currentId > 0) {
-            $("#store_password_edit").attr("readonly","readonly");
-        } else {
-            $("#store_password_edit").removeAttr('readonly');
-            var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,30}$/;
+            //$("#store_password_edit").attr("readonly","readonly");
+            if (password != '') {
+                var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,30}$/;
                         if (!reg.test($("#store_password_edit").val())) {
-                            layer.msg("密码应为6位至30位，且需包含数字和字母");
+                            layer.msg("密码应为6位至30位字母与数字的组合");
                             return;
             }
-            tempPassword = md5($("#store_password_edit").val()) ;
+                tempPassword = md5($("#store_password_edit").val());
+            } else {
+                tempPassword = '';
+            }
+        } else {
+            //$("#store_password_edit").removeAttr('readonly');
+            var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,30}$/;
+                        if (!reg.test($("#store_password_edit").val())) {
+                            layer.msg("密码应为6位至30位字母与数字的组合");
+                            return;
+            }
+            tempPassword = md5($("#store_password_edit").val());
         }
-
+        
         var param = {
             Id: currentId, StoreId: currentId,
             UserName: $("#store_name_edit").val(),StoreName:$("#store_name_edit").val(), StoreTypeId: currentSelectStoreTypeId,
@@ -450,6 +471,11 @@
     };
 
     var bindEvent = function () {
+
+        $("#store_password_edit").change(function () {
+            password = $('#store_password_edit').val();
+        });
+
         $('#add_store_btn').click(function () {
             initStoreTypeSelect();
             initAreaSelect();
@@ -463,8 +489,8 @@
             $("#store_password_edit").val("");
             $("#detail_address_edit").val("");
             $("#store_count_edit").val("");
-
-            $("#store_password_edit").removeAttr("readonly");
+            password = "";
+            //$("#store_password_edit").removeAttr("readonly");
 
             layer.open({
                     type: 1,
@@ -616,11 +642,16 @@
         <div class="layui-col-md6">
             <label class="layui-form-label">授权合同</label>
             <div class="layui-input-block">
-                <div class="layui-upload-drag" id="upload_btn" style="height:100px;width: 225px;">
+                <div class="layui-upload-drag" id="upload_btn" style="height:200px;width: 225px;">
                     <i class="layui-icon layui-icon-add-1" style="font-size: 30px; color: #1E9FFF;"></i>
                     <p>点击上传</p>
+                    <div class="layui-upload-list">
+                        <img class="layui-upload-img" width="200" height="100" id="demo1">
+                        <p id="demoText"></p>
+                    </div>
                 </div>
             </div>
+            
         </div>
     </div>
 </div>
@@ -641,7 +672,13 @@
             } else {
                 layer.msg("上传失败");
             }
-        }
+            }
+        ,before: function(obj){
+      //预读本地文件示例，不支持ie8
+      obj.preview(function(index, file, result){
+        $('#demo1').attr('src', result); //图片链接（base64）
+      });
+    }
     });
     });
 

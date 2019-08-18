@@ -49,6 +49,14 @@ namespace Mic.Web.Controllers
             return View();
         }
 
+
+        public ActionResult GetSongListUpdateTime(int storeId)
+        {
+
+            var result = storeRepository.GetSongListUpdateTime(storeId);
+            return Json(new { status = result.Item1, data= result.Item2 }, JsonRequestBehavior.AllowGet);
+        }
+
         #region 商家类型
         public ActionResult GetStoreTypeList()
         {

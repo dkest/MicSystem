@@ -31,7 +31,7 @@ namespace Mic.Repository.Repositories
         /// </summary>
         /// <param name="song"></param>
         /// <returns></returns>
-        public bool AuditSong(SongBookEntity song,int adminId)
+        public bool AuditSong(SongBookEntity song,string adminName)
         {
             if (song.AuditStatus==3)//不通过 需要通知歌手
             {
@@ -45,8 +45,8 @@ values ('歌曲审核通过','{song.Memo}',{song.SingerId},'{DateTime.Now}')");
             }
             string sql = $@"update SongBook set AuditStatus={song.AuditStatus},SongMark='{song.SongMark}',SongBPM='{song.SongBPM}'
  where Id={song.Id};
-insert into SongOptDetail (SongId,Note,AuditStatus,OptType,OptTime,SongName,AuditAdminId) values(
-                {song.Id},'{song.Memo}',{song.AuditStatus},{4},'{DateTime.Now}','{song.SongName}',{adminId})";
+insert into SongOptDetail (SongId,Note,AuditStatus,OptType,OptTime,SongName,AuditAdminName) values(
+                {song.Id},'{song.Memo}',{song.AuditStatus},{4},'{DateTime.Now}','{song.SongName}','{adminName}')";
             return helper.Execute(sql) > 0 ? true : false;
         }
 

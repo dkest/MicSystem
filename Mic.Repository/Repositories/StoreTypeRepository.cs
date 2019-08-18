@@ -27,11 +27,21 @@ namespace Mic.Repository.Repositories
             int result = 0;
             if (storeTypeEntity.Id > 0)
             {
+                var t = helper.QueryScalar($@"select count(1) from StoreType where StoreTypeName='{storeTypeEntity.StoreTypeName}' and Id not in ({storeTypeEntity.Id}) ");
+                if (Convert.ToInt32(t) > 0)
+                {
+                    return Tuple.Create(false,new StoreTypeEntity());
+                }
                 result = helper.Execute($@"update StoreType set StoreTypeName='{storeTypeEntity.StoreTypeName}',UpdateTime='{DateTime.Now}' where Id={storeTypeEntity.Id}");
                 updateEntity = storeTypeEntity;
             }
             else
             {
+                var t = helper.QueryScalar($@"select count(1) from StoreType where StoreTypeName='{storeTypeEntity.StoreTypeName}'  ");
+                if (Convert.ToInt32(t) > 0)
+                {
+                    return Tuple.Create(false, new StoreTypeEntity());
+                }
                 var p = new DynamicParameters();
                 p.Add("@Id", dbType: DbType.Int32, direction: ParameterDirection.Output);
                 result = helper.Execute($@"insert into StoreType (StoreTypeName,UpdateTime) values ('{storeTypeEntity.StoreTypeName}','{DateTime.Now}');SELECT @Id=SCOPE_IDENTITY()", p);

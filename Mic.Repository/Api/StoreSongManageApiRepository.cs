@@ -57,7 +57,7 @@ namespace Mic.Repository.Repositories
                 return Tuple.Create(false, "该用户不是商家或者分店，没有歌单", new PagedResult<SongInfoParam>());
             }
             // 获取歌单 只获取最后增加的一个歌单
-            var listContent = helper.QueryScalar($@"select ListContent from PlayList where StoreId={storeId} and IsPublish={1} order by Id desc");
+            var listContent = helper.QueryScalar($@"select ListContent from PlayList where StoreId={storeId} and IsPublish={1} and Status=1 order by Id desc");
             if (listContent == null || string.IsNullOrWhiteSpace(listContent.ToString()))
             {
                 return Tuple.Create(true, "没有歌单", new PagedResult<SongInfoParam>());

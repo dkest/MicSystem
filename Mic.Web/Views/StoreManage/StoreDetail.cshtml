@@ -148,7 +148,13 @@
 
         }, '@Url.Action("GetProvinceList", "City")', false);
 
+        
+        Service.ajax(JSON.stringify({ storeId: currentId }), function (result) {
+            if (result.status) {
+                $("#songListUpdateTime").html(Service.FormatDate("yyyy-MM-dd HH:mm:ss", Service.ConvertNetDate(result.data)));
 
+            }
+        },'@Url.Action("GetSongListUpdateTime", "StoreManage")', true);
 
         Service.ajax(JSON.stringify({ storeId:currentId}), function (result) {
             if (result.status) {
@@ -189,6 +195,8 @@
                 $("#store_count_edit").val(currentInfo.MaximumStore);
                 $("#store_password_edit").val(currentInfo.Password);
                 $("#detail_address_edit").val(currentInfo.DetailAddress);
+
+                $('#demo1').attr('src', currentInfo.FullDelegatingContractPath);
 
                 $("#add_province").val(currentInfo.Province);
                 form.on('select(province)', function (data) {
@@ -277,7 +285,7 @@
                         area:['auto','auto'],
                         skin: 'layui-layer-nobg', //没有背景色
                         shadeClose: true,
-                        content: "<img src='"+sqhtPath+"'/>"
+                        content: "<img width=1000 height=700 src='"+sqhtPath+"'/>"
                     });
                 });
                 var detailAddress = result.data.DetailAddress;
@@ -359,8 +367,14 @@
                     "code": res.code, "msg": res.msg, "count": res.count, "data": res.data //解析数据列表
                 };
             }
-            , done: function (res,curr,count) {
-                $("#songListUpdateTime").html(Service.FormatDate("yyyy-MM-dd HH:mm:ss", Service.ConvertNetDate(listItem.UpdateTime)));
+            , done: function (res, curr, count) {
+                 Service.ajax(JSON.stringify({ storeId: currentId }), function (result) {
+            if (result.status) {
+                $("#songListUpdateTime").html(Service.FormatDate("yyyy-MM-dd HH:mm:ss", Service.ConvertNetDate(result.data)));
+
+            }
+        },'@Url.Action("GetSongListUpdateTime", "StoreManage")', true);
+                //$("#songListUpdateTime").html(Service.FormatDate("yyyy-MM-dd HH:mm:ss", Service.ConvertNetDate(listItem.UpdateTime)));
             }
         });
 
@@ -369,7 +383,6 @@
 
     var bindEvent = function () {
         $('#edit_store_info').click(function () {
-
             layer.open({
                     type: 1,
                     title: '<span style="font-weight:bolder;">编辑商家</span>',
@@ -440,10 +453,10 @@
             layer.msg("登录手机号不能为空");
             return;
         }
-        if ($("#store_password_edit").val()=="") {
-            layer.msg("登录密码不能为空");
-            return;
-        }
+        //if ($("#store_password_edit").val()=="") {
+        //    layer.msg("登录密码不能为空");
+        //    return;
+        //}
         if ($("#store_count_edit").val()=="") {
             layer.msg("分店数量不能为空");
             return;
@@ -457,15 +470,15 @@
             return;
         }
 
-         var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,30}$/;
-                        if (!reg.test($("#reset_password").val())) {
-                            layer.msg("密码应为6位至30位，且需包含数字和字母");
-                            return;
-                        }
+         //var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,30}$/;
+         //               if (!reg.test($("#reset_password").val())) {
+         //                   layer.msg("密码应为6位至30位字母与数字的组合");
+         //                   return;
+         //               }
         var param = {
             Id: currentId, StoreId: currentId,
             UserName: $("#store_name_edit").val(),StoreName:$("#store_name_edit").val(), StoreTypeId: currentInfo.StoreTypeId,
-            Phone: $("#store_phone_edit").val(), Password: $("#store_password_edit").val(),
+            Phone: $("#store_phone_edit").val(), Password: '',
             MaximumStore: $("#store_count_edit").val(), Province: currentInfo.Province == null ? -1 : currentInfo.Province,
             City: currentInfo.City == null ? "-1" : currentInfo.City, County: currentInfo.County == null ? "-1" : currentInfo.County,
             DetailAddress: $("#detail_address_edit").val(), DelegatingContract: currentInfo.DelegatingContract
@@ -500,7 +513,11 @@
            }
        }, '@Url.Action("AddOrUpdateStoreInfo", "StoreManage")', true, true);
     };
-
+    var checkPhone = function (phone) {
+        if (!(/^1(3|4|5|6|7|8|9)\d{9}$/.test(phone))) {
+            return false;
+        } else return true;
+    }
 
 </script>
 
@@ -519,7 +536,12 @@
             } else {
                 layer.msg("上传失败");
             }
-        }
+            }
+        ,before: function(obj){
+      //预读本地文件示例，不支持ie8
+      obj.preview(function(index, file, result){
+        $('#demo1').attr('src', result); //图片链接（base64）
+      });
     });
     });
 
@@ -606,9 +628,13 @@
         <div class="layui-col-md6">
             <label class="layui-form-label">授权合同</label>
             <div class="layui-input-block">
-                <div class="layui-upload-drag" id="upload_btn" style="height:100px;width: 225px;">
+                <div class="layui-upload-drag" id="upload_btn" style="height:200px;width: 225px;">
                     <i class="layui-icon layui-icon-add-1" style="font-size: 30px; color: #1E9FFF;"></i>
                     <p>点击上传</p>
+                    <div class="layui-upload-list">
+                        <img class="layui-upload-img" width="200" height="100" id="demo1">
+                        <p id="demoText"></p>
+                    </div>
                 </div>
             </div>
         </div>

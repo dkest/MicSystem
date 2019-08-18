@@ -25,7 +25,7 @@
     }
 
     .info_item_div {
-        margin-bottom:10px;
+        margin-bottom: 10px;
         width: 100%;
     }
 </style>
@@ -97,10 +97,16 @@
         </div>
         <div class="layui-row">
             <div class="layui-col-md6">
-                <img id="id_f_img" src="~/Content/images/idcard_1.png" height="115" width="220" />
+                <a id="id_f_img_a" href="#" target="_blank>">
+
+
+                    <img id="id_f_img" src="~/Content/images/idcard_1.png" height="115" width="220" />
+                </a>
             </div>
             <div class="layui-col-md6">
-                <img id="id_b_img" src="~/Content/images/idcard_2.png" height="115" width="220" />
+                <a id="id_b_img_a" href="#" target="_blank>">
+                    <img id="id_b_img" src="~/Content/images/idcard_2.png" height="115" width="220" />
+                </a>
             </div>
         </div>
     </div>
@@ -247,7 +253,10 @@
                 $('#idcard_no').html(data.IdCardNo);
                 $('#head_img').attr("src", data.HeadImgFullPath);
                 $('#id_f_img').attr("src", data.IdCardFrontFullPath);
+                 $('#id_f_img_a').attr('href',data.IdCardFrontFullPath);
+
                 $('#id_b_img').attr("src", data.IdCardBackFullPath);
+                $('#id_b_img_a').attr('href',data.IdCardBackFullPath);
                 var root = "http://152.136.227.143";
                 switch (data.Authentication) {
                     case 1://待审核
@@ -348,20 +357,26 @@
                 , data = obj.data //得到所在行所有键值
                 , field = obj.field; //得到字段
             var param = { "Id": obj.data.Id, "SingerTypeName": obj.data.SingerTypeName };
-            if (obj.data.StoreTypeName == "") {
+            if ($.trim(obj.data.SingerTypeName) == "") {
                 layer.msg("音乐人流派名称不能为空");
+                table.reload('singer_type_table');
                 return;
             }
+
             Service.ajax(JSON.stringify(param), function (result) {
                 if (result.status) {
                     layer.msg("保存成功");
+                    table.reload('singer_type_table');
+                } else {
+                    layer.msg("该流派名称已经存在");
+                    table.reload('singer_type_table');
                 }
             }, '@Url.Action("AddOrUpdateSingerType", "SingerManage")',  true);
 
         });
         // 增加音乐人类型
         $("#add_singer_type_btn").click(function () {
-            if ($("#singer_type_text").val() == "") {
+            if ($.trim($("#singer_type_text").val()) == "") {
                 layer.msg("音乐人流派名称不能为空");
                 return;
             }
@@ -371,6 +386,9 @@
                     layer.msg("添加成功");
                     $("#singer_type_text").val("");
                     table.reload('singer_type_table');
+                }else {
+                    layer.msg("该流派名称已经存在");
+                    table.reload('store_type_table');
                 }
             }, '@Url.Action("AddOrUpdateSingerType", "SingerManage")', true);
 

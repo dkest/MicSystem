@@ -15,7 +15,7 @@
 </script>
 
 <div>
-    <div style="margin-left:10px;padding-top:30px;">
+    <div style="margin-left:10px;padding-top:30px; display:none;">
         <button type="button" id="create_admin_btn" class="layui-btn layui-btn-normal layui-btn-sm">创建账号</button>
     </div>
 
@@ -81,7 +81,7 @@
                 {type: "numbers", fixed:"left", width:50}
 
                 , { field: 'UserName', minWidth: 100, title: '用户名' }
-                , { field: 'Enabled', title: '启用状态', width: 200,event:'change_status', templet: '#switchTpl', unresize: true  }
+                //, { field: 'Enabled', title: '启用状态', width: 200,event:'change_status', templet: '#switchTpl', unresize: true  }
                 , { fixed: 'right', title: '操作', toolbar: '#barDemo', width: 220 }
             ]]
         });
@@ -186,7 +186,7 @@
                         }
                         var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,30}$/;
                         if (!reg.test($("#reset_password").val())) {
-                            layer.msg("密码应为6位至30位，且需包含数字和字母");
+                            layer.msg("密码应为6位至30位字母与数字的组合");
                             return;
                         }
 
@@ -229,9 +229,13 @@
                             layer.msg("用户名不能为空");
                             return;
                         }
+                        if ($("#user_name").val().length >30) {
+                            layer.msg("用户名不能超过30个字符");
+                            return;
+                        }
                           var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,30}$/;
                         if (!reg.test($("#password").val())) {
-                            layer.msg("密码应为6位至30位，且需包含数字和字母");
+                            layer.msg("密码应为6位至30位字母与数字的组合");
                             return;
                         }
                         Service.ajax(JSON.stringify({ Id: -1, UserName: $('#user_name').val(), Password: $('#password').val() }), function (result) {

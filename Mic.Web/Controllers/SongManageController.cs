@@ -80,7 +80,7 @@ namespace Mic.Web.Controllers
         public ActionResult AuditSong(SongBookEntity song)
         {
             Admin admin = SessionHelper.GetUser(Session);
-            var result = songAuditRepository.AuditSong(song, admin.Id);
+            var result = songAuditRepository.AuditSong(song, admin.UserName);
             return Json(new { status = result }, JsonRequestBehavior.AllowGet);
         }
         #endregion

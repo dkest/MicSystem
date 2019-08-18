@@ -25,11 +25,21 @@ namespace Mic.Repository.Repositories
             int result = 0;
             if (songMarkEntity.Id > 0)
             {
+                var t = helper.QueryScalar($@"select Count(1) from SongMark where MarkName='{songMarkEntity.MarkName}' and Id not in ({songMarkEntity.Id})");
+                if (t != null && Convert.ToInt32(t) > 0)
+                {
+                    return Tuple.Create(false,new SongMarkEntity());
+                }
                 result = helper.Execute($@"update SongMark set MarkName='{songMarkEntity.MarkName}' where Id={songMarkEntity.Id}");
                 updateEntity = songMarkEntity;
             }
             else
             {
+                var t = helper.QueryScalar($@"select Count(1) from SongMark where MarkName='{songMarkEntity.MarkName}' ");
+                if (t != null && Convert.ToInt32(t) > 0)
+                {
+                    return Tuple.Create(false, new SongMarkEntity());
+                }
                 var p = new DynamicParameters();
                 p.Add("@Id", dbType: DbType.Int32, direction: ParameterDirection.Output);
                 result = helper.Execute($@"insert into SongMark (MarkName) values ('{songMarkEntity.MarkName}');SELECT @Id=SCOPE_IDENTITY()",p);
@@ -47,12 +57,16 @@ namespace Mic.Repository.Repositories
             var temp = helper.Query<SongBookEntity>($@"select distinct SongMark from SongBook;");
             foreach (var item in temp)
             {
-                var arr = item.SongMark.Split(',');
-                if (arr.Contains(id.ToString()))
+                if (item.SongMark != null)
                 {
-                    hasUsed = true;
-                    break;
+                    var arr = item.SongMark.Split(',');
+                    if (arr.Contains(id.ToString()))
+                    {
+                        hasUsed = true;
+                        break;
+                    }
                 }
+                
             }
             if (hasUsed)
             {

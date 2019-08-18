@@ -67,10 +67,14 @@
                     </div>
                     <div class="layui-row">
                         <div class="layui-col-md6">
-                            <img id="sfz_f" src="" width="250" height="150" />
+                            <a id="sfz_f_a" href="#" target="_blank>">
+                                <img id="sfz_f" src="" width="250" height="150" />
+                            </a>
                         </div>
                         <div class="layui-col-md6">
-                            <img id="sfz_b" src="" width="250" height="150" />
+                            <a id="sfz_b_a" href="#" target="_blank>">
+                                <img id="sfz_b" src="" width="250" height="150" />
+                                </a>
                         </div>
                     </div>
 
@@ -114,7 +118,9 @@
                 $('#zwjs').html(result.data.Introduce);
                 $('#tx').attr("src", result.data.HeadImgFullPath);
                 $('#sfz_f').attr("src", result.data.IdCardFrontFullPath);
+                $('#sfz_f_a').attr('href',result.data.IdCardFrontFullPath);
                 $('#sfz_b').attr("src", result.data.IdCardBackFullPath);
+                $('#sfz_b_a').attr('href',result.data.IdCardBackFullPath);
             }
         }, '@Url.Action("GetSingerInfo", "SingerManage")', true);
 
