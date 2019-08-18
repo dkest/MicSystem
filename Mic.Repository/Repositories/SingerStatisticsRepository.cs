@@ -37,12 +37,14 @@ namespace Mic.Repository.Repositories
 where a.UserType=1  and b.CreateTime>'{yes}' and b.CreateTime<'{yes.AddDays(1).AddSeconds(-1)}';";
             sqlList.Add(singerCountYesSql);
             //昨日活跃音乐人数量
-            string activeSingerYesSql = $@"select Count(1)  as total from [User]  
-where UserType=1  and LastLoginTime>'{yes}' and LastLoginTime<'{yes.AddDays(1).AddSeconds(-1)}';";
+            //            string activeSingerYesSql = $@"select Count(1)  as total from [User]  
+            //where UserType=1  and LastLoginTime>'{yes}' and LastLoginTime<'{yes.AddDays(1).AddSeconds(-1)}';";
+            string activeSingerYesSql = $@"SELECT Count(distinct UserId)  as total
+  FROM [LoginLog] where UserType=1  and LoginTime>'{yes}' and LoginTime<'{yes.AddDays(1).AddSeconds(-1)}';";
             sqlList.Add(activeSingerYesSql);
             //上周的昨日活跃音乐人数量
-            string activeSingerYesLastWeekSql = $@"select Count(1)  as total from [User]  
-where UserType=1 and LastLoginTime>'{yesLastWeek}' and LastLoginTime<'{yesLastWeek.AddDays(1).AddSeconds(-1)}';";
+            string activeSingerYesLastWeekSql = $@"SELECT Count(distinct UserId)  as total FROM [LoginLog] 
+where UserType=1 and LoginTime>'{yesLastWeek}' and LoginTime<'{yesLastWeek.AddDays(1).AddSeconds(-1)}';";
             sqlList.Add(activeSingerYesLastWeekSql);
 
 

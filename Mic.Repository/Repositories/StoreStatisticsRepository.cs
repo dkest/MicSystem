@@ -36,12 +36,12 @@ namespace Mic.Repository.Repositories
 where a.UserType=2 and a.IsMain=1 and b.CreateTime>'{yes}' and b.CreateTime<'{yes.AddDays(1).AddSeconds(-1)}';";
             sqlList.Add(storeCountYesSql);
             //昨日活跃商家数量
-            string activeStoreYesSql = $@"select Count(1)  as total from [User]  
-where UserType=2 and IsMain=1 and LastLoginTime>'{yes}' and LastLoginTime<'{yes.AddDays(1).AddSeconds(-1)}';";
+            string activeStoreYesSql = $@"SELECT Count(distinct StoreCode)  as total FROM [LoginLog]   
+where UserType=2  and LoginTime>'{yes}' and LoginTime<'{yes.AddDays(1).AddSeconds(-1)}';";
             sqlList.Add(activeStoreYesSql);
             //上周的昨日活跃商家数量
-            string activeStoreYesLastWeekSql = $@"select Count(1)  as total from [User]  
-where UserType=2 and IsMain=1 and LastLoginTime>'{yesLastWeek}' and LastLoginTime<'{yesLastWeek.AddDays(1).AddSeconds(-1)}';";
+            string activeStoreYesLastWeekSql = $@"SELECT Count(distinct StoreCode)  as total FROM [LoginLog]   
+where UserType=2  and LoginTime>'{yesLastWeek}' and LoginTime<'{yesLastWeek.AddDays(1).AddSeconds(-1)}';";
             sqlList.Add(activeStoreYesLastWeekSql);
 
 

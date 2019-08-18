@@ -137,6 +137,8 @@ password='{Util.MD5Encrypt(user.Password)}' and Status=1").FirstOrDefault();
                             userEntity.UserName = temp.SingerName;
                             userEntity.HeadImg = temp.HeadImg;
                             helper.Execute($@"update [User] set LastLoginTime='{DateTime.Now}' where Phone='{userEntity.Phone}'");
+                            helper.Execute($@"insert into [LoginLog] values ({userEntity.Id},
+                            {1},'','{DateTime.Now}')");
                         }
                     }
                     else //商家或者分店
@@ -152,6 +154,8 @@ password='{Util.MD5Encrypt(user.Password)}' and Status=1").FirstOrDefault();
                         {
                             userEntity.UserName = temp.StoreName;
                             helper.Execute($@"update [User] set LastLoginTime='{DateTime.Now}' where Phone='{userEntity.Phone}'");
+                            helper.Execute($@"insert into [LoginLog] values ({userEntity.Id},
+                            {2},'{userEntity.StoreCode}','{DateTime.Now}')");
                         }
                     }
                 }
