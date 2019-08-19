@@ -63,7 +63,7 @@
         </div>
         <div class="layui-col-lg5 layui-col-md5">
             <img id="sqht_img" style="display:none;" width="200" height="150" />
-            <a id="sqht_pdf" style="display:none;"></a>
+            <a target="_blank" href="" id="sqht_pdf" style="display:none;"></a>
         </div>
     </div>
     <div class="layui-row" style="padding-top:15px;">
@@ -176,7 +176,7 @@
 
                 } else {
                     if (currentInfo.DelegatingContract != "") {
-                        if (currentInfo.DelegatingContract == "" || currentInfo.DelegatingContrac == null) {
+                        if (currentInfo.DelegatingContract == "" || currentInfo.DelegatingContract == null) {
                             $("#sqht_pdf").show();
                             $("#sqht_pdf").text("无");
                         } else{
@@ -492,7 +492,7 @@
                var sqhtPath = "http://152.136.227.143" +currentInfo.DelegatingContract;//currentInfo.FullDelegatingContractPath;
                //$("#sqht_img").attr("src", imgPath);
 
-               var sqhtPath = currentInfo.FullDelegatingContractPath;
+               //var sqhtPath = currentInfo.FullDelegatingContractPath;
                 var arr = sqhtPath.split('.');
                 var temp = arr[arr.length - 1].toLowerCase();
                 if (temp == 'jpg' || temp == 'png' || temp == 'jpeg' || temp == 'bmp') {

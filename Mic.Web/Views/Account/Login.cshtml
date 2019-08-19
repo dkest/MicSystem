@@ -79,7 +79,7 @@
                 Password: $("#password").val().trim()
             };
             Service.ajax(JSON.stringify(param), function (result) {
-                $("#loginSubmit").attr("disabled", false);
+                //$("#loginSubmit").attr("disabled", false);
                 if (result.status) {
 
                         window.location.assign('@Url.Action("SongBookList", "SongManage")');
@@ -95,7 +95,7 @@
         $("body").keydown(function () {
             if (event.keyCode == "13") {//keyCode=13是回车键
                 $("#loginSubmit").click();
-                $("#loginSubmit").attr("disabled", true);
+                //$("#loginSubmit").attr("disabled", true);
             }
         });
 
