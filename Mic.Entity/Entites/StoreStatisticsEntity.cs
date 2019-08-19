@@ -33,7 +33,7 @@ namespace Mic.Entity.Model
                 }
                 else
                 {
-                    result = Convert.ToInt32((ActiveStoreYes - ActiveStoreYesLastWeek) / ActiveStoreYesLastWeek * 100);
+                    result = Convert.ToInt32((ActiveStoreYes - ActiveStoreYesLastWeek) / Convert.ToDouble(ActiveStoreYesLastWeek) * 100);
                 }
                 return result;
             }
@@ -84,7 +84,7 @@ namespace Mic.Entity.Model
                 }
                 else
                 {
-                    result = Convert.ToInt32((PlayTimeYes - PlayTimeYesLastWeek) / PlayTimeYesLastWeek * 100);
+                    result = Convert.ToInt32((PlayTimeYes - PlayTimeYesLastWeek) / Convert.ToDouble(PlayTimeYesLastWeek) * 100);
                 }
                 return result;
             }
@@ -112,7 +112,7 @@ namespace Mic.Entity.Model
                 }
                 else
                 {
-                    result = Convert.ToInt32((PlayTimesYes - PlayTimesYesLastWeek) / PlayTimesYesLastWeek * 100);
+                    result = Convert.ToInt32((PlayTimesYes - PlayTimesYesLastWeek) / Convert.ToDouble(PlayTimesYesLastWeek) * 100);
                 }
                 return result;
             }
@@ -199,7 +199,7 @@ namespace Mic.Entity.Model
                 }
                 else
                 {
-                    result = Convert.ToInt32((ActiveSingerYes - ActiveSingerYesLastWeek) / ActiveSingerYesLastWeek * 100);
+                    result = Convert.ToInt32((ActiveSingerYes - ActiveSingerYesLastWeek) / Convert.ToDouble(ActiveSingerYesLastWeek) * 100);
                 }
                 return result;
             }
