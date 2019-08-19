@@ -141,7 +141,8 @@ a.StoreCode,BeginPlayTime,b.SongName,b.SongLength,d.StoreName,e.StoreTypeName fr
 where b.SingerId = {2} 
 ) temp_row
                     where temp_row.rownumber>(({1}-1)*{0});", param.PageSize, param.PageIndex, param.SingerId);
-            int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from SongBook where Status=1 and AuditStatus=2 and SingerId={param.SingerId};"));
+            int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from  SongPlayRecord a left join 
+SongBook b on a.SongId=b.Id where b.Status=1 and b.AuditStatus=2 and b.SingerId={param.SingerId};"));
             return Tuple.Create(count, helper.Query<SongPlayRecordEntity>(sql).ToList());
 
         }
