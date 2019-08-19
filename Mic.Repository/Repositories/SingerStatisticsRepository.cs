@@ -74,24 +74,27 @@ where UserType=1 and LoginTime>'{yesLastWeek}' and LoginTime<'{yesLastWeek.AddDa
         public List<SingerListStatisticsEntity> GetSingerStatisticsList(StorePlaySongPageParam param)
         {
             string order = string.Empty;
-            switch (param.OrderField)
-            {
-                case "PlaySongCount":
-                    order = "COUNT(distinct b.SongId)";
-                    break;
-                case "PlayStoreCount":
-                    order = "COUNT( b.PlayUserId)  ";
-                    break;
-            }
-            string sql = $@"select top {param.PageSize} * from (select row_number() over(order by {order} desc) as rownumber,
-u.Id as SingerId,c.SingerName,
+            //switch (param.OrderField)
+            //{
+            //    case "PlaySongCount":
+            //        order = "COUNT(distinct b.SongId)";
+            //        break;
+            //    case "PlayStoreCount":
+            //        order = "COUNT( b.PlayUserId)  ";
+            //        break;
+            //}
+            string sql = $@"select top {param.PageSize} * from (select row_number() over(order by r.{param.OrderField} desc) as rownumber,
+ r.* from (select distinct UserId from LoginLog   where  
+ LoginTime>'{param.BeginDate}' and LoginTime<'{param.EndDate}'
+ and UserType=1) s left join   (select u.Id as SingerId,c.SingerName,
  SUM(CASE  WHEN a.AuditStatus in ('0','1','2','3') THEN 1 ELSE 0 END) AS UploadCount,
 SUM(CASE a.AuditStatus WHEN '2' THEN 1 ELSE 0 END) AS  PublishCount,
 COUNT( b.PlayUserId) PlayStoreCount, COUNT(distinct b.SongId) PlaySongCount
   from [User] u left join   SongBook a on u.Id=a.SingerId left join SingerDetailInfo c on u.Id=c.UserId
   left join SongPlayRecord b on a.Id=b.SongId 
-  where u.UserType=1 and u.LastLoginTime >'{param.BeginDate}' and u.LastLoginTime <'{param.EndDate}'  
- group by u.Id,c.SingerName ) temp_row
+  where u.UserType=1 
+ group by u.Id,c.SingerName) r on s.UserId=r.SingerId
+ ) temp_row
                     where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize}) ;";
             return helper.Query<SingerListStatisticsEntity>(sql).ToList();
         }

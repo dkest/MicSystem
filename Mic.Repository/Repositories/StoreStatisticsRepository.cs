@@ -113,19 +113,27 @@ where  [BeginPlayTime]>'{yesLastWeek}' and [BeginPlayTime]<'{yesLastWeek.AddDays
             //        order = "r.count(1)";
             //        break;
             //}
-            string sql = $@"select top {param.PageSize} * from (select row_number() over(order by r.{param.OrderField} desc) as rownumber,
- r.*,d.Id as PlayUserId from (select b.StoreName, count( distinct a.SongId) as  PlaySongCount, a.StoreCode,Sum(BroadcastTime) as PlayTime,count(1) as PlayCount from [dbo].[SongPlayRecord] a  
+            string sql = $@"select top {param.PageSize} * from (select row_number() over(order by g.{param.OrderField} desc) as rownumber,
+
+ s.*, d.Id,f.StoreName,g.PlayCount,g.PlaySongCount,g.PlayTime from (select  distinct StoreCode from LoginLog where UserType=2
+and LoginTime >= '{param.BeginDate}' and LoginTime <= '{param.EndDate}') s
+left join 
+(select  count( distinct a.SongId) as  PlaySongCount, 
+a.StoreCode,Sum(BroadcastTime) as PlayTime,count(1) as PlayCount from [dbo].[SongPlayRecord] a  
 left join [User] c on c.StoreCode=a.StoreCode left join StoreDetailInfo b
-on c.Id = b.UserId where c.UserType=2 and c.IsMain=1 and a.BeginPlayTime >= '{param.BeginDate}' and a.BeginPlayTime <= '{param.EndDate}'
-group by a.StoreCode,b.StoreName)  r left join [User] d on d.StoreCode=r.StoreCode and d.UserType=2 and d.IsMain=1
+on c.Id = b.UserId where c.UserType=2 and c.IsMain=1 and a.BeginPlayTime >= '{param.BeginDate}' 
+and a.BeginPlayTime <= '{param.EndDate}'
+group by a.StoreCode,b.StoreName)   g
+on s.StoreCode = g.StoreCode
+left join [User] d on d.StoreCode=s.StoreCode and d.UserType=2 and d.IsMain=1
+left join StoreDetailInfo f on f.UserId=d.Id
 
 ) temp_row
                     where temp_row.rownumber>(({param.PageIndex}-1)*{param.PageSize}) ;";
 
-            var count = helper.QueryScalar($@"select Count(distinct a.StoreCode)  from [dbo].[SongPlayRecord] a  
-left join [User] c on c.StoreCode=a.StoreCode left join StoreDetailInfo b
-on c.Id = b.UserId where c.UserType=2 and c.IsMain=1 and a.BeginPlayTime >= '{param.BeginDate}' and a.BeginPlayTime <= '{param.EndDate}'
-group by a.StoreCode,b.StoreName");
+            var count = helper.QueryScalar($@"
+select  Count(distinct StoreCode)  from LoginLog where UserType=2
+and LoginTime >= '{param.BeginDate}' and LoginTime <= '{param.EndDate}'");
             return Tuple.Create(Convert.ToInt32(count), helper.Query<StoreSongStatisticsEntity>(sql).ToList());
         }
 
