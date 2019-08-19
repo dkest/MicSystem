@@ -278,6 +278,7 @@
 
 
                 $("#sqht_img").click(function () {
+                    var sqhtPath = "http://152.136.227.143" + currentInfo.DelegatingContract;
                     layer.open({
                         type: 1,
                         title: false,
@@ -489,7 +490,7 @@
                 $("#store_name").html($("#store_name_edit").val());
                 $("#store_type").html(storeTypeName);
                 $("#store_phone").html($("#store_phone_edit").val());
-               var sqhtPath = "http://152.136.227.143" +currentInfo.DelegatingContract;//currentInfo.FullDelegatingContractPath;
+                var sqhtPath = "http://152.136.227.143" +currentInfo.DelegatingContract;//currentInfo.FullDelegatingContractPath;
                //$("#sqht_img").attr("src", imgPath);
 
                //var sqhtPath = currentInfo.FullDelegatingContractPath;
@@ -508,6 +509,7 @@
                    $("#sqht_pdf").text(sqhtPath);
                 }
                $("#store_address").html(province + " " + city + " " + county+" " +  $("#detail_address_edit").val());
+               
                layer.msg('保存成功');
                layer.close(layerIndex);
            }
