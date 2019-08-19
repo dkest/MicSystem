@@ -97,7 +97,7 @@ insert into SongOptDetail (SongId,AuditTimes,AuditStatus,Note,OptType,OptTime,So
         /// <returns></returns>
         public List<SongOptDetail> SongAuditDeatil(int songId)
         {
-            string sql = $@"select a.*,b.UserName as AuditUser from SongOptDetail a left join [Admin] b on a.AuditAdminId = b.Id
+            string sql = $@"select Id,SongId,AuditTimes,AuditStatus,Note,AuditTime,OptTime,SongName,AuditAdminName  as AuditUser from SongOptDetail 
 where SongId={songId} 
 order by OptTime asc";
             var result = helper.Query<SongOptDetail>(sql).ToList();

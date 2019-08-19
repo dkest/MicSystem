@@ -158,7 +158,7 @@ namespace Mic.Repository.Repositories
   from  SongBook a left join 
  (select b.SongId,  Sum(BroadcastTime) as TotalPlayTime,count(1) as PlayTimes 
  from [dbo].[SongPlayRecord] b
- group by b.SongId,b.StoreCode) as d 
+ group by b.SongId,b.StoreCode having b.StoreCode='{storeCode}') as d 
 on d.SongId=a.Id where {whereIn} ";
             return helper.Query<SongBookEntity>(sql).ToList();
 

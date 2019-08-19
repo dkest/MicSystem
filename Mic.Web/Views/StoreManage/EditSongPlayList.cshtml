@@ -91,6 +91,9 @@
     });
 
     $("#import_song_list_btn").click(function () {
+       
+       
+        $('#song_search_text').val('');
         Service.ajax(JSON.stringify({}), function (result) {
              $("#song_mark_select").empty();
              var htmlStr = "<option value='-1'>请选择</opyion>";
@@ -112,7 +115,7 @@
             , url: '@Url.Action("GetApprovedSongList", "StoreManage")'
             , limit: 10
             , size: 'sm'
-            , where: { keyword: $('#song_search_text').val(), ids: tempIdListStr, searchMarkId: $('#song_mark_select').val() }
+            , where: { keyword: $('#song_search_text').val(), ids: tempIdListStr, searchMarkId: -1 }
             ,limits: [10, 20, 30, 40, 50]
             ,autoSort: false
             , cols: [[
@@ -130,39 +133,7 @@
                 });
                 return {"code": res.code, "msg": res.msg, "count": res.count, "data": res.data};
             }
-            //, done: function (res, curr, count) {
-            //    var data = res.data;
-            //    var allck = true;
-            //    for (var item in data) {
-            //        var a = songIds.indexOf(data[item].Id);
-            //        if (a != -1) {
-            //            allck = false;
-            //        }
-            //        break;
-            //    }
-            //    if (!allck) {
-            //        $(".layui-table-header").find("input[name = 'layTableCheckbox'][lay-filter='layTableAllChoose']").each(function () {
-            //            $(this).attr("disabled", 'disabled').next().removeClass("layui-form-checked");
-            //            form.render('checkbox');
-            //        });
-            //    }
-            //    var i = 0;
-            //    $(".layui-table-body.layui-table-main").find("input[name='layTableCheckbox']").each(function () {
-            //        if (a != -1) {
-            //            $(this).attr("disabled", 'disabled').removeAttr("checked");
-            //            form.render('checkbox');
-            //        }
-            //        i++;
-            //    });
-            //    i = 0;
-            //    $(".layui-table-fixed.layui-table-fixed-l").find(".layui-table-body").find("input[name='layTableCheckbox']").each(function () {
-            //        if (a !=-1) {
-            //            $(this).attr("disabled", 'disabled').removeAttr("checked");
-            //            form.render('checkbox');
-            //        }
-            //        i++;
-            //    });
-            //}
+           
         });
 
 
