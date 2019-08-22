@@ -199,20 +199,28 @@ values ('{playList.ListName}','{playList.ListContent}',{playList.StoreId},'{play
             return helper.Execute(sql) > 0 ? true : false;
         }
 
-        public bool AppendSongList(PlayListEntity playList)
+        public Tuple<bool, int> AppendSongList(PlayListEntity playList)
         {
             if (playList.Id > 0) //更新歌单
             {
                 var t = helper.QueryScalar($@"select ListContent from PlayList where Id={playList.Id}; ");
                 string sql = $@"update PlayList set [ListContent]='{playList.ListContent + t.ToString()}',
 [UpdateTime]='{DateTime.Now}' where Id = {playList.Id} ;";
-                return helper.Execute(sql) > 0 ? true : false;
+                return Tuple.Create(helper.Execute(sql) > 0 ? true : false, playList.Id);
             }
             else
             { // 添加新歌单
-                string sql = $@"insert into PlayList(ListName,ListContent,StoreId,StoreCode,IsPublish,UpdateTime,Status)
-values ('{string.Empty}','{playList.ListContent}',{playList.StoreId},'{playList.StoreCode}',{0},'{DateTime.Now}',{1})";
-                return helper.Execute(sql) > 0 ? true : false;
+              //                string sql = $@"insert into PlayList(ListName,ListContent,StoreId,StoreCode,IsPublish,UpdateTime,Status)
+              //values ('{string.Empty}','{playList.ListContent}',{playList.StoreId},'{playList.StoreCode}',{0},'{DateTime.Now}',{1})";
+
+
+                var p = new DynamicParameters();
+                p.Add("@Id", dbType: DbType.Int32, direction: ParameterDirection.Output);
+                var result = helper.Execute($@"insert into PlayList(ListName,ListContent,StoreId,StoreCode,IsPublish,UpdateTime,Status)
+values ('{string.Empty}','{playList.ListContent}',{playList.StoreId},'{playList.StoreCode}',{0},'{DateTime.Now}',{1}); SELECT @Id=SCOPE_IDENTITY()", p);
+                var id = p.Get<int>("@Id");
+
+                return Tuple.Create(result > 0 ? true : false, id);
             }
 
         }

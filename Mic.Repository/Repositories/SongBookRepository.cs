@@ -34,7 +34,7 @@ from SongPlayRecord b left join  SongBook a  on a.Id = b.SongId    where a.Statu
 group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {2}) temp_row
                     where temp_row.rownumber>(({1}-1)*{0});", pageParam.PageSize, pageParam.PageIndex, likeSql,
                     string.IsNullOrWhiteSpace(pageParam.OrderField) ? string.Empty : ("c."+pageParam.OrderField + " " + pageParam.OrderType + ","));
-            int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from SongBook where Status=1 and AuditStatus=2  {likeSql}"));
+            int count = Convert.ToInt32(helper.QueryScalar($@"select Count(1) from SongBook d where d.Status=1 and d.AuditStatus=2  {likeSql}"));
             return Tuple.Create(count, helper.Query<SongBookEntity>(sql).ToList());
         }
         /// <summary>

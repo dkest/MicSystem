@@ -158,10 +158,12 @@
                 });
 
                 Service.ajax(JSON.stringify({ id: songListId, listContent: selectedIds,storeCode:'@ViewBag.storeCode', storeId: @ViewBag.storeId  }), function (result) {
-                    if (result) {
+                    if (result.status) {
                         layer.msg('导入歌单成功');
                         table.reload('edit_song_list', { where: { keyword: "", storeId: @ViewBag.storeId } });
                         layer.close(index);
+
+                        songListId = result.data;
                     }
                 }, '@Url.Action("AppendSongList", "StoreManage")', false);
 

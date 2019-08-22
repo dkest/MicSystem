@@ -237,7 +237,7 @@ namespace Mic.Web.Controllers
                 StoreId = storeId
             };
             var result = playListRepository.AppendSongList(playListEntity);
-            return Json(new { status = result }, JsonRequestBehavior.AllowGet);
+            return Json(new { status = result.Item1,data=result.Item2 }, JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>

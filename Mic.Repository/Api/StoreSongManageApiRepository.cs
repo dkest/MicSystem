@@ -168,7 +168,7 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
             string sql = $@"select d.Id,d.SongName,d.SingerName,d.SingerId,d.SongLength,d.SongMark,d.ExpirationTime,c.*
 from SongBook d left join (select COUNT(a.Id) as PlayTimes , Sum(b.BroadcastTime) as TotalPlayTime ,a.Id as tempId
 from SongPlayRecord b left join  SongBook a  on a.Id = b.SongId    where a.Status=1 and a.AuditStatus=2 
-group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {whereIn}";
+group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {whereIn} order by d.Id desc";
 
             return Tuple.Create(true, string.Empty, helper.Query<SongInfoParam>(sql).ToList());
 
@@ -297,7 +297,7 @@ group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {3}  {
             string sql = $@"select d.Id,d.SongName,d.SingerName,d.SingerId,d.SongLength,d.SongMark,d.ExpirationTime,c.*
 from SongBook d left join (select COUNT(a.Id) as PlayTimes , Sum(b.BroadcastTime) as TotalPlayTime ,a.Id as tempId
 from SongPlayRecord b left join  SongBook a  on a.Id = b.SongId    where a.Status=1 and a.AuditStatus=2 
-group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {whereIn} ";
+group by a.Id) c on c.tempId = d.Id where d.Status=1 and d.AuditStatus=2  {whereIn}  order by d.Id desc";
             return Tuple.Create(true, string.Empty, helper.Query<SongInfoParam>(sql).ToList());
         }
 
