@@ -529,7 +529,8 @@
             var $ = layui.jquery;
         upload.render({
         elem: '#upload_btn'
-        , url: '@Url.Action("UploadOrdinaryFile", "File")'
+            , url: '@Url.Action("UploadOrdinaryFile", "File")'
+        ,exts:'pdf|jpg|png|jpeg|bmp'
         ,accept:'file' //普通文件
         , done: function (res) {
               if (res.status) {
