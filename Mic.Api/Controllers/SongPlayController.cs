@@ -235,13 +235,14 @@ namespace Mic.Api.Controllers
         /// 根据历史歌单Id，获取歌单中的歌曲。[AUTH]
         /// </summary>
         /// <param name="id">历史歌单Id</param>
+        /// <param name="storeCode"></param>
         /// <returns></returns>
-        [HttpPost, Route("getSongSheetSongs/{id:int}")]
+        [HttpPost, Route("getSongSheetSongs/{id:int}/{storeCode:guid}")]
         [AccessTokenAuthorize]
-        public ResponseResultDto<List<SongInfoParam>> GetHisSongListById(int id)
+        public ResponseResultDto<List<SongInfoParam>> GetHisSongListById(int id,string storeCode)
         {
             List<SongInfoParam> list = new List<SongInfoParam>();
-            var result = storeSongManageRspository.GetSongListById(id);
+            var result = storeSongManageRspository.GetSongListById(id, storeCode);
 
             List<SongMarkEntity> songMarkList = songMarkRepository.GetSongMakList();
             foreach (var item in result)
